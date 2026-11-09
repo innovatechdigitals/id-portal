@@ -26,11 +26,22 @@
       outline-offset: 3px !important;
       background-color: rgba(37, 99, 235, 0.12) !important;
     }
+
+    /* WHEN IN CLIENT MODE: HIDE HEADER AND ENTIRE ADMIN STUDIO */
+    body.client-mode header,
+    body.client-mode #adminView {
+      display: none !important;
+    }
+    body.client-mode {
+      background-color: #f0f4f8 !important;
+      background: radial-gradient(circle at 50% 0%, #e0e7ff 0%, #f8fafc 100%) !important;
+      min-height: 100vh;
+    }
   </style>
 </head>
 <body class="bg-slate-100 text-slate-800 antialiased min-h-screen flex flex-col custom-scrollbar">
 
-  <!-- TOP HEADER -->
+  <!-- TOP HEADER (AUTOMATICALLY HIDDEN FOR SCHOOLS) -->
   <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-xs px-4 lg:px-6 py-2.5 flex items-center justify-between">
     <div class="flex items-center space-x-3">
       <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-700 via-indigo-600 to-cyan-500 flex items-center justify-center text-white font-black text-xl shadow-md tracking-wider">
@@ -71,7 +82,7 @@
     </div>
   </header>
 
-  <!-- ADMIN STUDIO VIEW -->
+  <!-- ADMIN STUDIO VIEW (700px PANEL + ENLARGED CANVAS + SUBMISSIONS LIST) -->
   <main id="adminView" class="flex-1 flex flex-col p-3 lg:p-4 gap-4 max-w-[1920px] w-full mx-auto">
     <div class="flex flex-col lg:flex-row gap-4 items-stretch">
       
@@ -340,20 +351,20 @@
     </section>
   </main>
 
-  <!-- SCHOOL CLIENT PORTAL VIEW -->
-  <section id="schoolView" class="hidden flex-1 py-8 px-4 flex flex-col items-center justify-start">
-    <div class="w-full max-w-xl mx-auto space-y-4">
-      <div class="flex flex-col items-center justify-center space-y-1">
-        <div class="flex items-center space-x-2">
-          <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-700 to-indigo-600 flex items-center justify-center text-white font-black text-lg shadow-sm">
-            IP
-          </div>
-          <span class="font-black text-slate-900 text-xl tracking-tight">Innovatech Prints</span>
+  <!-- CLEAN SCHOOL CLIENT FORM (EXACT MATCH TO YOUR REFERENCE DESIGN) -->
+  <section id="schoolView" class="hidden flex-1 py-12 px-4 flex flex-col items-center justify-start">
+    <div class="w-full max-w-lg mx-auto space-y-4">
+      
+      <!-- Top Branding Pill -->
+      <div class="flex items-center justify-center space-x-2">
+        <div class="w-7 h-7 rounded-full bg-blue-900 text-white font-bold text-xs flex items-center justify-center tracking-tighter">
+          ND
         </div>
-        <p class="text-xs text-slate-500 font-semibold tracking-wide">Preview of the student id card</p>
+        <span class="font-bold text-slate-900 text-sm">Nihal Digital Ads</span>
       </div>
 
-      <div class="bg-white rounded-3xl border border-slate-200/90 shadow-xl p-6 sm:p-8 space-y-5">
+      <!-- Main Submission Card -->
+      <div class="bg-white rounded-3xl border border-slate-200/80 shadow-xl p-8 space-y-6">
         <div>
           <h2 id="clientSchoolHeader" class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight text-center">
             PADMALAYA SCHOOL MBNR-ABS
@@ -361,43 +372,47 @@
           <p class="text-xs text-slate-500 text-center mt-1">Fill in your details to generate your ID card.</p>
         </div>
 
+        <!-- Student Photo Input -->
         <div class="space-y-2">
-          <label class="block text-xs font-black uppercase tracking-wider text-slate-700">
+          <label class="block text-xs font-bold text-slate-800">
             Photo <span class="text-rose-500">*</span>
           </label>
-          <div class="flex items-center space-x-4">
-            <div id="clientPhotoThumb" class="w-20 h-20 rounded-2xl border-2 border-dashed border-slate-300 bg-slate-50 flex items-center justify-center overflow-hidden shrink-0 shadow-inner">
-              <i data-lucide="image" class="w-7 h-7 text-slate-400"></i>
+          <div class="flex items-center space-x-3">
+            <div id="clientPhotoThumb" class="w-16 h-16 rounded-xl border border-dashed border-slate-300 bg-slate-50 flex items-center justify-center overflow-hidden shrink-0">
+              <i data-lucide="image" class="w-6 h-6 text-slate-400"></i>
             </div>
             
-            <div class="flex-1 space-y-2">
+            <div class="flex-1 space-y-1.5">
               <div class="flex flex-wrap gap-2">
-                <button type="button" onclick="openCameraModal()" class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition border border-slate-200">
-                  <i data-lucide="camera" class="w-4 h-4 text-blue-600"></i>
+                <button type="button" onclick="openCameraModal()" class="px-3.5 py-2 bg-white hover:bg-slate-50 text-slate-800 rounded-xl text-xs font-semibold flex items-center space-x-1.5 transition border border-slate-300 shadow-2xs">
+                  <i data-lucide="camera" class="w-4 h-4 text-slate-600"></i>
                   <span>Take photo</span>
                 </button>
-                <label class="cursor-pointer px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition border border-slate-200">
-                  <i data-lucide="upload" class="w-4 h-4 text-blue-600"></i>
+                <label class="cursor-pointer px-3.5 py-2 bg-white hover:bg-slate-50 text-slate-800 rounded-xl text-xs font-semibold flex items-center space-x-1.5 transition border border-slate-300 shadow-2xs">
+                  <i data-lucide="upload" class="w-4 h-4 text-slate-600"></i>
                   <span>Choose photo</span>
                   <input type="file" id="clientFileInput" accept="image/*" class="hidden" onchange="handleClientPhotoUpload(event)">
                 </label>
               </div>
-              <p class="text-[11px] text-slate-400 font-medium">You'll crop it to a 1.03:1 ratio.</p>
+              <p class="text-[11px] text-slate-400">You'll crop it to a 1.03:1 ratio.</p>
             </div>
           </div>
         </div>
 
-        <div id="clientFormFieldsContainer" class="space-y-3.5">
+        <!-- Dynamic Form Fields Generated from Lines -->
+        <div id="clientFormFieldsContainer" class="space-y-4">
         </div>
 
-        <button type="button" onclick="triggerClientPreviewModal()" class="w-full py-3.5 bg-blue-950 hover:bg-slate-900 active:scale-[0.99] text-white font-extrabold rounded-2xl text-sm transition shadow-lg tracking-wide uppercase">
-          Preview ID Card
+        <!-- Submit Button -->
+        <button type="button" onclick="triggerClientPreviewModal()" class="w-full py-3.5 bg-[#1b2b4d] hover:bg-[#152340] active:scale-[0.99] text-white font-bold rounded-xl text-sm transition shadow-md">
+          Submit
         </button>
       </div>
 
-      <div class="text-center text-xs text-slate-500 font-semibold flex items-center justify-center space-x-1.5 pt-2">
-        <i data-lucide="shield-check" class="w-4 h-4 text-blue-600"></i>
-        <span>Secured by Innovatech Prints</span>
+      <!-- Footer -->
+      <div class="text-center text-xs text-slate-500 flex items-center justify-center space-x-1 pt-2">
+        <i data-lucide="shield-check" class="w-4 h-4 text-slate-400"></i>
+        <span>Secured by Nihal Digital Ads</span>
       </div>
     </div>
   </section>
@@ -563,10 +578,7 @@
 
   <!-- SCRIPT ENGINE -->
   <script>
-    // -------------------------------------------------------------
-    // MASTER ACCESS PASSCODE (CHANGE TO ANY PIN YOU WANT)
-    // -------------------------------------------------------------
-    const ADMIN_MASTER_PIN = "7779";
+    const ADMIN_MASTER_PIN = "7779"; // Your Master PIN
 
     const DEFAULT_TEMPLATE_SVG = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1012 1575" width="1012" height="1575">
       <defs>
@@ -637,10 +649,10 @@
           borderColor: "#1e3a8a"
         },
         lines: [
-          { id: "student_name", label: "Student Name", defaultVal: "G. SUJAN REDDY", x: 50, y: 57.5, fontSize: 18, fontWeight: "900", fontFamily: "Montserrat", color: "#0f2b5c", isPrefix: false },
-          { id: "father", label: "Father", defaultVal: "G Vamshi Mohan Reddy", x: 48, y: 64.0, fontSize: 15, fontWeight: "700", fontFamily: "Montserrat", color: "#0f2b5c", prefix: "Father   : " },
-          { id: "class", label: "Class", defaultVal: "10th Class", x: 48, y: 69.5, fontSize: 15, fontWeight: "700", fontFamily: "Montserrat", color: "#0f2b5c", prefix: "Class    : " },
-          { id: "mobile", label: "Mobile", defaultVal: "8544354546", x: 48, y: 75.0, fontSize: 15, fontWeight: "700", fontFamily: "Montserrat", color: "#0f2b5c", prefix: "Mobile   : " },
+          { id: "student_name", label: "NAME", defaultVal: "G. SUJAN REDDY", x: 50, y: 57.5, fontSize: 18, fontWeight: "900", fontFamily: "Montserrat", color: "#0f2b5c", isPrefix: false },
+          { id: "father", label: "FATHER", defaultVal: "G Vamshi Mohan Reddy", x: 48, y: 64.0, fontSize: 15, fontWeight: "700", fontFamily: "Montserrat", color: "#0f2b5c", prefix: "Father   : " },
+          { id: "class", label: "CLASS", defaultVal: "10th Class", x: 48, y: 69.5, fontSize: 15, fontWeight: "700", fontFamily: "Montserrat", color: "#0f2b5c", prefix: "Class    : " },
+          { id: "mobile", label: "MOBILE", defaultVal: "8544354546", x: 48, y: 75.0, fontSize: 15, fontWeight: "700", fontFamily: "Montserrat", color: "#0f2b5c", prefix: "Mobile   : " },
           { id: "address", label: "Address", defaultVal: "MBNR", x: 48, y: 80.5, fontSize: 15, fontWeight: "700", fontFamily: "Montserrat", color: "#0f2b5c", prefix: "Address  : " }
         ],
         submissions: [
@@ -661,7 +673,7 @@
     ];
 
     let AppState = {
-      currentView: 'school', // Defaults to client view for public visitors
+      currentView: 'school',
       activeSchoolId: 'padmalaya-mbnr',
       activeLayerId: 'student_name',
       cardZoom: 1.0,
@@ -695,8 +707,7 @@
       if (qSchool && AppState.schools.find(s => s.id === qSchool)) {
         AppState.activeSchoolId = qSchool;
       }
-      
-      // If user visits the root URL directly without parameters, show client view by default
+
       if (qView === 'admin') {
         switchView('admin');
       } else {
@@ -720,7 +731,6 @@
       return AppState.schools.find(s => s.id === AppState.activeSchoolId) || AppState.schools[0];
     }
 
-    // PIN PROTECTED SWITCH VIEW
     function switchView(viewName) {
       if (viewName === 'admin') {
         const sessionAuth = sessionStorage.getItem('admin_authenticated');
@@ -733,26 +743,23 @@
             return;
           }
         }
+        document.body.classList.remove('client-mode');
+      } else {
+        document.body.classList.add('client-mode');
       }
 
       AppState.currentView = viewName;
       const adminView = document.getElementById('adminView');
       const schoolView = document.getElementById('schoolView');
-      const navAdminBtn = document.getElementById('navAdminBtn');
-      const navSchoolBtn = document.getElementById('navSchoolBtn');
 
       if (viewName === 'admin') {
         adminView.classList.remove('hidden');
         schoolView.classList.add('hidden');
-        navAdminBtn.className = "px-4 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center space-x-1.5 bg-white text-blue-700 shadow-sm";
-        navSchoolBtn.className = "px-4 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center space-x-1.5 text-slate-600 hover:text-slate-900";
         renderInteractiveCard();
         renderStudentsTable();
       } else {
         adminView.classList.add('hidden');
         schoolView.classList.remove('hidden');
-        navAdminBtn.className = "px-4 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center space-x-1.5 text-slate-600 hover:text-slate-900";
-        navSchoolBtn.className = "px-4 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center space-x-1.5 bg-white text-blue-700 shadow-sm";
         renderClientFormFields();
       }
       lucide.createIcons();
@@ -1482,12 +1489,12 @@
 
       school.lines.forEach(line => {
         const div = document.createElement('div');
-        div.className = "space-y-1";
+        div.className = "space-y-1.5";
         div.innerHTML = `
-          <label class="block text-xs font-black uppercase tracking-wider text-slate-700">
+          <label class="block text-xs font-bold text-slate-800">
             ${line.label} <span class="text-rose-500">*</span>
           </label>
-          <input type="text" id="client_field_${line.id}" placeholder="Enter ${line.label.toLowerCase()}" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-bold text-slate-800 focus:bg-white focus:ring-2 focus:ring-blue-600 outline-none transition uppercase">
+          <input type="text" id="client_field_${line.id}" class="w-full bg-white border border-slate-300 rounded-xl px-4 py-2.5 text-xs text-slate-800 focus:ring-2 focus:ring-blue-600 outline-none transition uppercase shadow-2xs">
         `;
         container.appendChild(div);
       });
@@ -1598,7 +1605,7 @@
       closePreviewVerificationModal();
       pendingSubmissionPayload = null;
       clientUploadedPhotoBase64 = DEFAULT_STUDENT_PHOTO;
-      document.getElementById('clientPhotoThumb').innerHTML = `<i data-lucide="image" class="w-7 h-7 text-slate-400"></i>`;
+      document.getElementById('clientPhotoThumb').innerHTML = `<i data-lucide="image" class="w-6 h-6 text-slate-400"></i>`;
       renderClientFormFields();
 
       alert(`✅ Success! Student record (${newRec.id}) has been submitted.\n\nThe form is now reset for the next entry.`);
