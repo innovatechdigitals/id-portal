@@ -39,4 +39,1624 @@
       display: none !important;
     }
     body.client-mode {
-      background: radial-gradient(circle at
+      background: radial-gradient(circle at 50% 0%, #e0e7ff 0%, #f8fafc 100%) !important;
+      min-height: 100vh;
+    }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-800 antialiased min-h-screen flex flex-col custom-scrollbar">
+
+  <!-- TOP HEADER -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-xs px-4 lg:px-6 py-2.5 flex items-center justify-between">
+    <div class="flex items-center space-x-3">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-700 via-indigo-600 to-cyan-500 flex items-center justify-center text-white font-black text-xl shadow-md tracking-wider">
+        IP
+      </div>
+      <div>
+        <div class="flex items-center space-x-2">
+          <h1 class="font-black text-slate-900 tracking-tight text-lg">Innovatech Prints</h1>
+          <span class="text-[10px] bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">Cloud Studio</span>
+        </div>
+        <p class="text-xs text-slate-500 font-medium hidden sm:block">Multi-School Cloud ID Management & Realtime Sync</p>
+      </div>
+    </div>
+
+    <!-- Center Mode Switcher -->
+    <div class="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200">
+      <button id="navAdminBtn" onclick="switchView('admin')" class="px-4 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center space-x-1.5 bg-white text-blue-700 shadow-sm">
+        <i data-lucide="sliders" class="w-3.5 h-3.5"></i>
+        <span>Admin Studio</span>
+      </button>
+      <button id="navSchoolBtn" onclick="switchView('school')" class="px-4 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center space-x-1.5 text-slate-600 hover:text-slate-900">
+        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+        <i data-lucide="building-2" class="w-3.5 h-3.5"></i>
+        <span>School Client Form</span>
+      </button>
+    </div>
+
+    <!-- Right Quick Actions -->
+    <div class="flex items-center space-x-2.5">
+      <div class="hidden md:flex items-center space-x-1.5 bg-slate-50 border border-slate-200 px-2.5 py-1.5 rounded-lg text-xs text-slate-600">
+        <i data-lucide="folder" class="w-3.5 h-3.5 text-blue-600"></i>
+        <span class="font-semibold text-slate-800" id="headerSchoolName">Loading...</span>
+      </div>
+      <button onclick="copySchoolLink()" class="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded-lg text-xs font-semibold flex items-center space-x-1 transition shadow-2xs">
+        <i data-lucide="share-2" class="w-3.5 h-3.5"></i>
+        <span class="hidden sm:inline">Copy School Link</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ADMIN STUDIO VIEW -->
+  <main id="adminView" class="flex-1 flex flex-col p-3 lg:p-4 gap-4 max-w-[1920px] w-full mx-auto">
+    <div class="flex flex-col lg:flex-row gap-4 items-stretch">
+      
+      <!-- LEFT: INSPECTOR PANEL -->
+      <section class="w-full lg:w-[680px] xl:w-[720px] shrink-0 bg-white rounded-2xl border border-slate-200 shadow-xs flex flex-col overflow-hidden">
+        <div class="px-4 py-3 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+          <div class="flex items-center space-x-2">
+            <i data-lucide="edit-3" class="w-4 h-4 text-blue-600"></i>
+            <h2 class="font-bold text-slate-800 text-sm tracking-wide uppercase">Designer & Inspector Panel</h2>
+          </div>
+          <span class="text-[11px] font-semibold text-slate-500 bg-white px-2 py-0.5 rounded border border-slate-200">Precision 0.2%</span>
+        </div>
+
+        <div class="p-4 space-y-4 overflow-y-auto max-h-[760px] custom-scrollbar text-xs">
+          <!-- Active School Selection -->
+          <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200 space-y-2.5">
+            <div class="flex items-center justify-between">
+              <label class="font-bold text-slate-700 flex items-center space-x-1.5 uppercase tracking-wider text-[11px]">
+                <i data-lucide="folder-cog" class="w-3.5 h-3.5 text-blue-600"></i>
+                <span>Active School Folder</span>
+              </label>
+              <div class="flex items-center space-x-2">
+                <button onclick="openNewSchoolModal()" class="text-blue-600 hover:text-blue-800 font-bold text-[11px] flex items-center space-x-1">
+                  <i data-lucide="plus" class="w-3 h-3"></i>
+                  <span>New School</span>
+                </button>
+                <button onclick="deleteCurrentSchool()" class="text-rose-600 hover:text-rose-800 font-bold text-[11px] flex items-center space-x-1 ml-2">
+                  <i data-lucide="trash-2" class="w-3 h-3"></i>
+                  <span>Delete School</span>
+                </button>
+              </div>
+            </div>
+            <select id="schoolSelect" onchange="changeActiveSchool(this.value)" class="w-full bg-white border border-slate-300 rounded-lg p-2 font-medium text-slate-800 focus:ring-2 focus:ring-blue-500 outline-none">
+            </select>
+
+            <div class="pt-2 flex items-center justify-between border-t border-slate-200">
+              <span class="text-slate-600 font-medium">Permanent Card Template Image</span>
+              <label class="cursor-pointer bg-white border border-slate-300 hover:border-blue-500 text-slate-700 px-3 py-1.5 rounded-lg font-semibold flex items-center space-x-1.5 transition">
+                <i data-lucide="upload-cloud" class="w-3.5 h-3.5 text-blue-600"></i>
+                <span>Upload New Template</span>
+                <input type="file" id="templateUploader" accept="image/*" class="hidden" onchange="handleTemplateUpload(event)">
+              </label>
+            </div>
+          </div>
+
+          <!-- Layers & Text Lines -->
+          <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200 space-y-3">
+            <div class="flex items-center justify-between">
+              <label class="font-bold text-slate-700 flex items-center space-x-1.5 uppercase tracking-wider text-[11px]">
+                <i data-lucide="layers" class="w-3.5 h-3.5 text-blue-600"></i>
+                <span>Layers & Text Fields</span>
+              </label>
+              <div class="flex items-center space-x-1.5">
+                <button onclick="openAddLineModal()" class="px-2.5 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-md font-semibold flex items-center space-x-1 transition shadow-2xs">
+                  <i data-lucide="plus-circle" class="w-3 h-3"></i>
+                  <span>Add Line</span>
+                </button>
+                <button onclick="deleteSelectedLine()" id="btnDeleteLine" class="px-2 py-1 bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 rounded-md font-semibold flex items-center space-x-1 transition">
+                  <i data-lucide="trash" class="w-3 h-3"></i>
+                  <span>Delete</span>
+                </button>
+              </div>
+            </div>
+
+            <select id="layerSelect" onchange="selectLayer(this.value)" class="w-full bg-white border border-slate-300 rounded-lg p-2 font-semibold text-slate-800 focus:ring-2 focus:ring-blue-500 outline-none">
+            </select>
+          </div>
+
+          <!-- Coordinates & Nudge Controls -->
+          <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200 space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-slate-700 uppercase tracking-wider text-[11px] flex items-center space-x-1.5">
+                <i data-lucide="move" class="w-3.5 h-3.5 text-blue-600"></i>
+                <span>Coordinates & Nudge Controls</span>
+              </span>
+              <span class="text-[10px] text-slate-400 font-mono">0.2% Nudge Step</span>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="text-slate-500 text-[10px] uppercase font-bold block mb-1">X Position (%) - Start Point</label>
+                <input type="number" step="0.1" id="inputPosX" oninput="updateActiveElementPosition()" class="w-full bg-white border border-slate-300 rounded-lg p-1.5 font-mono text-center font-bold text-slate-800">
+              </div>
+              <div>
+                <label class="text-slate-500 text-[10px] uppercase font-bold block mb-1">Y Position (%)</label>
+                <input type="number" step="0.1" id="inputPosY" oninput="updateActiveElementPosition()" class="w-full bg-white border border-slate-300 rounded-lg p-1.5 font-mono text-center font-bold text-slate-800">
+              </div>
+            </div>
+
+            <div class="flex flex-col items-center justify-center pt-1 pb-1">
+              <div class="flex justify-center mb-1">
+                <button onclick="nudgeElement(0, -0.2)" class="w-9 h-8 bg-white hover:bg-blue-50 border border-slate-300 rounded-lg flex items-center justify-center font-bold text-slate-700 active:scale-95 transition shadow-2xs">
+                  <i data-lucide="chevron-up" class="w-4 h-4"></i>
+                </button>
+              </div>
+              <div class="flex items-center space-x-2">
+                <button onclick="nudgeElement(-0.2, 0)" class="w-9 h-8 bg-white hover:bg-blue-50 border border-slate-300 rounded-lg flex items-center justify-center font-bold text-slate-700 active:scale-95 transition shadow-2xs">
+                  <i data-lucide="chevron-left" class="w-4 h-4"></i>
+                </button>
+                <div class="w-9 h-8 rounded-lg bg-slate-200 border border-slate-300 flex items-center justify-center text-[10px] font-bold text-slate-500">
+                  <i data-lucide="crosshair" class="w-4 h-4 text-slate-600"></i>
+                </div>
+                <button onclick="nudgeElement(0.2, 0)" class="w-9 h-8 bg-white hover:bg-blue-50 border border-slate-300 rounded-lg flex items-center justify-center font-bold text-slate-700 active:scale-95 transition shadow-2xs">
+                  <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                </button>
+              </div>
+              <div class="flex justify-center mt-1">
+                <button onclick="nudgeElement(0, 0.2)" class="w-9 h-8 bg-white hover:bg-blue-50 border border-slate-300 rounded-lg flex items-center justify-center font-bold text-slate-700 active:scale-95 transition shadow-2xs">
+                  <i data-lucide="chevron-down" class="w-4 h-4"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Typography, Alignment & Colors -->
+          <div id="typographyControls" class="p-3.5 bg-slate-50 rounded-xl border border-slate-200 space-y-3">
+            <span class="font-bold text-slate-700 uppercase tracking-wider text-[11px] flex items-center space-x-1.5">
+              <i data-lucide="type" class="w-3.5 h-3.5 text-blue-600"></i>
+              <span>Typography, Alignment & Color</span>
+            </span>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="text-slate-500 text-[10px] uppercase font-bold block mb-1">Font Size (px)</label>
+                <input type="number" id="inputFontSize" min="8" max="64" oninput="updateTypographySettings()" class="w-full bg-white border border-slate-300 rounded-lg p-1.5 font-bold text-slate-800">
+              </div>
+              <div>
+                <label class="text-slate-500 text-[10px] uppercase font-bold block mb-1">Text Color</label>
+                <div class="flex items-center space-x-1.5">
+                  <input type="color" id="inputFontColor" oninput="updateTypographySettings()" class="w-8 h-8 rounded border border-slate-300 cursor-pointer">
+                  <input type="text" id="inputFontColorHex" onchange="syncHexToColorPicker(this.value)" class="w-full bg-white border border-slate-300 rounded-lg p-1.5 font-mono text-[11px] uppercase">
+                </div>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="text-slate-500 text-[10px] uppercase font-bold block mb-1">Font Family</label>
+                <select id="selectFontFamily" onchange="updateTypographySettings()" class="w-full bg-white border border-slate-300 rounded-lg p-1.5 font-semibold text-slate-700">
+                  <option value="Montserrat">Montserrat (Modern Clean)</option>
+                  <option value="Inter">Inter (Sans)</option>
+                  <option value="Poppins">Poppins (Rounded)</option>
+                  <option value="Oswald">Oswald (Condensed)</option>
+                  <option value="Roboto">Roboto (Classic)</option>
+                </select>
+              </div>
+              <div>
+                <label class="text-slate-500 text-[10px] uppercase font-bold block mb-1">Font Weight (Boldness)</label>
+                <select id="selectFontWeight" onchange="updateTypographySettings()" class="w-full bg-white border border-slate-300 rounded-lg p-1.5 font-semibold text-slate-700">
+                  <option value="400">Regular (400)</option>
+                  <option value="500">Medium (500)</option>
+                  <option value="600">Semi-Bold (600)</option>
+                  <option value="700">Bold (700)</option>
+                  <option value="800">Extra Bold (800)</option>
+                  <option value="900">Black Ultra (900)</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label class="text-slate-500 text-[10px] uppercase font-bold block mb-1">Text Alignment (Anchor)</label>
+              <select id="selectTextAlign" onchange="updateTypographySettings()" class="w-full bg-white border border-slate-300 rounded-lg p-1.5 font-semibold text-slate-700">
+                <option value="left">Left Aligned (Type flows to the right)</option>
+                <option value="center">Centered</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Photo Frame Geometry -->
+          <div id="photoFrameControls" class="p-3.5 bg-slate-50 rounded-xl border border-slate-200 space-y-3">
+            <span class="font-bold text-slate-700 uppercase tracking-wider text-[11px] flex items-center space-x-1.5">
+              <i data-lucide="frame" class="w-3.5 h-3.5 text-blue-600"></i>
+              <span>Photo Frame Geometry</span>
+            </span>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="text-slate-500 text-[10px] uppercase font-bold block mb-1">Frame Width (%)</label>
+                <input type="number" step="0.5" id="inputPhotoWidth" oninput="updatePhotoFrameSettings()" class="w-full bg-white border border-slate-300 rounded-lg p-1.5 font-mono text-center font-bold">
+              </div>
+              <div>
+                <label class="text-slate-500 text-[10px] uppercase font-bold block mb-1">Frame Height (%)</label>
+                <input type="number" step="0.5" id="inputPhotoHeight" oninput="updatePhotoFrameSettings()" class="w-full bg-white border border-slate-300 rounded-lg p-1.5 font-mono text-center font-bold">
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="text-slate-500 text-[10px] uppercase font-bold block mb-1">Corner Radius (px)</label>
+                <input type="number" id="inputPhotoRadius" min="0" max="40" oninput="updatePhotoFrameSettings()" class="w-full bg-white border border-slate-300 rounded-lg p-1.5 font-bold">
+              </div>
+              <div>
+                <label class="text-slate-500 text-[10px] uppercase font-bold block mb-1">Border Width (px)</label>
+                <input type="number" id="inputPhotoBorderWidth" min="0" max="8" oninput="updatePhotoFrameSettings()" class="w-full bg-white border border-slate-300 rounded-lg p-1.5 font-bold">
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- RIGHT: ID CARD WORKBENCH -->
+      <section class="flex-1 bg-slate-100/90 rounded-2xl border border-slate-200 shadow-sm clean-canvas-bg flex flex-col items-center justify-center p-6 relative min-h-[760px]">
+        <div class="absolute top-4 left-4 right-4 flex items-center justify-between text-xs pointer-events-none">
+          <div class="bg-white/95 shadow-sm px-3.5 py-1.5 rounded-full border border-slate-200 text-slate-800 flex items-center space-x-2 pointer-events-auto">
+            <span class="w-2.5 h-2.5 rounded-full bg-blue-600"></span>
+            <span class="font-bold tracking-wide" id="canvasSchoolTitle">Loading...</span>
+          </div>
+
+          <div class="flex items-center space-x-1 bg-white/95 shadow-sm p-1 rounded-full border border-slate-200 pointer-events-auto">
+            <button onclick="setCardZoom(0.85)" class="px-2.5 py-1 text-[11px] font-semibold text-slate-600 hover:text-slate-900 rounded-full">85%</button>
+            <button onclick="setCardZoom(1.0)" class="px-2.5 py-1 text-[11px] font-bold bg-blue-600 text-white rounded-full shadow-xs">100%</button>
+            <button onclick="setCardZoom(1.15)" class="px-2.5 py-1 text-[11px] font-semibold text-slate-600 hover:text-slate-900 rounded-full">115%</button>
+          </div>
+        </div>
+
+        <div id="cardScaleWrapper" class="transition-transform duration-150 origin-center my-4">
+          <div id="interactiveIdCard" class="relative w-[460px] h-[715px] bg-white rounded-2xl shadow-2xl overflow-hidden select-none border-2 border-slate-200 cursor-default">
+            <img id="cardTemplateImg" src="" alt="ID Template" class="absolute inset-0 w-full h-full object-fill pointer-events-none z-0">
+            <div id="interactiveLayersContainer" class="absolute inset-0 w-full h-full z-10 pointer-events-none">
+            </div>
+          </div>
+        </div>
+
+        <div class="absolute bottom-3 text-slate-400 text-[11px] flex items-center space-x-1.5 pointer-events-none">
+          <i data-lucide="info" class="w-3.5 h-3.5 text-blue-500"></i>
+          <span>Click & drag text to position its start point. Text expands towards the right.</span>
+        </div>
+      </section>
+    </div>
+
+    <!-- BOTTOM: SUBMITTED STUDENT ID CARDS TABLE -->
+    <section class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+      <div class="px-5 py-3.5 bg-slate-50 border-b border-slate-200 flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center space-x-3">
+          <div class="flex items-center space-x-2">
+            <i data-lucide="users" class="w-4 h-4 text-blue-600"></i>
+            <h3 class="font-bold text-slate-900 text-sm tracking-wide">Submitted Student ID Cards</h3>
+          </div>
+          <span id="badgeSchoolName" class="text-xs bg-blue-100 text-blue-800 font-bold px-2.5 py-0.5 rounded-full">
+            Loading...
+          </span>
+          <span id="badgeTotalCount" class="text-xs bg-emerald-100 text-emerald-800 font-bold px-2.5 py-0.5 rounded-full">
+            Total: 0 Cards
+          </span>
+        </div>
+
+        <div class="flex items-center space-x-2">
+          <div class="relative">
+            <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2"></i>
+            <input type="text" id="tableSearchInput" oninput="handleTableSearch(this.value)" placeholder="Search students..." class="bg-white border border-slate-300 rounded-lg pl-8 pr-3 py-1.5 text-xs text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 outline-none w-44 md:w-56">
+          </div>
+          <button onclick="exportSchoolCSV()" class="px-3 py-1.5 bg-white hover:bg-slate-100 border border-slate-300 text-slate-700 rounded-lg text-xs font-bold flex items-center space-x-1.5 transition">
+            <i data-lucide="file-spreadsheet" class="w-3.5 h-3.5 text-emerald-600"></i>
+            <span>Export CSV</span>
+          </button>
+          <button onclick="downloadEntireSchoolFolderZip()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold flex items-center space-x-1.5 transition shadow-2xs">
+            <i data-lucide="archive" class="w-3.5 h-3.5"></i>
+            <span>Download All ZIP (300 DPI)</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto max-h-[380px] custom-scrollbar">
+        <table class="w-full text-left border-collapse text-xs">
+          <thead class="bg-slate-100/75 text-slate-600 font-bold uppercase tracking-wider text-[10px] sticky top-0 z-10 border-b border-slate-200">
+            <tr>
+              <th class="py-2.5 px-3 w-12 text-center">#</th>
+              <th class="py-2.5 px-3 w-14 text-center">Photo</th>
+              <th class="py-2.5 px-3">Student Name</th>
+              <th class="py-2.5 px-3">Father Name</th>
+              <th class="py-2.5 px-3">Class</th>
+              <th class="py-2.5 px-3">Contact</th>
+              <th class="py-2.5 px-3">Address</th>
+              <th class="py-2.5 px-3 text-center">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="studentRecordsTableBody" class="divide-y divide-slate-200 text-slate-700">
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <!-- CLEAN SCHOOL CLIENT FORM -->
+  <section id="schoolView" class="hidden flex-1 py-12 px-4 flex flex-col items-center justify-start">
+    <div class="w-full max-w-lg mx-auto space-y-4">
+      <div class="flex items-center justify-center space-x-2">
+        <div class="w-7 h-7 rounded-xl bg-blue-600 text-white font-black text-xs flex items-center justify-center tracking-wider">
+          IP
+        </div>
+        <span class="font-bold text-slate-900 text-sm">Innovatech Prints</span>
+      </div>
+
+      <div class="bg-white rounded-3xl border border-slate-200/80 shadow-xl p-8 space-y-6">
+        <div>
+          <h2 id="clientSchoolHeader" class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight text-center uppercase">
+            Loading...
+          </h2>
+          <p class="text-xs text-slate-500 text-center mt-1">Please enter your details carefully to print your student ID card.</p>
+        </div>
+
+        <div class="space-y-2">
+          <label class="block text-xs font-bold text-slate-800">
+            Student Photo <span class="text-rose-500">*</span>
+          </label>
+          <div class="flex items-center space-x-3">
+            <div id="clientPhotoThumb" class="w-16 h-16 rounded-xl border border-dashed border-slate-300 bg-slate-50 flex items-center justify-center overflow-hidden shrink-0">
+              <i data-lucide="image" class="w-6 h-6 text-slate-400"></i>
+            </div>
+            
+            <div class="flex-1 space-y-1.5">
+              <div class="flex flex-wrap gap-2">
+                <button type="button" onclick="openCameraModal()" class="px-3.5 py-2 bg-white hover:bg-slate-50 text-slate-800 rounded-xl text-xs font-semibold flex items-center space-x-1.5 transition border border-slate-300 shadow-2xs">
+                  <i data-lucide="camera" class="w-4 h-4 text-slate-600"></i>
+                  <span>Take photo</span>
+                </button>
+                <label class="cursor-pointer px-3.5 py-2 bg-white hover:bg-slate-50 text-slate-800 rounded-xl text-xs font-semibold flex items-center space-x-1.5 transition border border-slate-300 shadow-2xs">
+                  <i data-lucide="upload" class="w-4 h-4 text-slate-600"></i>
+                  <span>Choose photo</span>
+                  <input type="file" id="clientFileInput" accept="image/*" class="hidden" onchange="handleRawPhotoSelected(event)">
+                </label>
+              </div>
+              <p class="text-[11px] text-slate-400">Upload portrait photo. Crop window will open automatically.</p>
+            </div>
+          </div>
+        </div>
+
+        <div id="clientFormFieldsContainer" class="space-y-4">
+        </div>
+
+        <button type="button" onclick="triggerClientPreviewModal()" class="w-full py-3.5 bg-[#1b2b4d] hover:bg-[#152340] active:scale-[0.99] text-white font-bold rounded-xl text-sm transition shadow-md">
+          Preview & Submit
+        </button>
+      </div>
+
+      <div class="text-center text-xs text-slate-500 flex items-center justify-center space-x-1 pt-2">
+        <i data-lucide="shield-check" class="w-4 h-4 text-blue-600"></i>
+        <span>Secured by Innovatech Prints</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- INTERACTIVE PHOTO CROPPER MODAL -->
+  <div id="cropperModal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-5 shadow-2xl border border-slate-200 flex flex-col space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-200 pb-2">
+        <div>
+          <h3 class="font-black text-slate-900 text-sm">Crop Student Portrait</h3>
+          <p class="text-[11px] text-slate-500">Drag and resize to fit face neatly into the ID frame.</p>
+        </div>
+        <button onclick="closeCropperModal()" class="text-slate-400 hover:text-slate-700">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="w-full h-80 bg-slate-900 rounded-xl overflow-hidden flex items-center justify-center">
+        <img id="cropperImageTarget" src="" alt="Crop Target" class="max-h-full max-w-full">
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 pt-1">
+        <button onclick="closeCropperModal()" class="py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs transition">
+          Cancel
+        </button>
+        <button onclick="applyCroppedImage()" class="py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-extrabold rounded-xl text-xs transition shadow-md flex items-center justify-center space-x-1.5">
+          <i data-lucide="check" class="w-4 h-4"></i>
+          <span>Save & Apply Photo</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- VIEW / PREVIEW MODAL -->
+  <div id="previewVerificationModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl max-w-md w-full overflow-hidden shadow-2xl border border-slate-200 flex flex-col items-center p-6 space-y-4">
+      <div class="text-center">
+        <h3 id="modalHeadingText" class="font-black text-slate-900 text-lg">Verify ID Card Preview</h3>
+        <p class="text-xs text-slate-500 mt-0.5">Please ensure all spelling and photo alignment are accurate.</p>
+      </div>
+
+      <div class="p-2 bg-slate-100 rounded-2xl border border-slate-200 shadow-inner flex justify-center">
+        <div id="modalCardPreviewContainer" class="relative w-[280px] h-[430px] rounded-xl overflow-hidden bg-white shadow-md">
+        </div>
+      </div>
+
+      <div id="modalActionButtonsContainer" class="grid grid-cols-2 gap-3 w-full pt-1">
+        <button onclick="closePreviewVerificationModal()" class="w-full py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs transition border border-slate-300 flex items-center justify-center space-x-1.5">
+          <i data-lucide="edit-2" class="w-3.5 h-3.5"></i>
+          <span>Edit Details</span>
+        </button>
+
+        <button id="finalSubmitBtn" onclick="executeFinalClientSubmit()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold rounded-xl text-xs transition shadow-md flex items-center justify-center space-x-1.5">
+          <i data-lucide="check-circle" class="w-3.5 h-3.5"></i>
+          <span>Final Submit</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- EDIT RECORD MODAL -->
+  <div id="editRecordModal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-xs z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-200 pb-3">
+        <h3 class="font-bold text-slate-900 text-base">Edit Student Submission</h3>
+        <button onclick="closeEditRecordModal()" class="text-slate-400 hover:text-slate-700">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <div id="editRecordFormFields" class="space-y-3 max-h-[400px] overflow-y-auto custom-scrollbar p-1">
+      </div>
+      <div class="pt-2 flex justify-end space-x-2">
+        <button onclick="closeEditRecordModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-bold">Cancel</button>
+        <button onclick="saveEditedRecord()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold shadow-xs">Save Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CREATE NEW SCHOOL MODAL -->
+  <div id="newSchoolModal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-xs z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-200 pb-3">
+        <h3 class="font-bold text-slate-900 text-base">Add New School Folder</h3>
+        <button onclick="closeNewSchoolModal()" class="text-slate-400 hover:text-slate-700">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <div>
+        <label class="block text-xs font-bold uppercase text-slate-600 mb-1">School Full Name</label>
+        <input type="text" id="newSchoolNameInput" placeholder="e.g. Sri Chaitanya Techno School" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-blue-500 outline-none">
+      </div>
+      <div class="pt-2 flex justify-end space-x-2">
+        <button onclick="closeNewSchoolModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-bold">Cancel</button>
+        <button onclick="confirmAddNewSchool()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold shadow-xs">Create Folder</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADD DYNAMIC LINE MODAL -->
+  <div id="addLineModal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-xs z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-2xl max-w-sm w-full p-5 shadow-2xl border border-slate-200 space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-200 pb-2">
+        <h3 class="font-bold text-slate-900 text-sm">Add New Information Line</h3>
+        <button onclick="closeAddLineModal()" class="text-slate-400 hover:text-slate-700">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <div>
+        <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Field Label / Name</label>
+        <input type="text" id="newLineLabelInput" placeholder="e.g. Blood Group, Roll Number" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-blue-500 outline-none">
+      </div>
+      <div class="pt-2 flex justify-end space-x-2">
+        <button onclick="closeAddLineModal()" class="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-bold">Cancel</button>
+        <button onclick="confirmAddNewLine()" class="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold shadow-xs">Add Field</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- WEBCAM MODAL -->
+  <div id="cameraCaptureModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-xs z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl max-w-md w-full p-5 shadow-2xl border border-slate-200 space-y-4 flex flex-col items-center">
+      <div class="flex items-center justify-between w-full border-b border-slate-200 pb-2">
+        <h3 class="font-bold text-slate-900 text-sm">Snap Student Portrait</h3>
+        <button onclick="closeCameraModal()" class="text-slate-400 hover:text-slate-700">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <div class="relative w-full aspect-[1/1] bg-black rounded-2xl overflow-hidden flex items-center justify-center">
+        <video id="webcamVideo" autoplay playsinline class="w-full h-full object-cover"></video>
+      </div>
+      <button onclick="captureSnapshotFromWebcam()" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-extrabold rounded-xl text-xs uppercase tracking-wider transition shadow-md flex items-center justify-center space-x-2">
+        <i data-lucide="camera" class="w-4 h-4"></i>
+        <span>Capture & Open Cropper</span>
+      </button>
+    </div>
+  </div>
+
+  <canvas id="exportCanvas" class="hidden"></canvas>
+
+  <script>
+    const ADMIN_MASTER_PIN = "7779";
+
+    // FIREBASE INITIALIZATION
+    const firebaseConfig = {
+      apiKey: "AIzaSyBCEHOQbzPPnkhlfJ6oIQZgflZC7SMc-8Y",
+      authDomain: "innovatech-portal-5dcce.firebaseapp.com",
+      projectId: "innovatech-portal-5dcce",
+      storageBucket: "innovatech-portal-5dcce.firebasestorage.app",
+      messagingSenderId: "1017077062431",
+      appId: "1:1017077062431:web:5dbdce31cc4ee7f3ae2e2a"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    const DEFAULT_TEMPLATE_SVG = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1012 1575" width="1012" height="1575"><rect width="1012" height="1575" fill="%23f8fafc"/><rect x="40" y="40" width="932" height="1495" rx="20" fill="%23ffffff" stroke="%23cbd5e1" stroke-width="4"/><rect x="40" y="40" width="932" height="240" rx="20" fill="%231e3a8a"/><text x="506" y="160" font-family="Montserrat" font-weight="900" font-size="52" fill="%23ffffff" text-anchor="middle">SCHOOL ID CARD</text><text x="506" y="220" font-family="Inter" font-weight="600" font-size="24" fill="%2393c5fd" text-anchor="middle">ACADEMIC YEAR 2026-2027</text></svg>`;
+
+    const DEFAULT_STUDENT_PHOTO = `https://images.unsplash.com/photo-1544717305-2782549b5136?w=600&auto=format&fit=crop&q=80`;
+
+    // Standard starting layout: Student Name is centered, other lines start at 42% X and flow rightwards
+    const INITIAL_DEFAULT_SCHOOL = {
+      id: "padmalaya-mbnr",
+      name: "Padmalaya High School MBNR",
+      templateImg: DEFAULT_TEMPLATE_SVG,
+      photoFrame: { x: 50, y: 39, width: 39, height: 30, radius: 14, borderWidth: 3, borderColor: "#1e3a8a" },
+      lines: [
+        { id: "student_name", label: "Enter Your Name", defaultVal: "STUDENT NAME", x: 50, y: 57.5, fontSize: 18, fontWeight: "900", fontFamily: "Montserrat", color: "#0f2b5c", align: "center" },
+        { id: "father", label: "Enter Your Father Name", defaultVal: "FATHER NAME", x: 42, y: 64.0, fontSize: 15, fontWeight: "700", fontFamily: "Montserrat", color: "#0f2b5c", align: "left" },
+        { id: "class", label: "Enter Your Class", defaultVal: "CLASS", x: 42, y: 69.5, fontSize: 15, fontWeight: "700", fontFamily: "Montserrat", color: "#0f2b5c", align: "left" },
+        { id: "mobile", label: "Enter Your Mobile Number", defaultVal: "MOBILE NUMBER", x: 42, y: 75.0, fontSize: 15, fontWeight: "700", fontFamily: "Montserrat", color: "#0f2b5c", align: "left" },
+        { id: "address", label: "Enter Your Address", defaultVal: "ADDRESS", x: 42, y: 80.5, fontSize: 15, fontWeight: "700", fontFamily: "Montserrat", color: "#0f2b5c", align: "left" }
+      ]
+    };
+
+    let AppState = {
+      currentView: 'school',
+      activeSchoolId: 'padmalaya-mbnr',
+      activeLayerId: 'student_name',
+      cardZoom: 1.0,
+      searchQuery: '',
+      schools: [],
+      submissions: []
+    };
+
+    let clientUploadedPhotoBase64 = DEFAULT_STUDENT_PHOTO;
+    let pendingSubmissionPayload = null;
+    let editingDocId = null;
+    let webcamMediaStream = null;
+    let activeCropper = null;
+
+    async function initApp() {
+      const cached = localStorage.getItem('innovatech_schools_cache_v7');
+      if (cached) {
+        try { AppState.schools = JSON.parse(cached); } catch(e){}
+      }
+      if (!AppState.schools || AppState.schools.length === 0) {
+        AppState.schools = [JSON.parse(JSON.stringify(INITIAL_DEFAULT_SCHOOL))];
+      }
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const qSchool = urlParams.get('school');
+      const qView = urlParams.get('view');
+
+      if (qSchool) AppState.activeSchoolId = qSchool;
+
+      if (qView === 'admin') {
+        switchView('admin');
+      } else {
+        switchView('school');
+      }
+
+      renderSchoolDropdown();
+      renderLayerSelector();
+      syncActiveSchoolUI();
+      renderInteractiveCard();
+      renderClientFormFields();
+
+      // Cloud listener for schools
+      db.collection("school_configs").onSnapshot(snapshot => {
+        if (!snapshot.empty) {
+          const cloudSchools = [];
+          snapshot.forEach(doc => {
+            const data = doc.data();
+            // Default alignment to left for detail lines if unset
+            if (data.lines) {
+              data.lines.forEach(l => {
+                if (!l.align) l.align = (l.id === 'student_name' ? 'center' : 'left');
+              });
+            }
+            cloudSchools.push(data);
+          });
+          AppState.schools = cloudSchools;
+          localStorage.setItem('innovatech_schools_cache_v7', JSON.stringify(AppState.schools));
+          renderSchoolDropdown();
+          syncActiveSchoolUI();
+          renderInteractiveCard();
+          renderClientFormFields();
+        } else {
+          saveSchoolToCloud(AppState.schools[0]);
+        }
+      });
+
+      // Cloud listener for student submissions
+      db.collection("submissions").onSnapshot(snapshot => {
+        AppState.submissions = [];
+        snapshot.forEach(doc => {
+          const item = doc.data();
+          item.docId = doc.id;
+          AppState.submissions.push(item);
+        });
+        renderStudentsTable();
+      });
+
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function getActiveSchool() {
+      return AppState.schools.find(s => s.id === AppState.activeSchoolId) || AppState.schools[0];
+    }
+
+    function saveSchoolToCloud(school) {
+      localStorage.setItem('innovatech_schools_cache_v7', JSON.stringify(AppState.schools));
+      db.collection("school_configs").doc(school.id).set(school, { merge: true })
+        .catch(err => console.error("Error saving school to cloud:", err));
+    }
+
+    function switchView(viewName) {
+      if (viewName === 'admin') {
+        const sessionAuth = sessionStorage.getItem('admin_authenticated');
+        if (sessionAuth !== 'true') {
+          const enteredPin = prompt("Enter Innovatech Admin Master PIN:");
+          if (enteredPin === ADMIN_MASTER_PIN) {
+            sessionStorage.setItem('admin_authenticated', 'true');
+          } else {
+            alert("Access Denied: Incorrect Master PIN.");
+            return;
+          }
+        }
+        document.body.classList.remove('client-mode');
+      } else {
+        document.body.classList.add('client-mode');
+      }
+
+      AppState.currentView = viewName;
+      const adminView = document.getElementById('adminView');
+      const schoolView = document.getElementById('schoolView');
+
+      if (adminView && schoolView) {
+        if (viewName === 'admin') {
+          adminView.classList.remove('hidden');
+          schoolView.classList.add('hidden');
+          renderInteractiveCard();
+          renderStudentsTable();
+        } else {
+          adminView.classList.add('hidden');
+          schoolView.classList.remove('hidden');
+          renderClientFormFields();
+        }
+      }
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function copySchoolLink() {
+      const school = getActiveSchool();
+      const origin = window.location.origin + window.location.pathname;
+      const fullUrl = `${origin}?school=${encodeURIComponent(school.id)}&view=school`;
+      navigator.clipboard.writeText(fullUrl).then(() => {
+        alert("School Client Link copied to clipboard:\n" + fullUrl);
+      }).catch(() => {
+        prompt("Copy this link:", fullUrl);
+      });
+    }
+
+    function renderSchoolDropdown() {
+      const select = document.getElementById('schoolSelect');
+      if (!select) return;
+      select.innerHTML = '';
+      AppState.schools.forEach(school => {
+        const opt = document.createElement('option');
+        opt.value = school.id;
+        opt.textContent = school.name;
+        if (school.id === AppState.activeSchoolId) opt.selected = true;
+        select.appendChild(opt);
+      });
+    }
+
+    function changeActiveSchool(schoolId) {
+      AppState.activeSchoolId = schoolId;
+      const school = getActiveSchool();
+      if (!school.lines.find(l => l.id === AppState.activeLayerId) && AppState.activeLayerId !== 'photo_frame') {
+        AppState.activeLayerId = school.lines[0]?.id || 'photo_frame';
+      }
+      renderLayerSelector();
+      syncActiveSchoolUI();
+      renderInteractiveCard();
+      renderStudentsTable();
+      renderClientFormFields();
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function syncActiveSchoolUI() {
+      const school = getActiveSchool();
+      const hTitle = document.getElementById('headerSchoolName');
+      const cTitle = document.getElementById('canvasSchoolTitle');
+      const bTitle = document.getElementById('badgeSchoolName');
+      const sHeader = document.getElementById('clientSchoolHeader');
+
+      if (hTitle) hTitle.textContent = school.name;
+      if (cTitle) cTitle.textContent = school.name;
+      if (bTitle) bTitle.textContent = school.name;
+      if (sHeader) sHeader.textContent = school.name;
+    }
+
+    function openNewSchoolModal() {
+      document.getElementById('newSchoolNameInput').value = '';
+      document.getElementById('newSchoolModal').classList.remove('hidden');
+    }
+
+    function closeNewSchoolModal() {
+      document.getElementById('newSchoolModal').classList.add('hidden');
+    }
+
+    function confirmAddNewSchool() {
+      const name = document.getElementById('newSchoolNameInput').value.trim();
+      if (!name) return alert('Please enter a valid school name.');
+      const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+      if (AppState.schools.find(s => s.id === slug)) return alert('A school with this name already exists.');
+
+      const activeSchool = getActiveSchool();
+      const newSchool = {
+        id: slug,
+        name: name,
+        templateImg: DEFAULT_TEMPLATE_SVG,
+        photoFrame: JSON.parse(JSON.stringify(activeSchool.photoFrame)),
+        lines: JSON.parse(JSON.stringify(activeSchool.lines))
+      };
+
+      AppState.schools.push(newSchool);
+      AppState.activeSchoolId = newSchool.id;
+      saveSchoolToCloud(newSchool);
+
+      renderSchoolDropdown();
+      closeNewSchoolModal();
+      changeActiveSchool(newSchool.id);
+    }
+
+    function deleteCurrentSchool() {
+      if (AppState.schools.length <= 1) return alert("You cannot delete the only remaining school folder.");
+      const school = getActiveSchool();
+      if (confirm(`Permanently delete school folder "${school.name}"? This cannot be undone.`)) {
+        db.collection("school_configs").doc(school.id).delete();
+        AppState.schools = AppState.schools.filter(s => s.id !== school.id);
+        AppState.activeSchoolId = AppState.schools[0].id;
+        localStorage.setItem('innovatech_schools_cache_v7', JSON.stringify(AppState.schools));
+        renderSchoolDropdown();
+        changeActiveSchool(AppState.activeSchoolId);
+      }
+    }
+
+    function handleTemplateUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          canvas.width = 1012;
+          canvas.height = 1575;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, 1012, 1575);
+          const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.88);
+
+          const school = getActiveSchool();
+          school.templateImg = compressedDataUrl;
+          saveSchoolToCloud(school);
+          renderInteractiveCard();
+          alert("Card template permanently saved for " + school.name);
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function renderLayerSelector() {
+      const select = document.getElementById('layerSelect');
+      if (!select) return;
+      const school = getActiveSchool();
+      select.innerHTML = '';
+
+      const optPhoto = document.createElement('option');
+      optPhoto.value = 'photo_frame';
+      optPhoto.textContent = 'Student Photo Frame';
+      if (AppState.activeLayerId === 'photo_frame') optPhoto.selected = true;
+      select.appendChild(optPhoto);
+
+      school.lines.forEach(line => {
+        const opt = document.createElement('option');
+        opt.value = line.id;
+        opt.textContent = `Field: ${line.label}`;
+        if (AppState.activeLayerId === line.id) opt.selected = true;
+        select.appendChild(opt);
+      });
+
+      syncInspectorFields();
+    }
+
+    function selectLayer(layerId) {
+      AppState.activeLayerId = layerId;
+      syncInspectorFields();
+      renderInteractiveCard();
+    }
+
+    function syncInspectorFields() {
+      const school = getActiveSchool();
+      const isPhoto = AppState.activeLayerId === 'photo_frame';
+      const typoControls = document.getElementById('typographyControls');
+      const photoControls = document.getElementById('photoFrameControls');
+      const btnDeleteLine = document.getElementById('btnDeleteLine');
+
+      if (isPhoto) {
+        if (typoControls) typoControls.classList.add('hidden');
+        if (photoControls) photoControls.classList.remove('hidden');
+        if (btnDeleteLine) {
+          btnDeleteLine.disabled = true;
+          btnDeleteLine.classList.add('opacity-40', 'cursor-not-allowed');
+        }
+
+        const pf = school.photoFrame;
+        document.getElementById('inputPosX').value = pf.x;
+        document.getElementById('inputPosY').value = pf.y;
+        document.getElementById('inputPhotoWidth').value = pf.width;
+        document.getElementById('inputPhotoHeight').value = pf.height;
+        document.getElementById('inputPhotoRadius').value = pf.radius;
+        document.getElementById('inputPhotoBorderWidth').value = pf.borderWidth;
+      } else {
+        if (typoControls) typoControls.classList.remove('hidden');
+        if (photoControls) photoControls.classList.add('hidden');
+        if (btnDeleteLine) {
+          btnDeleteLine.disabled = false;
+          btnDeleteLine.classList.remove('opacity-40', 'cursor-not-allowed');
+        }
+
+        const line = school.lines.find(l => l.id === AppState.activeLayerId) || school.lines[0];
+        if (line) {
+          document.getElementById('inputPosX').value = line.x;
+          document.getElementById('inputPosY').value = line.y;
+          document.getElementById('inputFontSize').value = line.fontSize;
+          document.getElementById('inputFontColor').value = line.color || "#0f2b5c";
+          document.getElementById('inputFontColorHex').value = line.color || "#0f2b5c";
+          document.getElementById('selectFontFamily').value = line.fontFamily || "Montserrat";
+          document.getElementById('selectFontWeight').value = line.fontWeight || "700";
+          document.getElementById('selectTextAlign').value = line.align || (line.id === 'student_name' ? 'center' : 'left');
+        }
+      }
+    }
+
+    function updateActiveElementPosition() {
+      const school = getActiveSchool();
+      const newX = parseFloat(document.getElementById('inputPosX').value) || 0;
+      const newY = parseFloat(document.getElementById('inputPosY').value) || 0;
+
+      if (AppState.activeLayerId === 'photo_frame') {
+        school.photoFrame.x = newX;
+        school.photoFrame.y = newY;
+      } else {
+        const line = school.lines.find(l => l.id === AppState.activeLayerId);
+        if (line) {
+          line.x = newX;
+          line.y = newY;
+        }
+      }
+      saveSchoolToCloud(school);
+      renderInteractiveCard();
+    }
+
+    function nudgeElement(dx, dy) {
+      const school = getActiveSchool();
+      if (AppState.activeLayerId === 'photo_frame') {
+        school.photoFrame.x = +(school.photoFrame.x + dx).toFixed(2);
+        school.photoFrame.y = +(school.photoFrame.y + dy).toFixed(2);
+      } else {
+        const line = school.lines.find(l => l.id === AppState.activeLayerId);
+        if (line) {
+          line.x = +(line.x + dx).toFixed(2);
+          line.y = +(line.y + dy).toFixed(2);
+        }
+      }
+      syncInspectorFields();
+      saveSchoolToCloud(school);
+      renderInteractiveCard();
+    }
+
+    function updateTypographySettings() {
+      const school = getActiveSchool();
+      const line = school.lines.find(l => l.id === AppState.activeLayerId);
+      if (!line) return;
+
+      line.fontSize = parseInt(document.getElementById('inputFontSize').value) || 15;
+      line.color = document.getElementById('inputFontColor').value;
+      document.getElementById('inputFontColorHex').value = line.color;
+      line.fontFamily = document.getElementById('selectFontFamily').value;
+      line.fontWeight = document.getElementById('selectFontWeight').value;
+      line.align = document.getElementById('selectTextAlign').value;
+
+      saveSchoolToCloud(school);
+      renderInteractiveCard();
+    }
+
+    function syncHexToColorPicker(hex) {
+      if (/^#[0-9A-F]{6}$/i.test(hex)) {
+        document.getElementById('inputFontColor').value = hex;
+        updateTypographySettings();
+      }
+    }
+
+    function updatePhotoFrameSettings() {
+      const school = getActiveSchool();
+      const pf = school.photoFrame;
+      pf.width = parseFloat(document.getElementById('inputPhotoWidth').value) || 39;
+      pf.height = parseFloat(document.getElementById('inputPhotoHeight').value) || 30;
+      pf.radius = parseInt(document.getElementById('inputPhotoRadius').value) || 14;
+      pf.borderWidth = parseInt(document.getElementById('inputPhotoBorderWidth').value) || 3;
+      saveSchoolToCloud(school);
+      renderInteractiveCard();
+    }
+
+    function openAddLineModal() {
+      document.getElementById('newLineLabelInput').value = '';
+      document.getElementById('addLineModal').classList.remove('hidden');
+    }
+
+    function closeAddLineModal() {
+      document.getElementById('addLineModal').classList.add('hidden');
+    }
+
+    function confirmAddNewLine() {
+      const rawLabel = document.getElementById('newLineLabelInput').value.trim();
+      if (!rawLabel) return alert('Please enter a valid field name.');
+
+      const formattedLabel = rawLabel.toLowerCase().startsWith('enter your') ? rawLabel : `Enter Your ${rawLabel}`;
+
+      const school = getActiveSchool();
+      const id = 'field_' + Date.now();
+      const lastLine = school.lines[school.lines.length - 1];
+      const newY = lastLine ? +(lastLine.y + 5.5).toFixed(1) : 60;
+
+      school.lines.push({
+        id: id,
+        label: formattedLabel,
+        defaultVal: rawLabel.toUpperCase(),
+        x: 42,
+        y: newY,
+        fontSize: 15,
+        fontWeight: "700",
+        fontFamily: "Montserrat",
+        color: "#0f2b5c",
+        align: "left"
+      });
+
+      AppState.activeLayerId = id;
+      saveSchoolToCloud(school);
+      closeAddLineModal();
+      renderLayerSelector();
+      renderInteractiveCard();
+      renderClientFormFields();
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function deleteSelectedLine() {
+      if (AppState.activeLayerId === 'photo_frame') return;
+      const school = getActiveSchool();
+      if (school.lines.length <= 1) return alert('Keep at least one text line.');
+
+      if (confirm('Delete this line?')) {
+        school.lines = school.lines.filter(l => l.id !== AppState.activeLayerId);
+        AppState.activeLayerId = school.lines[0]?.id || 'photo_frame';
+        saveSchoolToCloud(school);
+        renderLayerSelector();
+        renderInteractiveCard();
+        renderClientFormFields();
+        if (window.lucide) lucide.createIcons();
+      }
+    }
+
+    function setCardZoom(scale) {
+      AppState.cardZoom = scale;
+      document.getElementById('cardScaleWrapper').style.transform = `scale(${scale})`;
+    }
+
+    function renderInteractiveCard() {
+      const school = getActiveSchool();
+      const tImg = document.getElementById('cardTemplateImg');
+      if (tImg) tImg.src = school.templateImg || DEFAULT_TEMPLATE_SVG;
+
+      const container = document.getElementById('interactiveLayersContainer');
+      if (!container) return;
+      container.innerHTML = '';
+
+      // Photo Frame
+      const pf = school.photoFrame;
+      const photoDiv = document.createElement('div');
+      photoDiv.className = `absolute pointer-events-auto cursor-move select-none transition-shadow ${AppState.activeLayerId === 'photo_frame' ? 'active-drag-target' : ''}`;
+      photoDiv.style.left = `${pf.x}%`;
+      photoDiv.style.top = `${pf.y}%`;
+      photoDiv.style.width = `${pf.width}%`;
+      photoDiv.style.height = `${pf.height}%`;
+      photoDiv.style.transform = 'translate(-50%, -50%)';
+      photoDiv.style.borderRadius = `${pf.radius}px`;
+      photoDiv.style.border = `${pf.borderWidth}px solid ${pf.borderColor || '#1e3a8a'}`;
+      photoDiv.style.overflow = 'hidden';
+      photoDiv.style.zIndex = '5';
+
+      const photoImg = document.createElement('img');
+      photoImg.src = clientUploadedPhotoBase64 || DEFAULT_STUDENT_PHOTO;
+      photoImg.className = 'w-full h-full object-cover pointer-events-none';
+      photoDiv.appendChild(photoImg);
+
+      setupDraggable(photoDiv, 'photo_frame');
+      container.appendChild(photoDiv);
+
+      // Text Lines (Left-to-Right by default for details)
+      school.lines.forEach(line => {
+        const textDiv = document.createElement('div');
+        textDiv.className = `absolute pointer-events-auto cursor-move select-none whitespace-nowrap px-1 rounded transition-colors ${AppState.activeLayerId === line.id ? 'active-drag-target' : 'hover:bg-blue-500/10'}`;
+        textDiv.style.left = `${line.x}%`;
+        textDiv.style.top = `${line.y}%`;
+        
+        // Alignment handling: Left-aligned starts at X and extends rightwards
+        if (line.align === 'center') {
+          textDiv.style.transform = 'translate(-50%, -50%)';
+        } else {
+          textDiv.style.transform = 'translate(0%, -50%)';
+        }
+
+        textDiv.style.fontFamily = line.fontFamily || 'Montserrat';
+        textDiv.style.fontSize = `${line.fontSize}px`;
+        textDiv.style.fontWeight = line.fontWeight || '700';
+        textDiv.style.color = line.color || '#0f2b5c';
+        textDiv.style.zIndex = '10';
+
+        textDiv.textContent = line.defaultVal;
+
+        setupDraggable(textDiv, line.id);
+        container.appendChild(textDiv);
+      });
+    }
+
+    function setupDraggable(element, layerId) {
+      element.addEventListener('mousedown', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        selectLayer(layerId);
+
+        const cardRect = document.getElementById('interactiveIdCard').getBoundingClientRect();
+        const startMouseX = e.clientX;
+        const startMouseY = e.clientY;
+
+        const school = getActiveSchool();
+        const isPhoto = layerId === 'photo_frame';
+        const startX = isPhoto ? school.photoFrame.x : school.lines.find(l => l.id === layerId).x;
+        const startY = isPhoto ? school.photoFrame.y : school.lines.find(l => l.id === layerId).y;
+
+        function onMouseMove(moveEvent) {
+          const deltaXPixels = moveEvent.clientX - startMouseX;
+          const deltaYPixels = moveEvent.clientY - startMouseY;
+
+          const deltaXPercent = (deltaXPixels / (cardRect.width * AppState.cardZoom)) * 100;
+          const deltaYPercent = (deltaYPixels / (cardRect.height * AppState.cardZoom)) * 100;
+
+          const finalX = +(Math.min(98, Math.max(2, startX + deltaXPercent))).toFixed(2);
+          const finalY = +(Math.min(98, Math.max(2, startY + deltaYPercent))).toFixed(2);
+
+          if (isPhoto) {
+            school.photoFrame.x = finalX;
+            school.photoFrame.y = finalY;
+          } else {
+            const line = school.lines.find(l => l.id === layerId);
+            if (line) {
+              line.x = finalX;
+              line.y = finalY;
+            }
+          }
+          syncInspectorFields();
+          renderInteractiveCard();
+        }
+
+        function onMouseUp() {
+          document.removeEventListener('mousemove', onMouseMove);
+          document.removeEventListener('mouseup', onMouseUp);
+          saveSchoolToCloud(school);
+        }
+
+        document.addEventListener('mousemove', onMouseMove);
+        document.addEventListener('mouseup', onMouseUp);
+      });
+    }
+
+    function renderStudentsTable() {
+      const school = getActiveSchool();
+      const tbody = document.getElementById('studentRecordsTableBody');
+      const badgeTotalCount = document.getElementById('badgeTotalCount');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+
+      const schoolSubmissions = AppState.submissions.filter(r => r.schoolId === school.id);
+      if (badgeTotalCount) badgeTotalCount.textContent = `Total: ${schoolSubmissions.length} Cards`;
+
+      const filtered = schoolSubmissions.filter(rec => {
+        if (!AppState.searchQuery) return true;
+        const q = AppState.searchQuery.toLowerCase();
+        return Object.values(rec.data || {}).some(val => String(val).toLowerCase().includes(q)) || (rec.id && rec.id.toLowerCase().includes(q));
+      });
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" class="text-center py-8 text-slate-400 font-medium">No records found for this school folder.</td></tr>`;
+        return;
+      }
+
+      filtered.forEach((rec, index) => {
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-50/80 transition-colors";
+        tr.innerHTML = `
+          <td class="py-2 px-3 font-mono font-bold text-slate-500 text-center">#${index + 1}</td>
+          <td class="py-2 px-3 text-center">
+            <img src="${rec.photo}" class="w-8 h-8 rounded-lg object-cover mx-auto border border-slate-300">
+          </td>
+          <td class="py-2 px-3 font-bold text-slate-900">${rec.data.student_name || Object.values(rec.data)[0] || '—'}</td>
+          <td class="py-2 px-3 font-medium text-slate-700">${rec.data.father || Object.values(rec.data)[1] || '—'}</td>
+          <td class="py-2 px-3 font-semibold text-blue-700">${rec.data.class || Object.values(rec.data)[2] || '—'}</td>
+          <td class="py-2 px-3 font-mono text-slate-600">${rec.data.mobile || Object.values(rec.data)[3] || '—'}</td>
+          <td class="py-2 px-3 text-slate-600">${rec.data.address || Object.values(rec.data)[4] || '—'}</td>
+          <td class="py-2 px-3 text-center">
+            <div class="flex items-center justify-center space-x-1.5">
+              <button onclick="viewStudentRecord('${rec.docId}')" title="View Card" class="p-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-md transition">
+                <i data-lucide="eye" class="w-3.5 h-3.5"></i>
+              </button>
+              <button onclick="downloadSingleCard('${rec.docId}')" title="Download PNG" class="p-1.5 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 rounded-md transition">
+                <i data-lucide="download" class="w-3.5 h-3.5"></i>
+              </button>
+              <button onclick="openEditRecordModal('${rec.docId}')" title="Edit Data" class="p-1.5 bg-amber-50 text-amber-600 hover:bg-amber-100 rounded-md transition">
+                <i data-lucide="edit" class="w-3.5 h-3.5"></i>
+              </button>
+              <button onclick="deleteStudentRecord('${rec.docId}')" title="Delete" class="p-1.5 bg-rose-50 text-rose-600 hover:bg-rose-100 rounded-md transition">
+                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+              </button>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function handleTableSearch(val) {
+      AppState.searchQuery = val;
+      renderStudentsTable();
+    }
+
+    function viewStudentRecord(docId) {
+      const rec = AppState.submissions.find(r => r.docId === docId);
+      if (!rec) return;
+      const school = getActiveSchool();
+
+      const previewBox = document.getElementById('modalCardPreviewContainer');
+      if (previewBox) previewBox.innerHTML = buildRenderedCardHTML(school, rec.data, rec.photo);
+      
+      document.getElementById('modalHeadingText').textContent = "Student ID Card Preview";
+      document.getElementById('modalActionButtonsContainer').innerHTML = `
+        <button onclick="closePreviewVerificationModal()" class="w-full py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs col-span-2">
+          Close Preview
+        </button>
+      `;
+      document.getElementById('previewVerificationModal').classList.remove('hidden');
+    }
+
+    async function downloadSingleCard(docId) {
+      const rec = AppState.submissions.find(r => r.docId === docId);
+      if (!rec) return;
+      const school = getActiveSchool();
+      const blob = await generate300DpiCardBlob(school, rec.data, rec.photo);
+      const studentName = (rec.data.student_name || 'student').replace(/[^a-z0-9]/gi, '_');
+      saveAs(blob, `${school.id}_${studentName}.png`);
+    }
+
+    function openEditRecordModal(docId) {
+      editingDocId = docId;
+      const rec = AppState.submissions.find(r => r.docId === docId);
+      if (!rec) return;
+      const school = getActiveSchool();
+
+      const container = document.getElementById('editRecordFormFields');
+      container.innerHTML = '';
+
+      school.lines.forEach(line => {
+        const val = rec.data[line.id] || '';
+        const div = document.createElement('div');
+        div.innerHTML = `
+          <label class="block text-xs font-bold text-slate-700 mb-1">${line.label}</label>
+          <input type="text" id="edit_input_${line.id}" value="${val}" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-blue-500 outline-none">
+        `;
+        container.appendChild(div);
+      });
+
+      document.getElementById('editRecordModal').classList.remove('hidden');
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function closeEditRecordModal() {
+      document.getElementById('editRecordModal').classList.add('hidden');
+      editingDocId = null;
+    }
+
+    function saveEditedRecord() {
+      if (!editingDocId) return;
+      const school = getActiveSchool();
+      const updatedData = {};
+
+      school.lines.forEach(line => {
+        const input = document.getElementById(`edit_input_${line.id}`);
+        updatedData[line.id] = input ? input.value.trim() : '';
+      });
+
+      db.collection("submissions").doc(editingDocId).update({
+        data: updatedData
+      }).then(() => {
+        closeEditRecordModal();
+        alert("Record updated successfully!");
+      }).catch(err => {
+        alert("Error updating record: " + err.message);
+      });
+    }
+
+    function deleteStudentRecord(docId) {
+      if (!docId) return;
+      if (confirm("Permanently delete this student card from Cloud Database?")) {
+        db.collection("submissions").doc(docId).delete().then(() => {
+          alert("Card removed.");
+        }).catch(err => {
+          alert("Error deleting: " + err.message);
+        });
+      }
+    }
+
+    // FULL RELIABLE CSV EXPORT DIRECT FROM FIRESTORE
+    async function exportSchoolCSV() {
+      const school = getActiveSchool();
+      
+      // Pull fresh data from cloud
+      const snapshot = await db.collection("submissions").where("schoolId", "==", school.id).get();
+      if (snapshot.empty) {
+        return alert('No student records found in cloud for ' + school.name);
+      }
+
+      const headers = ['# No', 'Record ID', ...school.lines.map(l => l.label.replace('Enter Your ', '')), 'Timestamp'];
+      const rows = [];
+      let index = 1;
+
+      snapshot.forEach(doc => {
+        const rec = doc.data();
+        const row = [
+          index++,
+          doc.id,
+          ...school.lines.map(l => `"${(rec.data[l.id] || '').replace(/"/g, '""')}"`),
+          rec.timestamp || ''
+        ];
+        rows.push(row.join(','));
+      });
+
+      const csvString = '\uFEFF' + headers.join(',') + '\n' + rows.join('\n');
+      const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+      saveAs(blob, `${school.id}_students.csv`);
+    }
+
+    async function downloadEntireSchoolFolderZip() {
+      const school = getActiveSchool();
+      const schoolSubmissions = AppState.submissions.filter(r => r.schoolId === school.id);
+      if (schoolSubmissions.length === 0) return alert('No submissions found to download.');
+
+      const zip = new JSZip();
+      const folder = zip.folder(`${school.id}_ID_Cards`);
+
+      for (let i = 0; i < schoolSubmissions.length; i++) {
+        const rec = schoolSubmissions[i];
+        const blob = await generate300DpiCardBlob(school, rec.data, rec.photo);
+        const nameVal = rec.data.student_name || Object.values(rec.data)[0] || 'student';
+        const fileName = `${String(i + 1).padStart(3, '0')}_${nameVal.replace(/[^a-z0-9]/gi, '_')}.png`;
+        folder.file(fileName, blob);
+      }
+
+      const zipBlob = await zip.generateAsync({ type: "blob" });
+      saveAs(zipBlob, `${school.id}_All_Cards.zip`);
+    }
+
+    function generate300DpiCardBlob(school, dataMap, photoUrl) {
+      return new Promise((resolve) => {
+        const canvas = document.getElementById('exportCanvas');
+        canvas.width = 1012;
+        canvas.height = 1575;
+        const ctx = canvas.getContext('2d');
+
+        const bgImg = new Image();
+        bgImg.crossOrigin = 'anonymous';
+        bgImg.onload = () => {
+          ctx.drawImage(bgImg, 0, 0, 1012, 1575);
+
+          const stPhoto = new Image();
+          stPhoto.crossOrigin = 'anonymous';
+          stPhoto.onload = () => {
+            const pf = school.photoFrame;
+            const px = (pf.x / 100) * 1012;
+            const py = (pf.y / 100) * 1575;
+            const pw = (pf.width / 100) * 1012;
+            const ph = (pf.height / 100) * 1575;
+            const pr = (pf.radius / 460) * 1012;
+
+            ctx.save();
+            ctx.beginPath();
+            ctx.roundRect(px - pw / 2, py - ph / 2, pw, ph, pr);
+            ctx.clip();
+            ctx.drawImage(stPhoto, px - pw / 2, py - ph / 2, pw, ph);
+            ctx.restore();
+
+            if (pf.borderWidth > 0) {
+              ctx.save();
+              ctx.beginPath();
+              ctx.roundRect(px - pw / 2, py - ph / 2, pw, ph, pr);
+              ctx.lineWidth = (pf.borderWidth / 460) * 1012;
+              ctx.strokeStyle = pf.borderColor || "#1e3a8a";
+              ctx.stroke();
+              ctx.restore();
+            }
+
+            // Print pure student data values: left-aligned flows towards right
+            school.lines.forEach(line => {
+              const lx = (line.x / 100) * 1012;
+              const ly = (line.y / 100) * 1575;
+              const lSize = (line.fontSize / 460) * 1012;
+              const val = dataMap[line.id] || '';
+
+              ctx.font = `${line.fontWeight || '700'} ${lSize}px ${line.fontFamily || 'Montserrat'}, sans-serif`;
+              ctx.fillStyle = line.color || "#0f2b5c";
+
+              if (line.align === 'center') {
+                ctx.textAlign = 'center';
+              } else {
+                ctx.textAlign = 'left';
+              }
+              ctx.textBaseline = 'middle';
+              ctx.fillText(val, lx, ly);
+            });
+
+            canvas.toBlob(blob => resolve(blob), 'image/png');
+          };
+          stPhoto.src = photoUrl || DEFAULT_STUDENT_PHOTO;
+        };
+        bgImg.src = school.templateImg || DEFAULT_TEMPLATE_SVG;
+      });
+    }
+
+    function buildRenderedCardHTML(school, dataMap, photoUrl) {
+      const pf = school.photoFrame;
+      let linesHtml = '';
+      school.lines.forEach(line => {
+        const val = dataMap[line.id] || '';
+        const isCenter = line.align === 'center';
+        linesHtml += `
+          <div style="position: absolute; left: ${line.x}%; top: ${line.y}%; transform: ${isCenter ? 'translate(-50%, -50%)' : 'translate(0%, -50%)'}; font-family: ${line.fontFamily || 'Montserrat'}; font-size: ${Math.round(line.fontSize * 0.9)}px; font-weight: ${line.fontWeight || '700'}; color: ${line.color || '#0f2b5c'}; white-space: nowrap;">
+            ${val}
+          </div>
+        `;
+      });
+
+      return `
+        <div style="position: relative; width: 100%; height: 100%; background: #ffffff;">
+          <img src="${school.templateImg || DEFAULT_TEMPLATE_SVG}" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: fill;">
+          <div style="position: absolute; left: ${pf.x}%; top: ${pf.y}%; width: ${pf.width}%; height: ${pf.height}%; transform: translate(-50%, -50%); border-radius: ${pf.radius}px; border: ${pf.borderWidth}px solid ${pf.borderColor || '#1e3a8a'}; overflow: hidden;">
+            <img src="${photoUrl}" style="width: 100%; height: 100%; object-fit: cover;">
+          </div>
+          ${linesHtml}
+        </div>
+      `;
+    }
+
+    function renderClientFormFields() {
+      const school = getActiveSchool();
+      const container = document.getElementById('clientFormFieldsContainer');
+      if (!container) return;
+      container.innerHTML = '';
+
+      school.lines.forEach(line => {
+        const div = document.createElement('div');
+        div.className = "space-y-1.5";
+        div.innerHTML = `
+          <label class="block text-xs font-bold text-slate-800">
+            ${line.label} <span class="text-rose-500">*</span>
+          </label>
+          <input type="text" id="client_field_${line.id}" placeholder="${line.label}..." class="w-full bg-white border border-slate-300 rounded-xl px-4 py-2.5 text-xs text-slate-800 focus:ring-2 focus:ring-blue-600 outline-none uppercase shadow-2xs">
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    // PHOTO UPLOAD & AUTOMATIC CROPPER LAUNCH
+    function handleRawPhotoSelected(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        launchCropperModal(e.target.result);
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function launchCropperModal(imageSrc) {
+      const modal = document.getElementById('cropperModal');
+      const imageTarget = document.getElementById('cropperImageTarget');
+      imageTarget.src = imageSrc;
+      modal.classList.remove('hidden');
+
+      if (activeCropper) {
+        activeCropper.destroy();
+      }
+
+      // Initialize Cropper with optimal portrait ratio
+      const school = getActiveSchool();
+      const pf = school.photoFrame;
+      const aspectRatio = (pf.width / pf.height) || 0.85;
+
+      activeCropper = new Cropper(imageTarget, {
+        aspectRatio: aspectRatio,
+        viewMode: 1,
+        autoCropArea: 0.9,
+        background: false,
+        responsive: true
+      });
+    }
+
+    function closeCropperModal() {
+      const modal = document.getElementById('cropperModal');
+      modal.classList.add('hidden');
+      if (activeCropper) {
+        activeCropper.destroy();
+        activeCropper = null;
+      }
+    }
+
+    function applyCroppedImage() {
+      if (!activeCropper) return;
+      const croppedCanvas = activeCropper.getCroppedCanvas({
+        width: 500,
+        height: Math.round(500 / ((getActiveSchool().photoFrame.width / getActiveSchool().photoFrame.height) || 0.85))
+      });
+
+      clientUploadedPhotoBase64 = croppedCanvas.toDataURL('image/jpeg', 0.9);
+      updateClientPhotoThumbnail();
+      closeCropperModal();
+    }
+
+    function updateClientPhotoThumbnail() {
+      const thumb = document.getElementById('clientPhotoThumb');
+      if (thumb) thumb.innerHTML = `<img src="${clientUploadedPhotoBase64}" class="w-full h-full object-cover">`;
+    }
+
+    function openCameraModal() {
+      const modal = document.getElementById('cameraCaptureModal');
+      const video = document.getElementById('webcamVideo');
+      if (modal) modal.classList.remove('hidden');
+
+      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } })
+          .then(stream => {
+            webcamMediaStream = stream;
+            if (video) video.srcObject = stream;
+          })
+          .catch(err => {
+            alert('Camera unavailable: ' + err.message);
+            closeCameraModal();
+          });
+      }
+    }
+
+    function closeCameraModal() {
+      if (webcamMediaStream) {
+        webcamMediaStream.getTracks().forEach(track => track.stop());
+        webcamMediaStream = null;
+      }
+      const modal = document.getElementById('cameraCaptureModal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function captureSnapshotFromWebcam() {
+      const video = document.getElementById('webcamVideo');
+      const snapCanvas = document.createElement('canvas');
+      snapCanvas.width = video.videoWidth || 640;
+      snapCanvas.height = video.videoHeight || 480;
+      const ctx = snapCanvas.getContext('2d');
+      ctx.drawImage(video, 0, 0, snapCanvas.width, snapCanvas.height);
+
+      const rawPhoto = snapCanvas.toDataURL('image/jpeg', 0.95);
+      closeCameraModal();
+      launchCropperModal(rawPhoto);
+    }
+
+    function triggerClientPreviewModal() {
+      const school = getActiveSchool();
+      const payload = {};
+      let hasError = false;
+
+      school.lines.forEach(line => {
+        const input = document.getElementById(`client_field_${line.id}`);
+        const val = input ? input.value.trim() : '';
+        if (!val) hasError = true;
+        payload[line.id] = val;
+      });
+
+      if (hasError) return alert("Please fill in all required fields.");
+      if (!clientUploadedPhotoBase64) return alert("Please provide a student photo.");
+
+      pendingSubmissionPayload = { data: payload, photo: clientUploadedPhotoBase64 };
+
+      const previewBox = document.getElementById('modalCardPreviewContainer');
+      if (previewBox) previewBox.innerHTML = buildRenderedCardHTML(school, payload, clientUploadedPhotoBase64);
+
+      document.getElementById('modalHeadingText').textContent = "Verify ID Card Preview";
+      document.getElementById('modalActionButtonsContainer').innerHTML = `
+        <button onclick="closePreviewVerificationModal()" class="w-full py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs transition border border-slate-300 flex items-center justify-center space-x-1.5">
+          <i data-lucide="edit-2" class="w-3.5 h-3.5"></i>
+          <span>Edit Details</span>
+        </button>
+        <button id="finalSubmitBtn" onclick="executeFinalClientSubmit()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold rounded-xl text-xs transition shadow-md flex items-center justify-center space-x-1.5">
+          <i data-lucide="check-circle" class="w-3.5 h-3.5"></i>
+          <span>Final Submit</span>
+        </button>
+      `;
+
+      const modal = document.getElementById('previewVerificationModal');
+      if (modal) modal.classList.remove('hidden');
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function closePreviewVerificationModal() {
+      const modal = document.getElementById('previewVerificationModal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function executeFinalClientSubmit() {
+      if (!pendingSubmissionPayload) return;
+      const school = getActiveSchool();
+      const btn = document.getElementById('finalSubmitBtn');
+      if (btn) {
+        btn.disabled = true;
+        btn.textContent = "Uploading to Cloud...";
+      }
+
+      const newRec = {
+        id: `REC-${Date.now().toString().slice(-4)}`,
+        schoolId: school.id,
+        timestamp: new Date().toISOString().replace('T', ' ').slice(0, 16),
+        photo: pendingSubmissionPayload.photo,
+        data: pendingSubmissionPayload.data
+      };
+
+      // Write directly to Firestore
+      db.collection("submissions").add(newRec).then(() => {
+        closePreviewVerificationModal();
+        pendingSubmissionPayload = null;
+        clientUploadedPhotoBase64 = DEFAULT_STUDENT_PHOTO;
+        const thumb = document.getElementById('clientPhotoThumb');
+        if (thumb) thumb.innerHTML = `<i data-lucide="image" class="w-6 h-6 text-slate-400"></i>`;
+        renderClientFormFields();
+
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = `<i data-lucide="check-circle" class="w-3.5 h-3.5"></i><span>Final Submit</span>`;
+        }
+
+        alert(`✅ Submitted successfully! The record is saved in the cloud and instantly available in your studio.`);
+        if (window.lucide) lucide.createIcons();
+      }).catch(err => {
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = "Final Submit";
+        }
+        alert("Upload error: " + err.message);
+      });
+    }
+
+    window.addEventListener('DOMContentLoaded', initApp);
+  </script>
+</body>
+</html>
