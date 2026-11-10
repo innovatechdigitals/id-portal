@@ -10,24 +10,24 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Montserrat:wght@400;500;600;700;800;900&family=Poppins:wght@400;500;600;700;800;900&family=Roboto:wght@400;500;700;900&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <!-- Firebase Cloud SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
   <style>
     body { font-family: 'Inter', sans-serif; }
     .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
     .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
     .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-    .clean-canvas-bg {
-      background-color: #f1f5f9;
-      background-image: none;
-    }
+    .clean-canvas-bg { background-color: #f1f5f9; background-image: none; }
     .active-drag-target {
       outline: 2px dashed #2563eb !important;
       outline-offset: 3px !important;
       background-color: rgba(37, 99, 235, 0.12) !important;
     }
-
-    /* WHEN IN CLIENT MODE: HIDE HEADER AND ENTIRE ADMIN STUDIO */
     body.client-mode header,
     body.client-mode #adminView {
       display: none !important;
@@ -41,7 +41,7 @@
 </head>
 <body class="bg-slate-100 text-slate-800 antialiased min-h-screen flex flex-col custom-scrollbar">
 
-  <!-- TOP HEADER (AUTOMATICALLY HIDDEN FOR SCHOOLS) -->
+  <!-- TOP HEADER -->
   <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-xs px-4 lg:px-6 py-2.5 flex items-center justify-between">
     <div class="flex items-center space-x-3">
       <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-700 via-indigo-600 to-cyan-500 flex items-center justify-center text-white font-black text-xl shadow-md tracking-wider">
@@ -52,7 +52,7 @@
           <h1 class="font-black text-slate-900 tracking-tight text-lg">Innovatech Prints</h1>
           <span class="text-[10px] bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">Studio</span>
         </div>
-        <p class="text-xs text-slate-500 font-medium hidden sm:block">Smart ID Designer & Multi-School Submission Management</p>
+        <p class="text-xs text-slate-500 font-medium hidden sm:block">Smart ID Designer & Cloud Synchronization</p>
       </div>
     </div>
 
@@ -82,11 +82,11 @@
     </div>
   </header>
 
-  <!-- ADMIN STUDIO VIEW (700px PANEL + ENLARGED CANVAS + SUBMISSIONS LIST) -->
+  <!-- ADMIN STUDIO VIEW -->
   <main id="adminView" class="flex-1 flex flex-col p-3 lg:p-4 gap-4 max-w-[1920px] w-full mx-auto">
     <div class="flex flex-col lg:flex-row gap-4 items-stretch">
       
-      <!-- LEFT: EXPANDED 700px INSPECTOR PANEL -->
+      <!-- LEFT: INSPECTOR PANEL -->
       <section class="w-full lg:w-[680px] xl:w-[720px] shrink-0 bg-white rounded-2xl border border-slate-200 shadow-xs flex flex-col overflow-hidden">
         <div class="px-4 py-3 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
           <div class="flex items-center space-x-2">
@@ -217,19 +217,14 @@
                 <label class="text-slate-500 text-[10px] uppercase font-bold block mb-1">Font Family</label>
                 <select id="selectFontFamily" onchange="updateTypographySettings()" class="w-full bg-white border border-slate-300 rounded-lg p-1.5 font-semibold text-slate-700">
                   <option value="Montserrat">Montserrat</option>
-                  <option value="Poppins">Poppins</option>
                   <option value="Inter">Inter</option>
-                  <option value="Roboto">Roboto</option>
-                  <option value="Oswald">Oswald</option>
                 </select>
               </div>
               <div>
                 <label class="text-slate-500 text-[10px] uppercase font-bold block mb-1">Weight</label>
                 <select id="selectFontWeight" onchange="updateTypographySettings()" class="w-full bg-white border border-slate-300 rounded-lg p-1.5 font-semibold text-slate-700">
                   <option value="500">Medium (500)</option>
-                  <option value="600">SemiBold (600)</option>
                   <option value="700">Bold (700)</option>
-                  <option value="800">ExtraBold (800)</option>
                   <option value="900">Black (900)</option>
                 </select>
               </div>
@@ -268,7 +263,7 @@
         </div>
       </section>
 
-      <!-- RIGHT: ENLARGED ID CARD WORKBENCH (460px x 715px) -->
+      <!-- RIGHT: ID CARD WORKBENCH -->
       <section class="flex-1 bg-slate-100/90 rounded-2xl border border-slate-200 shadow-sm clean-canvas-bg flex flex-col items-center justify-center p-6 relative min-h-[760px]">
         <div class="absolute top-4 left-4 right-4 flex items-center justify-between text-xs pointer-events-none">
           <div class="bg-white/95 shadow-sm px-3.5 py-1.5 rounded-full border border-slate-200 text-slate-800 flex items-center space-x-2 pointer-events-auto">
@@ -304,13 +299,13 @@
         <div class="flex items-center space-x-3">
           <div class="flex items-center space-x-2">
             <i data-lucide="users" class="w-4 h-4 text-blue-600"></i>
-            <h3 class="font-bold text-slate-900 text-sm tracking-wide">Submitted Student ID Cards</h3>
+            <h3 class="font-bold text-slate-900 text-sm tracking-wide">Submitted Student ID Cards (Cloud Synced)</h3>
           </div>
           <span id="badgeSchoolName" class="text-xs bg-blue-100 text-blue-800 font-bold px-2.5 py-0.5 rounded-full">
             Padmalaya High School MBNR
           </span>
           <span id="badgeTotalCount" class="text-xs bg-emerald-100 text-emerald-800 font-bold px-2.5 py-0.5 rounded-full">
-            Total: 1 Cards
+            Total: 0 Cards
           </span>
         </div>
 
@@ -341,7 +336,7 @@
               <th class="py-2.5 px-4">Class</th>
               <th class="py-2.5 px-4">Contact</th>
               <th class="py-2.5 px-4">Address</th>
-              <th class="py-2.5 px-4 text-right">Actions (Outside)</th>
+              <th class="py-2.5 px-4 text-right">Actions</th>
             </tr>
           </thead>
           <tbody id="studentRecordsTableBody" class="divide-y divide-slate-200 text-slate-700">
@@ -351,19 +346,16 @@
     </section>
   </main>
 
-  <!-- CLEAN SCHOOL CLIENT FORM (EXACT MATCH TO YOUR REFERENCE DESIGN) -->
+  <!-- CLEAN SCHOOL CLIENT FORM -->
   <section id="schoolView" class="hidden flex-1 py-12 px-4 flex flex-col items-center justify-start">
     <div class="w-full max-w-lg mx-auto space-y-4">
-      
-      <!-- Top Branding Pill -->
       <div class="flex items-center justify-center space-x-2">
-  <div class="w-7 h-7 rounded-xl bg-blue-600 text-white font-black text-xs flex items-center justify-center tracking-wider">
-    IP
-  </div>
-  <span class="font-bold text-slate-900 text-sm">Innovatech Prints</span>
-</div>
+        <div class="w-7 h-7 rounded-xl bg-blue-600 text-white font-black text-xs flex items-center justify-center tracking-wider">
+          IP
+        </div>
+        <span class="font-bold text-slate-900 text-sm">Innovatech Prints</span>
+      </div>
 
-      <!-- Main Submission Card -->
       <div class="bg-white rounded-3xl border border-slate-200/80 shadow-xl p-8 space-y-6">
         <div>
           <h2 id="clientSchoolHeader" class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight text-center">
@@ -372,7 +364,6 @@
           <p class="text-xs text-slate-500 text-center mt-1">Fill in your details to generate your ID card.</p>
         </div>
 
-        <!-- Student Photo Input -->
         <div class="space-y-2">
           <label class="block text-xs font-bold text-slate-800">
             Photo <span class="text-rose-500">*</span>
@@ -399,23 +390,19 @@
           </div>
         </div>
 
-        <!-- Dynamic Form Fields Generated from Lines -->
         <div id="clientFormFieldsContainer" class="space-y-4">
         </div>
 
-        <!-- Submit Button -->
         <button type="button" onclick="triggerClientPreviewModal()" class="w-full py-3.5 bg-[#1b2b4d] hover:bg-[#152340] active:scale-[0.99] text-white font-bold rounded-xl text-sm transition shadow-md">
           Submit
         </button>
       </div>
 
-      <!-- Footer -->
-      <div class="flex items-center justify-center space-x-2">
-  <div class="w-7 h-7 rounded-xl bg-blue-600 text-white font-black text-xs flex items-center justify-center tracking-wider">
-    IP
-  </div>
-  <span class="font-bold text-slate-900 text-sm">Innovatech Prints</span>
-</div>
+      <div class="text-center text-xs text-slate-500 flex items-center justify-center space-x-1 pt-2">
+        <i data-lucide="shield-check" class="w-4 h-4 text-blue-600"></i>
+        <span>Secured by Innovatech Prints</span>
+      </div>
+    </div>
   </section>
 
   <!-- PREVIEW & SUBMISSION MODAL -->
@@ -437,75 +424,9 @@
           <span>Edit Details</span>
         </button>
 
-        <button onclick="executeFinalClientSubmit()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold rounded-xl text-xs transition shadow-md flex items-center justify-center space-x-1.5">
+        <button id="finalSubmitBtn" onclick="executeFinalClientSubmit()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold rounded-xl text-xs transition shadow-md flex items-center justify-center space-x-1.5">
           <i data-lucide="check-circle" class="w-3.5 h-3.5"></i>
           <span>Final Submit & New Entry</span>
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- EDIT STUDENT MODAL -->
-  <div id="editStudentRecordModal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-xs z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 space-y-4">
-      <div class="flex items-center justify-between border-b border-slate-200 pb-3">
-        <div class="flex items-center space-x-2">
-          <i data-lucide="user-cog" class="w-5 h-5 text-blue-600"></i>
-          <h3 class="font-bold text-slate-900 text-base">Edit Student Record</h3>
-        </div>
-        <button onclick="closeEditStudentRecordModal()" class="text-slate-400 hover:text-slate-700">
-          <i data-lucide="x" class="w-5 h-5"></i>
-        </button>
-      </div>
-
-      <div id="editModalInputsContainer" class="space-y-3 max-h-[380px] overflow-y-auto custom-scrollbar pr-1">
-      </div>
-
-      <div class="pt-3 border-t border-slate-200 flex items-center justify-between">
-        <button onclick="deleteStudentInsideModal()" class="px-3 py-2 bg-rose-50 text-rose-600 hover:bg-rose-100 rounded-lg text-xs font-bold transition flex items-center space-x-1">
-          <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-          <span>Delete File</span>
-        </button>
-
-        <div class="flex items-center space-x-2">
-          <button onclick="closeEditStudentRecordModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-bold">
-            Cancel
-          </button>
-          <button onclick="saveStudentRecordChanges()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold shadow-xs">
-            Save & Update
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- VIEW CARD MODAL -->
-  <div id="viewStudentCardModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-xs z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-white rounded-3xl p-5 shadow-2xl border border-slate-200 flex flex-col items-center space-y-4 max-w-sm w-full">
-      <div class="flex items-center justify-between w-full border-b border-slate-200 pb-2">
-        <span class="font-bold text-slate-900 text-sm" id="viewCardModalTitle">Student ID Card</span>
-        <button onclick="closeViewStudentCardModal()" class="text-slate-400 hover:text-slate-700">
-          <i data-lucide="x" class="w-5 h-5"></i>
-        </button>
-      </div>
-
-      <div id="viewCardModalRenderBox" class="relative w-[300px] h-[460px] rounded-xl overflow-hidden shadow-lg border border-slate-200">
-      </div>
-
-      <div class="flex flex-col gap-2 w-full pt-1">
-        <div class="grid grid-cols-2 gap-2">
-          <button onclick="openEditFromViewModal()" class="py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold rounded-xl text-xs flex items-center justify-center space-x-1.5 transition">
-            <i data-lucide="pencil" class="w-3.5 h-3.5 text-blue-600"></i>
-            <span>Edit Details</span>
-          </button>
-          <button onclick="downloadActiveViewCard()" class="py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs flex items-center justify-center space-x-1.5 transition shadow-sm">
-            <i data-lucide="download" class="w-3.5 h-3.5"></i>
-            <span>Download Card</span>
-          </button>
-        </div>
-        <button onclick="deleteActiveViewCard()" class="w-full py-2 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1">
-          <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-          <span>Delete This Student Card</span>
         </button>
       </div>
     </div>
@@ -577,9 +498,21 @@
 
   <canvas id="exportCanvas" class="hidden"></canvas>
 
-  <!-- SCRIPT ENGINE -->
   <script>
-    const ADMIN_MASTER_PIN = "7779"; // Your Master PIN
+    const ADMIN_MASTER_PIN = "7779";
+
+    // INITIALIZE FIREBASE DIRECTLY WITH YOUR KEYS
+    const firebaseConfig = {
+      apiKey: "AIzaSyBCEHOQbzPPnkhlfJ6oIQZgflZC7SMc-8Y",
+      authDomain: "innovatech-portal-5dcce.firebaseapp.com",
+      projectId: "innovatech-portal-5dcce",
+      storageBucket: "innovatech-portal-5dcce.firebasestorage.app",
+      messagingSenderId: "1017077062431",
+      appId: "1:1017077062431:web:5dbdce31cc4ee7f3ae2e2a"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
 
     const DEFAULT_TEMPLATE_SVG = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1012 1575" width="1012" height="1575">
       <defs>
@@ -640,36 +573,15 @@
         id: "padmalaya-mbnr",
         name: "Padmalaya High School MBNR",
         templateImg: DEFAULT_TEMPLATE_SVG,
-        photoFrame: {
-          x: 50,
-          y: 39,
-          width: 39,
-          height: 30,
-          radius: 14,
-          borderWidth: 3,
-          borderColor: "#1e3a8a"
-        },
+        photoFrame: { x: 50, y: 39, width: 39, height: 30, radius: 14, borderWidth: 3, borderColor: "#1e3a8a" },
         lines: [
-          { id: "student_name", label: "NAME", defaultVal: "G. SUJAN REDDY", x: 50, y: 57.5, fontSize: 18, fontWeight: "900", fontFamily: "Montserrat", color: "#0f2b5c", isPrefix: false },
+          { id: "student_name", label: "NAME", defaultVal: "G. SUJAN REDDY", x: 50, y: 57.5, fontSize: 18, fontWeight: "900", fontFamily: "Montserrat", color: "#0f2b5c" },
           { id: "father", label: "FATHER", defaultVal: "G Vamshi Mohan Reddy", x: 48, y: 64.0, fontSize: 15, fontWeight: "700", fontFamily: "Montserrat", color: "#0f2b5c", prefix: "Father   : " },
           { id: "class", label: "CLASS", defaultVal: "10th Class", x: 48, y: 69.5, fontSize: 15, fontWeight: "700", fontFamily: "Montserrat", color: "#0f2b5c", prefix: "Class    : " },
           { id: "mobile", label: "MOBILE", defaultVal: "8544354546", x: 48, y: 75.0, fontSize: 15, fontWeight: "700", fontFamily: "Montserrat", color: "#0f2b5c", prefix: "Mobile   : " },
           { id: "address", label: "Address", defaultVal: "MBNR", x: 48, y: 80.5, fontSize: 15, fontWeight: "700", fontFamily: "Montserrat", color: "#0f2b5c", prefix: "Address  : " }
         ],
-        submissions: [
-          {
-            id: "REC-1001",
-            timestamp: "2026-11-10 03:00",
-            photo: DEFAULT_STUDENT_PHOTO,
-            data: {
-              student_name: "G. SUJAN REDDY",
-              father: "G Vamshi Mohan Reddy",
-              class: "10th Class",
-              mobile: "8544354546",
-              address: "MBNR"
-            }
-          }
-        ]
+        submissions: []
       }
     ];
 
@@ -684,20 +596,19 @@
 
     let clientUploadedPhotoBase64 = DEFAULT_STUDENT_PHOTO;
     let pendingSubmissionPayload = null;
-    let activeEditingRecordId = null;
-    let activeViewingRecordId = null;
     let webcamMediaStream = null;
 
     function initApp() {
-      const savedData = localStorage.getItem('innovatech_smartid_db_v3');
-      if (savedData) {
-        try {
+      try {
+        const savedData = localStorage.getItem('innovatech_smartid_config_v5');
+        if (savedData) {
           AppState.schools = JSON.parse(savedData);
-        } catch (e) {
-          AppState.schools = DEFAULT_SCHOOLS;
+        } else {
+          AppState.schools = JSON.parse(JSON.stringify(DEFAULT_SCHOOLS));
+          persistAppState();
         }
-      } else {
-        AppState.schools = DEFAULT_SCHOOLS;
+      } catch (e) {
+        AppState.schools = JSON.parse(JSON.stringify(DEFAULT_SCHOOLS));
         persistAppState();
       }
 
@@ -719,13 +630,28 @@
       renderLayerSelector();
       syncActiveSchoolUI();
       renderInteractiveCard();
-      renderStudentsTable();
       renderClientFormFields();
-      lucide.createIcons();
+      if (window.lucide) lucide.createIcons();
+
+      // REAL-TIME FIRESTORE DATABASE LISTENER
+      db.collection("submissions").onSnapshot(snapshot => {
+        const school = getActiveSchool();
+        school.submissions = [];
+        snapshot.forEach(doc => {
+          const item = doc.data();
+          item.docId = doc.id;
+          if (item.schoolId === school.id) {
+            school.submissions.push(item);
+          }
+        });
+        renderStudentsTable();
+      }, err => {
+        console.error("Firestore sync error:", err);
+      });
     }
 
     function persistAppState() {
-      localStorage.setItem('innovatech_smartid_db_v3', JSON.stringify(AppState.schools));
+      localStorage.setItem('innovatech_smartid_config_v5', JSON.stringify(AppState.schools));
     }
 
     function getActiveSchool() {
@@ -753,17 +679,19 @@
       const adminView = document.getElementById('adminView');
       const schoolView = document.getElementById('schoolView');
 
-      if (viewName === 'admin') {
-        adminView.classList.remove('hidden');
-        schoolView.classList.add('hidden');
-        renderInteractiveCard();
-        renderStudentsTable();
-      } else {
-        adminView.classList.add('hidden');
-        schoolView.classList.remove('hidden');
-        renderClientFormFields();
+      if (adminView && schoolView) {
+        if (viewName === 'admin') {
+          adminView.classList.remove('hidden');
+          schoolView.classList.add('hidden');
+          renderInteractiveCard();
+          renderStudentsTable();
+        } else {
+          adminView.classList.add('hidden');
+          schoolView.classList.remove('hidden');
+          renderClientFormFields();
+        }
       }
-      lucide.createIcons();
+      if (window.lucide) lucide.createIcons();
     }
 
     function copySchoolLink() {
@@ -771,7 +699,7 @@
       const origin = window.location.origin + window.location.pathname;
       const fullUrl = `${origin}?school=${encodeURIComponent(school.id)}&view=school`;
       navigator.clipboard.writeText(fullUrl).then(() => {
-        alert(`School Form Link Copied!\n\n${fullUrl}\n\nSend this direct link to the school.`);
+        alert("School Link Copied to Clipboard!");
       }).catch(() => {
         prompt("Copy this link:", fullUrl);
       });
@@ -801,15 +729,20 @@
       renderInteractiveCard();
       renderStudentsTable();
       renderClientFormFields();
-      lucide.createIcons();
+      if (window.lucide) lucide.createIcons();
     }
 
     function syncActiveSchoolUI() {
       const school = getActiveSchool();
-      document.getElementById('headerSchoolName').textContent = school.name;
-      document.getElementById('canvasSchoolTitle').textContent = school.name;
-      document.getElementById('badgeSchoolName').textContent = school.name;
-      document.getElementById('clientSchoolHeader').textContent = school.name.toUpperCase();
+      const hTitle = document.getElementById('headerSchoolName');
+      const cTitle = document.getElementById('canvasSchoolTitle');
+      const bTitle = document.getElementById('badgeSchoolName');
+      const sHeader = document.getElementById('clientSchoolHeader');
+
+      if (hTitle) hTitle.textContent = school.name;
+      if (cTitle) cTitle.textContent = school.name;
+      if (bTitle) bTitle.textContent = school.name;
+      if (sHeader) sHeader.textContent = school.name.toUpperCase();
     }
 
     function openNewSchoolModal() {
@@ -825,7 +758,7 @@
       const name = document.getElementById('newSchoolNameInput').value.trim();
       if (!name) return alert('Please enter a valid school name.');
       const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-      if (AppState.schools.find(s => s.id === slug)) return alert('A school folder with this name already exists.');
+      if (AppState.schools.find(s => s.id === slug)) return alert('A school with this name already exists.');
 
       const activeSchool = getActiveSchool();
       const newSchool = {
@@ -866,14 +799,14 @@
 
       const optPhoto = document.createElement('option');
       optPhoto.value = 'photo_frame';
-      optPhoto.textContent = '🖼️ Student Photo Frame';
+      optPhoto.textContent = 'Student Photo Frame';
       if (AppState.activeLayerId === 'photo_frame') optPhoto.selected = true;
       select.appendChild(optPhoto);
 
       school.lines.forEach(line => {
         const opt = document.createElement('option');
         opt.value = line.id;
-        opt.textContent = `📝 Text: ${line.label}`;
+        opt.textContent = `Text: ${line.label}`;
         if (AppState.activeLayerId === line.id) opt.selected = true;
         select.appendChild(opt);
       });
@@ -895,10 +828,12 @@
       const btnDeleteLine = document.getElementById('btnDeleteLine');
 
       if (isPhoto) {
-        typoControls.classList.add('hidden');
-        photoControls.classList.remove('hidden');
-        btnDeleteLine.disabled = true;
-        btnDeleteLine.classList.add('opacity-40', 'cursor-not-allowed');
+        if (typoControls) typoControls.classList.add('hidden');
+        if (photoControls) photoControls.classList.remove('hidden');
+        if (btnDeleteLine) {
+          btnDeleteLine.disabled = true;
+          btnDeleteLine.classList.add('opacity-40', 'cursor-not-allowed');
+        }
 
         const pf = school.photoFrame;
         document.getElementById('inputPosX').value = pf.x;
@@ -908,10 +843,12 @@
         document.getElementById('inputPhotoRadius').value = pf.radius;
         document.getElementById('inputPhotoBorderWidth').value = pf.borderWidth;
       } else {
-        typoControls.classList.remove('hidden');
-        photoControls.classList.add('hidden');
-        btnDeleteLine.disabled = false;
-        btnDeleteLine.classList.remove('opacity-40', 'cursor-not-allowed');
+        if (typoControls) typoControls.classList.remove('hidden');
+        if (photoControls) photoControls.classList.add('hidden');
+        if (btnDeleteLine) {
+          btnDeleteLine.disabled = false;
+          btnDeleteLine.classList.remove('opacity-40', 'cursor-not-allowed');
+        }
 
         const line = school.lines.find(l => l.id === AppState.activeLayerId) || school.lines[0];
         if (line) {
@@ -1008,7 +945,7 @@
     function confirmAddNewLine() {
       const label = document.getElementById('newLineLabelInput').value.trim();
       const defaultVal = document.getElementById('newLineDefaultInput').value.trim() || 'Sample Info';
-      if (!label) return alert('Please enter a valid line label.');
+      if (!label) return alert('Please enter a valid label.');
 
       const school = getActiveSchool();
       const id = 'line_' + Date.now();
@@ -1034,22 +971,22 @@
       renderLayerSelector();
       renderInteractiveCard();
       renderClientFormFields();
-      lucide.createIcons();
+      if (window.lucide) lucide.createIcons();
     }
 
     function deleteSelectedLine() {
       if (AppState.activeLayerId === 'photo_frame') return;
       const school = getActiveSchool();
-      if (school.lines.length <= 1) return alert('At least one text line must be maintained.');
+      if (school.lines.length <= 1) return alert('Keep at least one text line.');
 
-      if (confirm('Are you sure you want to delete this text line?')) {
+      if (confirm('Delete this line?')) {
         school.lines = school.lines.filter(l => l.id !== AppState.activeLayerId);
         AppState.activeLayerId = school.lines[0]?.id || 'photo_frame';
         persistAppState();
         renderLayerSelector();
         renderInteractiveCard();
         renderClientFormFields();
-        lucide.createIcons();
+        if (window.lucide) lucide.createIcons();
       }
     }
 
@@ -1060,8 +997,11 @@
 
     function renderInteractiveCard() {
       const school = getActiveSchool();
-      document.getElementById('cardTemplateImg').src = school.templateImg || DEFAULT_TEMPLATE_SVG;
+      const tImg = document.getElementById('cardTemplateImg');
+      if (tImg) tImg.src = school.templateImg || DEFAULT_TEMPLATE_SVG;
+
       const container = document.getElementById('interactiveLayersContainer');
+      if (!container) return;
       container.innerHTML = '';
 
       const pf = school.photoFrame;
@@ -1166,7 +1106,7 @@
       if (!tbody) return;
       tbody.innerHTML = '';
 
-      badgeTotalCount.textContent = `Total: ${school.submissions.length} Cards`;
+      if (badgeTotalCount) badgeTotalCount.textContent = `Total: ${school.submissions.length} Cards`;
 
       const filtered = school.submissions.filter(rec => {
         if (!AppState.searchQuery) return true;
@@ -1175,18 +1115,17 @@
       });
 
       if (filtered.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="8" class="text-center py-8 text-slate-400 font-medium">No student records found for ${school.name}.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="8" class="text-center py-8 text-slate-400 font-medium">No records found. Waiting for submissions...</td></tr>`;
         return;
       }
 
       filtered.forEach((rec, index) => {
         const tr = document.createElement('tr');
         tr.className = "hover:bg-slate-50/80 transition-colors";
-
         tr.innerHTML = `
           <td class="py-2.5 px-4 font-mono font-bold text-slate-500 text-center">#${index + 1}</td>
           <td class="py-2.5 px-4 text-center">
-            <img src="${rec.photo}" class="w-8 h-8 rounded-lg object-cover mx-auto border border-slate-300 shadow-2xs">
+            <img src="${rec.photo}" class="w-8 h-8 rounded-lg object-cover mx-auto border border-slate-300">
           </td>
           <td class="py-2.5 px-4 font-bold text-slate-900">${rec.data.student_name || '—'}</td>
           <td class="py-2.5 px-4 font-medium text-slate-700">${rec.data.father || '—'}</td>
@@ -1194,25 +1133,12 @@
           <td class="py-2.5 px-4 font-mono text-slate-600">${rec.data.mobile || '—'}</td>
           <td class="py-2.5 px-4 text-slate-600">${rec.data.address || '—'}</td>
           <td class="py-2.5 px-4 text-right">
-            <div class="flex items-center justify-end space-x-1">
-              <button onclick="openViewStudentCardModal('${rec.id}')" title="Preview Card" class="p-1.5 hover:bg-blue-50 text-blue-600 rounded-md transition">
-                <i data-lucide="eye" class="w-3.5 h-3.5"></i>
-              </button>
-              <button onclick="openEditStudentRecordModal('${rec.id}')" title="Edit Student" class="p-1.5 hover:bg-amber-50 text-amber-600 rounded-md transition">
-                <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
-              </button>
-              <button onclick="downloadSingleStudentCard('${rec.id}')" title="Download PNG" class="p-1.5 hover:bg-emerald-50 text-emerald-600 rounded-md transition">
-                <i data-lucide="download" class="w-3.5 h-3.5"></i>
-              </button>
-              <button onclick="deleteStudentRecord('${rec.id}')" title="Delete Student" class="p-1.5 hover:bg-rose-50 text-rose-600 rounded-md transition">
-                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-              </button>
-            </div>
+            <button onclick="deleteStudentRecord('${rec.docId}')" class="p-1.5 text-rose-600 hover:bg-rose-50 rounded">Delete</button>
           </td>
         `;
         tbody.appendChild(tr);
       });
-      lucide.createIcons();
+      if (window.lucide) lucide.createIcons();
     }
 
     function handleTableSearch(val) {
@@ -1220,102 +1146,20 @@
       renderStudentsTable();
     }
 
-    function deleteStudentRecord(recordId) {
-      if (confirm("Are you sure you want to permanently delete this student record?")) {
-        const school = getActiveSchool();
-        school.submissions = school.submissions.filter(r => r.id !== recordId);
-        persistAppState();
-        renderStudentsTable();
+    function deleteStudentRecord(docId) {
+      if (!docId) return;
+      if (confirm("Permanently delete this record from Cloud Database?")) {
+        db.collection("submissions").doc(docId).delete().then(() => {
+          alert("Record deleted from cloud.");
+        }).catch(err => {
+          alert("Error deleting: " + err.message);
+        });
       }
-    }
-
-    function openEditStudentRecordModal(recordId) {
-      activeEditingRecordId = recordId;
-      const school = getActiveSchool();
-      const rec = school.submissions.find(r => r.id === recordId);
-      if (!rec) return;
-
-      const container = document.getElementById('editModalInputsContainer');
-      container.innerHTML = '';
-
-      school.lines.forEach(line => {
-        const val = rec.data[line.id] || '';
-        const div = document.createElement('div');
-        div.innerHTML = `
-          <label class="block text-[11px] font-bold uppercase text-slate-600 mb-1">${line.label}</label>
-          <input type="text" id="edit_input_${line.id}" value="${val}" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-blue-500 outline-none">
-        `;
-        container.appendChild(div);
-      });
-
-      document.getElementById('editStudentRecordModal').classList.remove('hidden');
-    }
-
-    function closeEditStudentRecordModal() {
-      document.getElementById('editStudentRecordModal').classList.add('hidden');
-      activeEditingRecordId = null;
-    }
-
-    function saveStudentRecordChanges() {
-      if (!activeEditingRecordId) return;
-      const school = getActiveSchool();
-      const rec = school.submissions.find(r => r.id === activeEditingRecordId);
-      if (!rec) return;
-
-      school.lines.forEach(line => {
-        const input = document.getElementById(`edit_input_${line.id}`);
-        if (input) rec.data[line.id] = input.value.trim();
-      });
-
-      persistAppState();
-      closeEditStudentRecordModal();
-      renderStudentsTable();
-    }
-
-    function deleteStudentInsideModal() {
-      if (!activeEditingRecordId) return;
-      deleteStudentRecord(activeEditingRecordId);
-      closeEditStudentRecordModal();
-    }
-
-    function openViewStudentCardModal(recordId) {
-      activeViewingRecordId = recordId;
-      const school = getActiveSchool();
-      const rec = school.submissions.find(r => r.id === recordId);
-      if (!rec) return;
-
-      document.getElementById('viewCardModalTitle').textContent = `${rec.data.student_name || 'Student'} (#${rec.id})`;
-      const renderBox = document.getElementById('viewCardModalRenderBox');
-      renderBox.innerHTML = buildRenderedCardHTML(school, rec.data, rec.photo);
-
-      document.getElementById('viewStudentCardModal').classList.remove('hidden');
-      lucide.createIcons();
-    }
-
-    function closeViewStudentCardModal() {
-      document.getElementById('viewStudentCardModal').classList.add('hidden');
-      activeViewingRecordId = null;
-    }
-
-    function openEditFromViewModal() {
-      const id = activeViewingRecordId;
-      closeViewStudentCardModal();
-      openEditStudentRecordModal(id);
-    }
-
-    function deleteActiveViewCard() {
-      const id = activeViewingRecordId;
-      closeViewStudentCardModal();
-      deleteStudentRecord(id);
-    }
-
-    function downloadActiveViewCard() {
-      if (activeViewingRecordId) downloadSingleStudentCard(activeViewingRecordId);
     }
 
     function exportSchoolCSV() {
       const school = getActiveSchool();
-      if (school.submissions.length === 0) return alert('No records to export in this school folder.');
+      if (school.submissions.length === 0) return alert('No records to export.');
 
       const headers = ['# No', 'Record ID', ...school.lines.map(l => l.label), 'Timestamp'];
       const rows = school.submissions.map((rec, i) => [
@@ -1326,39 +1170,20 @@
       ]);
 
       const csvContent = "data:text/csv;charset=utf-8," + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
-      const encodedUri = encodeURI(csvContent);
       const link = document.createElement("a");
-      link.setAttribute("href", encodedUri);
-      link.setAttribute("download", `${school.id}_students_data.csv`);
+      link.setAttribute("href", encodeURI(csvContent));
+      link.setAttribute("download", `${school.id}_students.csv`);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
     }
 
-    async function downloadSingleStudentCard(recordId) {
-      const school = getActiveSchool();
-      const rec = school.submissions.find(r => r.id === recordId);
-      if (!rec) return;
-
-      const blob = await generate300DpiCardBlob(school, rec.data, rec.photo);
-      saveAs(blob, `${(rec.data.student_name || 'student').replace(/[^a-z0-9]/gi, '_')}_ID_Card.png`);
-    }
-
     async function downloadEntireSchoolFolderZip() {
       const school = getActiveSchool();
-      if (school.submissions.length === 0) return alert('This school folder contains no student submissions.');
+      if (school.submissions.length === 0) return alert('No submissions found.');
 
       const zip = new JSZip();
       const folder = zip.folder(`${school.id}_ID_Cards`);
-
-      const headers = ['# No', 'Record ID', ...school.lines.map(l => l.label), 'Image File'];
-      const rows = school.submissions.map((rec, i) => [
-        i + 1,
-        rec.id,
-        ...school.lines.map(l => `"${(rec.data[l.id] || '').replace(/"/g, '""')}"`),
-        `${(rec.data.student_name || 'student').replace(/[^a-z0-9]/gi, '_')}_${rec.id}.png`
-      ]);
-      folder.file("students_list.csv", [headers.join(','), ...rows.map(e => e.join(','))].join('\n'));
 
       for (let i = 0; i < school.submissions.length; i++) {
         const rec = school.submissions[i];
@@ -1368,7 +1193,7 @@
       }
 
       const zipBlob = await zip.generateAsync({ type: "blob" });
-      saveAs(zipBlob, `${school.id}_All_ID_Cards.zip`);
+      saveAs(zipBlob, `${school.id}_All_Cards.zip`);
     }
 
     function generate300DpiCardBlob(school, dataMap, photoUrl) {
@@ -1416,7 +1241,7 @@
               const lSize = (line.fontSize / 460) * 1012;
               const val = dataMap[line.id] || line.defaultVal;
 
-              ctx.font = `${line.fontWeight} ${lSize}px ${line.fontFamily}, Montserrat, sans-serif`;
+              ctx.font = `${line.fontWeight} ${lSize}px ${line.fontFamily}, sans-serif`;
               ctx.fillStyle = line.color || "#0f2b5c";
 
               if (line.id === 'student_name') {
@@ -1445,17 +1270,7 @@
         const val = dataMap[line.id] || line.defaultVal;
         const isName = line.id === 'student_name';
         linesHtml += `
-          <div style="
-            position: absolute;
-            left: ${line.x}%;
-            top: ${line.y}%;
-            transform: ${isName ? 'translate(-50%, -50%)' : 'translate(0%, -50%)'};
-            font-family: ${line.fontFamily};
-            font-size: ${Math.round(line.fontSize * 0.9)}px;
-            font-weight: ${line.fontWeight};
-            color: ${line.color};
-            white-space: nowrap;
-          ">
+          <div style="position: absolute; left: ${line.x}%; top: ${line.y}%; transform: ${isName ? 'translate(-50%, -50%)' : 'translate(0%, -50%)'}; font-family: ${line.fontFamily}; font-size: ${Math.round(line.fontSize * 0.9)}px; font-weight: ${line.fontWeight}; color: ${line.color}; white-space: nowrap;">
             ${isName ? val.toUpperCase() : (line.prefix || '') + val}
           </div>
         `;
@@ -1464,17 +1279,7 @@
       return `
         <div style="position: relative; width: 100%; height: 100%; background: #ffffff;">
           <img src="${school.templateImg || DEFAULT_TEMPLATE_SVG}" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: fill;">
-          <div style="
-            position: absolute;
-            left: ${pf.x}%;
-            top: ${pf.y}%;
-            width: ${pf.width}%;
-            height: ${pf.height}%;
-            transform: translate(-50%, -50%);
-            border-radius: ${pf.radius}px;
-            border: ${pf.borderWidth}px solid ${pf.borderColor};
-            overflow: hidden;
-          ">
+          <div style="position: absolute; left: ${pf.x}%; top: ${pf.y}%; width: ${pf.width}%; height: ${pf.height}%; transform: translate(-50%, -50%); border-radius: ${pf.radius}px; border: ${pf.borderWidth}px solid ${pf.borderColor}; overflow: hidden;">
             <img src="${photoUrl}" style="width: 100%; height: 100%; object-fit: cover;">
           </div>
           ${linesHtml}
@@ -1495,7 +1300,7 @@
           <label class="block text-xs font-bold text-slate-800">
             ${line.label} <span class="text-rose-500">*</span>
           </label>
-          <input type="text" id="client_field_${line.id}" class="w-full bg-white border border-slate-300 rounded-xl px-4 py-2.5 text-xs text-slate-800 focus:ring-2 focus:ring-blue-600 outline-none transition uppercase shadow-2xs">
+          <input type="text" id="client_field_${line.id}" class="w-full bg-white border border-slate-300 rounded-xl px-4 py-2.5 text-xs text-slate-800 focus:ring-2 focus:ring-blue-600 outline-none uppercase shadow-2xs">
         `;
         container.appendChild(div);
       });
@@ -1514,22 +1319,22 @@
 
     function updateClientPhotoThumbnail() {
       const thumb = document.getElementById('clientPhotoThumb');
-      thumb.innerHTML = `<img src="${clientUploadedPhotoBase64}" class="w-full h-full object-cover">`;
+      if (thumb) thumb.innerHTML = `<img src="${clientUploadedPhotoBase64}" class="w-full h-full object-cover">`;
     }
 
     function openCameraModal() {
       const modal = document.getElementById('cameraCaptureModal');
       const video = document.getElementById('webcamVideo');
-      modal.classList.remove('hidden');
+      if (modal) modal.classList.remove('hidden');
 
       if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
         navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', aspectRatio: 1.03 } })
           .then(stream => {
             webcamMediaStream = stream;
-            video.srcObject = stream;
+            if (video) video.srcObject = stream;
           })
           .catch(err => {
-            alert('Camera access denied or unavailable: ' + err.message);
+            alert('Camera unavailable: ' + err.message);
             closeCameraModal();
           });
       }
@@ -1540,7 +1345,8 @@
         webcamMediaStream.getTracks().forEach(track => track.stop());
         webcamMediaStream = null;
       }
-      document.getElementById('cameraCaptureModal').classList.add('hidden');
+      const modal = document.getElementById('cameraCaptureModal');
+      if (modal) modal.classList.add('hidden');
     }
 
     function captureSnapshotFromWebcam() {
@@ -1568,50 +1374,63 @@
         payload[line.id] = val;
       });
 
-      if (hasError) {
-        return alert("Please fill in all required fields before previewing.");
-      }
-      if (!clientUploadedPhotoBase64) {
-        return alert("Please upload or take a student photo.");
-      }
+      if (hasError) return alert("Please fill in all required fields.");
+      if (!clientUploadedPhotoBase64) return alert("Please add a photo.");
 
-      pendingSubmissionPayload = {
-        data: payload,
-        photo: clientUploadedPhotoBase64
-      };
+      pendingSubmissionPayload = { data: payload, photo: clientUploadedPhotoBase64 };
 
       const previewBox = document.getElementById('modalCardPreviewContainer');
-      previewBox.innerHTML = buildRenderedCardHTML(school, payload, clientUploadedPhotoBase64);
-      document.getElementById('previewVerificationModal').classList.remove('hidden');
-      lucide.createIcons();
+      if (previewBox) previewBox.innerHTML = buildRenderedCardHTML(school, payload, clientUploadedPhotoBase64);
+      const modal = document.getElementById('previewVerificationModal');
+      if (modal) modal.classList.remove('hidden');
+      if (window.lucide) lucide.createIcons();
     }
 
     function closePreviewVerificationModal() {
-      document.getElementById('previewVerificationModal').classList.add('hidden');
+      const modal = document.getElementById('previewVerificationModal');
+      if (modal) modal.classList.add('hidden');
     }
 
     function executeFinalClientSubmit() {
       if (!pendingSubmissionPayload) return;
       const school = getActiveSchool();
+      const btn = document.getElementById('finalSubmitBtn');
+      if (btn) {
+        btn.disabled = true;
+        btn.textContent = "Uploading to Cloud...";
+      }
+
       const newRec = {
-        id: `REC-${1000 + school.submissions.length + 1}`,
+        id: `REC-${Date.now().toString().slice(-4)}`,
+        schoolId: school.id,
         timestamp: new Date().toISOString().replace('T', ' ').slice(0, 16),
         photo: pendingSubmissionPayload.photo,
         data: pendingSubmissionPayload.data
       };
 
-      school.submissions.push(newRec);
-      persistAppState();
+      // WRITE TO FIRESTORE CLOUD DATABASE
+      db.collection("submissions").add(newRec).then(() => {
+        closePreviewVerificationModal();
+        pendingSubmissionPayload = null;
+        clientUploadedPhotoBase64 = DEFAULT_STUDENT_PHOTO;
+        const thumb = document.getElementById('clientPhotoThumb');
+        if (thumb) thumb.innerHTML = `<i data-lucide="image" class="w-6 h-6 text-slate-400"></i>`;
+        renderClientFormFields();
 
-      closePreviewVerificationModal();
-      pendingSubmissionPayload = null;
-      clientUploadedPhotoBase64 = DEFAULT_STUDENT_PHOTO;
-      document.getElementById('clientPhotoThumb').innerHTML = `<i data-lucide="image" class="w-6 h-6 text-slate-400"></i>`;
-      renderClientFormFields();
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = `<i data-lucide="check-circle" class="w-3.5 h-3.5"></i><span>Final Submit & New Entry</span>`;
+        }
 
-      alert(`✅ Success! Student record (${newRec.id}) has been submitted.\n\nThe form is now reset for the next entry.`);
-      renderStudentsTable();
-      lucide.createIcons();
+        alert(`✅ Submitted successfully! The record is now synced to the cloud and visible on all devices.`);
+        if (window.lucide) lucide.createIcons();
+      }).catch(err => {
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = "Final Submit & New Entry";
+        }
+        alert("Upload error: " + err.message);
+      });
     }
 
     window.addEventListener('DOMContentLoaded', initApp);
