@@ -585,7 +585,6 @@
 
     const DEFAULT_STUDENT_PHOTO = `https://images.unsplash.com/photo-1544717305-2782549b5136?w=600&auto=format&fit=crop&q=80`;
 
-    // Standard starting layout: Student Name is centered, other lines start at 42% X and flow rightwards
     const INITIAL_DEFAULT_SCHOOL = {
       id: "padmalaya-mbnr",
       name: "Padmalaya High School MBNR",
@@ -617,7 +616,7 @@
     let activeCropper = null;
 
     async function initApp() {
-      const cached = localStorage.getItem('innovatech_schools_cache_v7');
+      const cached = localStorage.getItem('innovatech_schools_cache_v8');
       if (cached) {
         try { AppState.schools = JSON.parse(cached); } catch(e){}
       }
@@ -649,7 +648,6 @@
           const cloudSchools = [];
           snapshot.forEach(doc => {
             const data = doc.data();
-            // Default alignment to left for detail lines if unset
             if (data.lines) {
               data.lines.forEach(l => {
                 if (!l.align) l.align = (l.id === 'student_name' ? 'center' : 'left');
@@ -658,7 +656,7 @@
             cloudSchools.push(data);
           });
           AppState.schools = cloudSchools;
-          localStorage.setItem('innovatech_schools_cache_v7', JSON.stringify(AppState.schools));
+          localStorage.setItem('innovatech_schools_cache_v8', JSON.stringify(AppState.schools));
           renderSchoolDropdown();
           syncActiveSchoolUI();
           renderInteractiveCard();
@@ -687,26 +685,43 @@
     }
 
     function saveSchoolToCloud(school) {
-      localStorage.setItem('innovatech_schools_cache_v7', JSON.stringify(AppState.schools));
+      localStorage.setItem('innovatech_schools_cache_v8', JSON.stringify(AppState.schools));
       db.collection("school_configs").doc(school.id).set(school, { merge: true })
         .catch(err => console.error("Error saving school to cloud:", err));
     }
 
+    // STRICT SECURE VIEW SWITCHER & PIN AUTHENTICATION
     function switchView(viewName) {
       if (viewName === 'admin') {
         const sessionAuth = sessionStorage.getItem('admin_authenticated');
         if (sessionAuth !== 'true') {
           const enteredPin = prompt("Enter Innovatech Admin Master PIN:");
-          if (enteredPin === ADMIN_MASTER_PIN) {
-            sessionStorage.setItem('admin_authenticated', 'true');
+          
+          // Strict verification: user pressed cancel or entered wrong PIN
+          if (enteredPin === null || enteredPin.trim() !== ADMIN_MASTER_PIN) {
+            alert("Access Denied: Incorrect or cancelled Master PIN.");
+            sessionStorage.removeItem('admin_authenticated');
+            
+            // Clean URL to prevent re-triggering prompt
+            const cleanUrl = window.location.origin + window.location.pathname + `?school=${encodeURIComponent(AppState.activeSchoolId)}&view=school`;
+            window.history.replaceState({}, '', cleanUrl);
+            
+            // Force return to client form
+            viewName = 'school';
           } else {
-            alert("Access Denied: Incorrect Master PIN.");
-            return;
+            sessionStorage.setItem('admin_authenticated', 'true');
           }
         }
+      }
+
+      if (viewName === 'admin') {
         document.body.classList.remove('client-mode');
+        const adminUrl = window.location.origin + window.location.pathname + `?school=${encodeURIComponent(AppState.activeSchoolId)}&view=admin`;
+        window.history.replaceState({}, '', adminUrl);
       } else {
         document.body.classList.add('client-mode');
+        const clientUrl = window.location.origin + window.location.pathname + `?school=${encodeURIComponent(AppState.activeSchoolId)}&view=school`;
+        window.history.replaceState({}, '', clientUrl);
       }
 
       AppState.currentView = viewName;
@@ -819,7 +834,7 @@
         db.collection("school_configs").doc(school.id).delete();
         AppState.schools = AppState.schools.filter(s => s.id !== school.id);
         AppState.activeSchoolId = AppState.schools[0].id;
-        localStorage.setItem('innovatech_schools_cache_v7', JSON.stringify(AppState.schools));
+        localStorage.setItem('innovatech_schools_cache_v8', JSON.stringify(AppState.schools));
         renderSchoolDropdown();
         changeActiveSchool(AppState.activeSchoolId);
       }
@@ -1095,7 +1110,6 @@
         textDiv.style.left = `${line.x}%`;
         textDiv.style.top = `${line.y}%`;
         
-        // Alignment handling: Left-aligned starts at X and extends rightwards
         if (line.align === 'center') {
           textDiv.style.transform = 'translate(-50%, -50%)';
         } else {
@@ -1311,17 +1325,17 @@
       }
     }
 
-    // FULL RELIABLE CSV EXPORT DIRECT FROM FIRESTORE
+    // FULL CSV EXPORT WITH CLEAN HEADERS AND STUDENT PHOTO DATA
     async function exportSchoolCSV() {
       const school = getActiveSchool();
       
-      // Pull fresh data from cloud
       const snapshot = await db.collection("submissions").where("schoolId", "==", school.id).get();
       if (snapshot.empty) {
         return alert('No student records found in cloud for ' + school.name);
       }
 
-      const headers = ['# No', 'Record ID', ...school.lines.map(l => l.label.replace('Enter Your ', '')), 'Timestamp'];
+      // Add Photo Data URL Column
+      const headers = ['# No', 'Record ID', ...school.lines.map(l => l.label.replace('Enter Your ', '')), 'Photo Data URL', 'Timestamp'];
       const rows = [];
       let index = 1;
 
@@ -1331,7 +1345,8 @@
           index++,
           doc.id,
           ...school.lines.map(l => `"${(rec.data[l.id] || '').replace(/"/g, '""')}"`),
-          rec.timestamp || ''
+          `"${(rec.photo || '').replace(/"/g, '""')}"`,
+          `"${rec.timestamp || ''}"`
         ];
         rows.push(row.join(','));
       });
@@ -1400,7 +1415,6 @@
               ctx.restore();
             }
 
-            // Print pure student data values: left-aligned flows towards right
             school.lines.forEach(line => {
               const lx = (line.x / 100) * 1012;
               const ly = (line.y / 100) * 1575;
@@ -1470,7 +1484,6 @@
       });
     }
 
-    // PHOTO UPLOAD & AUTOMATIC CROPPER LAUNCH
     function handleRawPhotoSelected(event) {
       const file = event.target.files[0];
       if (!file) return;
@@ -1492,7 +1505,6 @@
         activeCropper.destroy();
       }
 
-      // Initialize Cropper with optimal portrait ratio
       const school = getActiveSchool();
       const pf = school.photoFrame;
       const aspectRatio = (pf.width / pf.height) || 0.85;
@@ -1631,7 +1643,6 @@
         data: pendingSubmissionPayload.data
       };
 
-      // Write directly to Firestore
       db.collection("submissions").add(newRec).then(() => {
         closePreviewVerificationModal();
         pendingSubmissionPayload = null;
