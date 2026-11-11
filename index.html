@@ -171,7 +171,7 @@
             </label>
           </div>
 
-          <!-- Coordinates & Nudge Controls -->
+          <!-- Coordinates & Controls -->
           <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200 space-y-3">
             <div class="flex items-center justify-between">
               <span class="font-bold text-slate-700 uppercase tracking-wider text-[11px] flex items-center space-x-1.5">
@@ -349,16 +349,32 @@
           </span>
         </div>
 
-        <div class="flex items-center space-x-2">
+        <!-- Toolbar Actions -->
+        <div class="flex flex-wrap items-center gap-2">
+          <!-- Submission Date Filter Dropdown -->
+          <div class="flex items-center space-x-1.5 bg-white border border-slate-300 rounded-lg px-2.5 py-1">
+            <i data-lucide="calendar" class="w-3.5 h-3.5 text-blue-600"></i>
+            <select id="submissionDateFilter" onchange="handleDateFilterChange(this.value)" class="text-xs font-semibold text-slate-700 bg-transparent outline-none cursor-pointer">
+              <option value="ALL">All Submission Dates</option>
+            </select>
+          </div>
+
+          <!-- Search Input -->
           <div class="relative">
             <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2"></i>
-            <input type="text" id="tableSearchInput" oninput="handleTableSearch(this.value)" placeholder="Search students..." class="bg-white border border-slate-300 rounded-lg pl-8 pr-3 py-1.5 text-xs text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 outline-none w-44 md:w-56">
+            <input type="text" id="tableSearchInput" oninput="handleTableSearch(this.value)" placeholder="Search students..." class="bg-white border border-slate-300 rounded-lg pl-8 pr-3 py-1.5 text-xs text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 outline-none w-36 sm:w-48">
           </div>
           
           <!-- TRUE EXCEL (.XLSX) WITH EMBEDDED PHOTOS -->
-          <button id="btnExcelExport" onclick="downloadGenuineExcelWithPhotos()" class="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold flex items-center space-x-1.5 transition shadow-2xs">
+          <button id="btnExcelExport" onclick="downloadGenuineExcelWithPhotos()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold flex items-center space-x-1.5 transition shadow-2xs">
             <i data-lucide="file-spreadsheet" class="w-3.5 h-3.5"></i>
-            <span>Download Excel (.xlsx with Photos)</span>
+            <span>Excel (.xlsx)</span>
+          </button>
+
+          <!-- A4 BATCH PRINT SHEETS (10 CARDS PER PAGE WITH CUTTING MARGINS) -->
+          <button onclick="openA4BatchPrintWindow()" class="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-extrabold flex items-center space-x-1.5 transition shadow-2xs">
+            <i data-lucide="printer" class="w-3.5 h-3.5"></i>
+            <span>A4 Print Sheets (10/Page)</span>
           </button>
           
           <!-- CLEAN CSV EXPORT -->
@@ -369,7 +385,7 @@
           
           <button onclick="downloadEntireSchoolFolderZip()" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold flex items-center space-x-1.5 transition shadow-2xs">
             <i data-lucide="archive" class="w-3.5 h-3.5"></i>
-            <span>Download All ZIP (300 DPI)</span>
+            <span>ZIP (300 DPI)</span>
           </button>
         </div>
       </div>
@@ -386,6 +402,7 @@
               <th class="py-2.5 px-3">Contact</th>
               <th class="py-2.5 px-3">Address Line 1</th>
               <th class="py-2.5 px-3">Address Line 2</th>
+              <th class="py-2.5 px-3">Submission Date</th>
               <th class="py-2.5 px-3 text-center">Actions</th>
             </tr>
           </thead>
@@ -635,6 +652,7 @@
       activeLayerId: 'student_name',
       cardZoom: 1.0,
       searchQuery: '',
+      dateFilter: 'ALL',
       schools: [],
       submissions: []
     };
@@ -646,7 +664,7 @@
     let activeCropper = null;
 
     async function initApp() {
-      const cached = localStorage.getItem('innovatech_schools_cache_v15');
+      const cached = localStorage.getItem('innovatech_schools_cache_v16');
       if (cached) {
         try { AppState.schools = JSON.parse(cached); } catch(e){}
       }
@@ -687,7 +705,7 @@
             cloudSchools.push(data);
           });
           AppState.schools = cloudSchools;
-          localStorage.setItem('innovatech_schools_cache_v15', JSON.stringify(AppState.schools));
+          localStorage.setItem('innovatech_schools_cache_v16', JSON.stringify(AppState.schools));
           renderSchoolDropdown();
           syncActiveSchoolUI();
           renderInteractiveCard();
@@ -705,6 +723,7 @@
           item.docId = doc.id;
           AppState.submissions.push(item);
         });
+        updateDateFilterOptions();
         renderStudentsTable();
       });
 
@@ -716,7 +735,7 @@
     }
 
     function saveSchoolToCloud(school) {
-      localStorage.setItem('innovatech_schools_cache_v15', JSON.stringify(AppState.schools));
+      localStorage.setItem('innovatech_schools_cache_v16', JSON.stringify(AppState.schools));
       db.collection("school_configs").doc(school.id).set(school, { merge: true })
         .catch(err => console.error("Error saving school to cloud:", err));
     }
@@ -800,6 +819,7 @@
       renderLayerSelector();
       syncActiveSchoolUI();
       renderInteractiveCard();
+      updateDateFilterOptions();
       renderStudentsTable();
       renderClientFormFields();
       if (window.lucide) lucide.createIcons();
@@ -858,7 +878,7 @@
         db.collection("school_configs").doc(school.id).delete();
         AppState.schools = AppState.schools.filter(s => s.id !== school.id);
         AppState.activeSchoolId = AppState.schools[0].id;
-        localStorage.setItem('innovatech_schools_cache_v15', JSON.stringify(AppState.schools));
+        localStorage.setItem('innovatech_schools_cache_v16', JSON.stringify(AppState.schools));
         renderSchoolDropdown();
         changeActiveSchool(AppState.activeSchoolId);
       }
@@ -1221,6 +1241,65 @@
       });
     }
 
+    // Dynamic Date Filter Extractor
+    function updateDateFilterOptions() {
+      const select = document.getElementById('submissionDateFilter');
+      if (!select) return;
+      const school = getActiveSchool();
+      const schoolSubs = AppState.submissions.filter(r => r.schoolId === school.id);
+
+      const dates = new Set();
+      schoolSubs.forEach(r => {
+        if (r.timestamp) {
+          const d = r.timestamp.split(' ')[0];
+          if (d) dates.add(d);
+        }
+      });
+
+      const currentVal = AppState.dateFilter;
+      select.innerHTML = '<option value="ALL">All Submission Dates</option>';
+      Array.from(dates).sort().reverse().forEach(dateStr => {
+        const opt = document.createElement('option');
+        opt.value = dateStr;
+        opt.textContent = `Date: ${dateStr}`;
+        if (dateStr === currentVal) opt.selected = true;
+        select.appendChild(opt);
+      });
+    }
+
+    function handleDateFilterChange(val) {
+      AppState.dateFilter = val;
+      renderStudentsTable();
+    }
+
+    function handleTableSearch(val) {
+      AppState.searchQuery = val;
+      renderStudentsTable();
+    }
+
+    function getFilteredSchoolSubmissions() {
+      const school = getActiveSchool();
+      return AppState.submissions.filter(r => {
+        if (r.schoolId !== school.id) return false;
+        
+        // Date Filtering (Day 1 vs Day 2)
+        if (AppState.dateFilter !== 'ALL') {
+          const rDate = (r.timestamp || '').split(' ')[0];
+          if (rDate !== AppState.dateFilter) return false;
+        }
+
+        // Text Search Filtering
+        if (AppState.searchQuery) {
+          const q = AppState.searchQuery.toLowerCase();
+          const matchField = Object.values(rec.data || {}).some(val => String(val).toLowerCase().includes(q));
+          const matchDoc = r.docId && r.docId.toLowerCase().includes(q);
+          if (!matchField && !matchDoc) return false;
+        }
+
+        return true;
+      });
+    }
+
     function renderStudentsTable() {
       const school = getActiveSchool();
       const tbody = document.getElementById('studentRecordsTableBody');
@@ -1228,17 +1307,11 @@
       if (!tbody) return;
       tbody.innerHTML = '';
 
-      const schoolSubmissions = AppState.submissions.filter(r => r.schoolId === school.id);
-      if (badgeTotalCount) badgeTotalCount.textContent = `Total: ${schoolSubmissions.length} Cards`;
-
-      const filtered = schoolSubmissions.filter(rec => {
-        if (!AppState.searchQuery) return true;
-        const q = AppState.searchQuery.toLowerCase();
-        return Object.values(rec.data || {}).some(val => String(val).toLowerCase().includes(q)) || (rec.id && rec.id.toLowerCase().includes(q));
-      });
+      const filtered = getFilteredSchoolSubmissions();
+      if (badgeTotalCount) badgeTotalCount.textContent = `Showing: ${filtered.length} Cards`;
 
       if (filtered.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="9" class="text-center py-8 text-slate-400 font-medium">No records found for this school folder.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="10" class="text-center py-8 text-slate-400 font-medium">No records found for this selection.</td></tr>`;
         return;
       }
 
@@ -1256,6 +1329,7 @@
           <td class="py-2 px-3 font-mono text-slate-600">${rec.data.mobile || '—'}</td>
           <td class="py-2 px-3 text-slate-600">${rec.data.address || '—'}</td>
           <td class="py-2 px-3 text-slate-600">${rec.data.address2 || '—'}</td>
+          <td class="py-2 px-3 font-mono text-[11px] text-slate-500">${rec.timestamp || '—'}</td>
           <td class="py-2 px-3 text-center">
             <div class="flex items-center justify-center space-x-1.5">
               <button onclick="viewStudentRecord('${rec.docId}')" title="View Card" class="p-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-md transition">
@@ -1276,11 +1350,6 @@
         tbody.appendChild(tr);
       });
       if (window.lucide) lucide.createIcons();
-    }
-
-    function handleTableSearch(val) {
-      AppState.searchQuery = val;
-      renderStudentsTable();
     }
 
     function viewStudentRecord(docId) {
@@ -1368,7 +1437,7 @@
       }
     }
 
-    // Helper: Convert Base64 data URL to ArrayBuffer for ExcelJS
+    // Helper: Base64 to ArrayBuffer for ExcelJS
     function base64ToArrayBuffer(base64) {
       const base64Clean = base64.includes(',') ? base64.split(',')[1] : base64;
       const binaryString = window.atob(base64Clean);
@@ -1380,31 +1449,28 @@
       return bytes.buffer;
     }
 
-    // Helper: Fetch any remote image link and convert to ArrayBuffer
     async function urlToArrayBuffer(url) {
       const response = await fetch(url);
       return await response.arrayBuffer();
     }
 
-    // 1. GENUINE NATIVE .XLSX GENERATION (Safe, robust image embedding)
+    // 1. GENUINE NATIVE .XLSX GENERATION (Physical embedded image drawing)
     async function downloadGenuineExcelWithPhotos() {
       const school = getActiveSchool();
-      const snapshot = await db.collection("submissions").where("schoolId", "==", school.id).get();
-      if (snapshot.empty) {
-        return alert('No student records found in cloud for ' + school.name);
+      const records = getFilteredSchoolSubmissions();
+      if (records.length === 0) {
+        return alert('No student records found to export for ' + school.name);
       }
 
       const btn = document.getElementById('btnExcelExport');
       const originalHtml = btn.innerHTML;
       btn.disabled = true;
-      btn.innerHTML = `<i data-lucide="loader" class="w-3.5 h-3.5 animate-spin"></i><span>Generating Excel...</span>`;
-      if (window.lucide) lucide.createIcons();
+      btn.innerHTML = `<span>Exporting...</span>`;
 
       try {
         const workbook = new ExcelJS.Workbook();
         const worksheet = workbook.addWorksheet('Students');
 
-        // Setup Columns
         const columns = [
           { header: '# No', key: 'index', width: 8 },
           { header: 'Student Photo', key: 'photo', width: 14 },
@@ -1414,7 +1480,6 @@
         ];
         worksheet.columns = columns;
 
-        // Header Styling
         const headerRow = worksheet.getRow(1);
         headerRow.font = { bold: true, color: { argb: 'FFFFFFFF' }, size: 11 };
         headerRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1E3A8A' } };
@@ -1423,12 +1488,11 @@
 
         let currentRow = 2;
 
-        for (const doc of snapshot.docs) {
-          const rec = doc.data();
+        for (const rec of records) {
           const rowData = {
             index: currentRow - 1,
             photo: '',
-            docId: doc.id,
+            docId: rec.docId,
             timestamp: rec.timestamp || ''
           };
 
@@ -1437,10 +1501,9 @@
           });
 
           const row = worksheet.addRow(rowData);
-          row.height = 65; // Height for picture
+          row.height = 65;
           row.alignment = { vertical: 'middle', horizontal: 'left' };
 
-          // Embed real binary photo into workbook
           if (rec.photo) {
             try {
               let imgBuffer;
@@ -1472,7 +1535,6 @@
           currentRow++;
         }
 
-        // Generate native XLSX
         const buffer = await workbook.xlsx.writeBuffer();
         const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
         saveAs(blob, `${school.id}_Students_With_Photos.xlsx`);
@@ -1487,23 +1549,207 @@
       }
     }
 
-    // 2. CLEAN CSV EXPORT
+    // 2. A4 BATCH PRINT WINDOW (10 CARDS PER PAGE WITH CUSTOM PAGE SELECTION)
+    function openA4BatchPrintWindow() {
+      const school = getActiveSchool();
+      const records = getFilteredSchoolSubmissions();
+      if (records.length === 0) {
+        return alert("No student records found to print for this selection.");
+      }
+
+      const win = window.open('', '_blank');
+      
+      // Calculate chunks of 10
+      const pages = [];
+      for (let i = 0; i < records.length; i += 10) {
+        pages.push(records.slice(i, i + 10));
+      }
+
+      let pagesHtml = '';
+      pages.forEach((pageRecords, pageIdx) => {
+        let cardsHtml = '';
+        pageRecords.forEach(rec => {
+          cardsHtml += `
+            <div class="card-item">
+              <div class="card-wrapper">
+                ${buildRenderedCardHTML(school, rec.data, rec.photo)}
+              </div>
+            </div>
+          `;
+        });
+
+        // Fill remaining empty slots if less than 10 on the last page
+        const remaining = 10 - pageRecords.length;
+        for (let j = 0; j < remaining; j++) {
+          cardsHtml += `<div class="card-item empty-slot"></div>`;
+        }
+
+        pagesHtml += `
+          <div class="a4-sheet">
+            <div class="sheet-header">
+              <span>${school.name} — Batch Print (Page ${pageIdx + 1} of ${pages.length})</span>
+              <span>Total Cards on this Sheet: ${pageRecords.length}</span>
+            </div>
+            <div class="cards-grid">
+              ${cardsHtml}
+            </div>
+          </div>
+        `;
+      });
+
+      const fullHtml = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <title>${school.name} - A4 Print Sheets</title>
+          <style>
+            @page {
+              size: A4 portrait;
+              margin: 8mm 6mm;
+            }
+            * { box-sizing: border-box; }
+            body {
+              margin: 0;
+              padding: 0;
+              background-color: #525659;
+              font-family: 'Segoe UI', Arial, sans-serif;
+            }
+            .no-print-toolbar {
+              position: fixed;
+              top: 0;
+              left: 0;
+              right: 0;
+              background: #1e293b;
+              color: white;
+              padding: 12px 20px;
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              z-index: 9999;
+              box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            }
+            .btn-print {
+              background: #2563eb;
+              color: white;
+              border: none;
+              padding: 8px 18px;
+              border-radius: 8px;
+              font-weight: bold;
+              cursor: pointer;
+              font-size: 13px;
+              display: flex;
+              align-items: center;
+              gap: 6px;
+            }
+            .btn-print:hover { background: #1d4ed8; }
+            .sheets-container {
+              padding-top: 60px;
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              gap: 20px;
+              padding-bottom: 40px;
+            }
+            .a4-sheet {
+              width: 210mm;
+              height: 297mm;
+              background: white;
+              padding: 8mm 6mm;
+              box-shadow: 0 4px 15px rgba(0,0,0,0.25);
+              position: relative;
+              page-break-after: always;
+              display: flex;
+              flex-direction: column;
+            }
+            .sheet-header {
+              font-size: 9px;
+              color: #94a3b8;
+              display: flex;
+              justify-content: space-between;
+              border-bottom: 1px dashed #cbd5e1;
+              padding-bottom: 2mm;
+              margin-bottom: 3mm;
+            }
+            .cards-grid {
+              display: grid;
+              grid-template-columns: repeat(2, 1fr);
+              grid-template-rows: repeat(5, 1fr);
+              gap: 3.5mm;
+              flex: 1;
+            }
+            .card-item {
+              border: 1px dashed #cbd5e1;
+              position: relative;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              overflow: hidden;
+              background: #fafafa;
+            }
+            .card-item.empty-slot {
+              border: 1px dashed #f1f5f9;
+              background: transparent;
+            }
+            .card-wrapper {
+              width: 100%;
+              height: 100%;
+              position: relative;
+            }
+            @media print {
+              body { background: white; }
+              .no-print-toolbar { display: none !important; }
+              .sheets-container { padding: 0 !important; gap: 0 !important; }
+              .a4-sheet {
+                box-shadow: none !important;
+                margin: 0 !important;
+                width: 100% !important;
+                height: 100% !important;
+              }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="no-print-toolbar">
+            <div>
+              <strong style="font-size: 15px;">${school.name}</strong> — ${records.length} Cards Prepared (${pages.length} Pages)
+            </div>
+            <div style="display: flex; align-items: center; gap: 15px;">
+              <span style="font-size: 12px; color: #94a3b8;">Tip: To print specific sheets (e.g. Page 4 & 5), choose <b>Pages: Custom</b> in the print box.</span>
+              <button class="btn-print" onclick="window.print()">
+                Print / Save PDF (Ctrl + P)
+              </button>
+            </div>
+          </div>
+
+          <div class="sheets-container">
+            ${pagesHtml}
+          </div>
+        </body>
+        </html>
+      `;
+
+      win.document.open();
+      win.document.write(fullHtml);
+      win.document.close();
+    }
+
+    // 3. CLEAN CSV EXPORT
     async function exportCleanCSV() {
       const school = getActiveSchool();
-      const snapshot = await db.collection("submissions").where("schoolId", "==", school.id).get();
-      if (snapshot.empty) {
-        return alert('No student records found in cloud for ' + school.name);
+      const records = getFilteredSchoolSubmissions();
+      if (records.length === 0) {
+        return alert('No student records found to export for ' + school.name);
       }
 
       const headers = ['# No', 'Record ID', ...school.lines.map(l => l.label.replace('Enter Your ', '')), 'Submission Time'];
       const rows = [];
       let index = 1;
 
-      snapshot.forEach(doc => {
-        const rec = doc.data();
+      records.forEach(rec => {
         const row = [
           index++,
-          doc.id,
+          rec.docId,
           ...school.lines.map(l => `"${(rec.data[l.id] || '').replace(/"/g, '""')}"`),
           `"${rec.timestamp || ''}"`
         ];
@@ -1517,14 +1763,14 @@
 
     async function downloadEntireSchoolFolderZip() {
       const school = getActiveSchool();
-      const schoolSubmissions = AppState.submissions.filter(r => r.schoolId === school.id);
-      if (schoolSubmissions.length === 0) return alert('No submissions found to download.');
+      const records = getFilteredSchoolSubmissions();
+      if (records.length === 0) return alert('No submissions found to download.');
 
       const zip = new JSZip();
       const folder = zip.folder(`${school.id}_ID_Cards`);
 
-      for (let i = 0; i < schoolSubmissions.length; i++) {
-        const rec = schoolSubmissions[i];
+      for (let i = 0; i < records.length; i++) {
+        const rec = records[i];
         const blob = await generate300DpiCardBlob(school, rec.data, rec.photo);
         const nameVal = rec.data.student_name || Object.values(rec.data)[0] || 'student';
         const fileName = `${String(i + 1).padStart(3, '0')}_${nameVal.replace(/[^a-z0-9]/gi, '_')}.png`;
