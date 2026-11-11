@@ -114,11 +114,11 @@
               </label>
               <div class="flex items-center space-x-2">
                 <button onclick="openNewSchoolModal()" class="text-blue-600 hover:text-blue-800 font-bold text-[11px] flex items-center space-x-1">
-                  <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                  <i data-lucide="plus" class="w-3 h-3"></i>
                   <span>New School</span>
                 </button>
                 <button onclick="deleteCurrentSchool()" class="text-rose-600 hover:text-rose-800 font-bold text-[11px] flex items-center space-x-1 ml-2">
-                  <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                  <i data-lucide="trash-2" class="w-3 h-3"></i>
                   <span>Delete School</span>
                 </button>
               </div>
@@ -145,11 +145,11 @@
               </label>
               <div class="flex items-center space-x-1.5">
                 <button onclick="openAddLineModal()" class="px-2.5 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-md font-semibold flex items-center space-x-1 transition shadow-2xs">
-                  <i data-lucide="plus-circle" class="w-3.5 h-3.5"></i>
+                  <i data-lucide="plus-circle" class="w-3 h-3"></i>
                   <span>Add Line</span>
                 </button>
                 <button onclick="deleteSelectedLine()" id="btnDeleteLine" class="px-2 py-1 bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 rounded-md font-semibold flex items-center space-x-1 transition">
-                  <i data-lucide="trash" class="w-3.5 h-3.5"></i>
+                  <i data-lucide="trash" class="w-3 h-3"></i>
                   <span>Delete</span>
                 </button>
               </div>
@@ -242,15 +242,15 @@
               <div>
                 <label class="text-slate-500 text-[10px] uppercase font-bold block mb-1">Font Family</label>
                 <select id="selectFontFamily" onchange="updateTypographySettings()" class="w-full bg-white border border-slate-300 rounded-lg p-1.5 font-semibold text-slate-700">
-                  <option value="Montserrat">Montserrat (Modern Clean)</option>
-                  <option value="Inter">Inter (Sans)</option>
-                  <option value="Poppins">Poppins (Rounded)</option>
-                  <option value="Oswald">Oswald (Condensed)</option>
-                  <option value="Roboto">Roboto (Classic)</option>
+                  <option value="Montserrat">Montserrat</option>
+                  <option value="Inter">Inter</option>
+                  <option value="Poppins">Poppins</option>
+                  <option value="Oswald">Oswald</option>
+                  <option value="Roboto">Roboto</option>
                 </select>
               </div>
               <div>
-                <label class="text-slate-500 text-[10px] uppercase font-bold block mb-1">Font Weight (Boldness)</label>
+                <label class="text-slate-500 text-[10px] uppercase font-bold block mb-1">Font Weight</label>
                 <select id="selectFontWeight" onchange="updateTypographySettings()" class="w-full bg-white border border-slate-300 rounded-lg p-1.5 font-semibold text-slate-700">
                   <option value="400">Regular (400)</option>
                   <option value="500">Medium (500)</option>
@@ -263,9 +263,9 @@
             </div>
 
             <div>
-              <label class="text-slate-500 text-[10px] uppercase font-bold block mb-1">Text Alignment (Anchor)</label>
+              <label class="text-slate-500 text-[10px] uppercase font-bold block mb-1">Text Alignment</label>
               <select id="selectTextAlign" onchange="updateTypographySettings()" class="w-full bg-white border border-slate-300 rounded-lg p-1.5 font-semibold text-slate-700">
-                <option value="left">Left Aligned (Type flows to the right)</option>
+                <option value="left">Left Aligned (Flows to right)</option>
                 <option value="center">Centered</option>
               </select>
             </div>
@@ -356,12 +356,12 @@
           </div>
           
           <!-- TRUE EXCEL (.XLSX) WITH EMBEDDED PHOTOS -->
-          <button id="btnExcelExport" onclick="downloadGenuineExcelWithPhotos(event)" class="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold flex items-center space-x-1.5 transition shadow-2xs">
+          <button id="btnExcelExport" onclick="downloadGenuineExcelWithPhotos()" class="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold flex items-center space-x-1.5 transition shadow-2xs">
             <i data-lucide="file-spreadsheet" class="w-3.5 h-3.5"></i>
             <span>Download Excel (.xlsx with Photos)</span>
           </button>
           
-          <!-- CLEAN CSV EXPORT (MATCHES SCREENSHOT FORMAT) -->
+          <!-- CLEAN CSV EXPORT -->
           <button onclick="exportCleanCSV()" class="px-3 py-1.5 bg-white hover:bg-slate-100 border border-slate-300 text-slate-700 rounded-lg text-xs font-bold flex items-center space-x-1.5 transition">
             <i data-lucide="file-text" class="w-3.5 h-3.5 text-slate-600"></i>
             <span>Export CSV</span>
@@ -646,7 +646,7 @@
     let activeCropper = null;
 
     async function initApp() {
-      const cached = localStorage.getItem('innovatech_schools_cache_v14');
+      const cached = localStorage.getItem('innovatech_schools_cache_v15');
       if (cached) {
         try { AppState.schools = JSON.parse(cached); } catch(e){}
       }
@@ -687,7 +687,7 @@
             cloudSchools.push(data);
           });
           AppState.schools = cloudSchools;
-          localStorage.setItem('innovatech_schools_cache_v14', JSON.stringify(AppState.schools));
+          localStorage.setItem('innovatech_schools_cache_v15', JSON.stringify(AppState.schools));
           renderSchoolDropdown();
           syncActiveSchoolUI();
           renderInteractiveCard();
@@ -716,7 +716,7 @@
     }
 
     function saveSchoolToCloud(school) {
-      localStorage.setItem('innovatech_schools_cache_v14', JSON.stringify(AppState.schools));
+      localStorage.setItem('innovatech_schools_cache_v15', JSON.stringify(AppState.schools));
       db.collection("school_configs").doc(school.id).set(school, { merge: true })
         .catch(err => console.error("Error saving school to cloud:", err));
     }
@@ -858,7 +858,7 @@
         db.collection("school_configs").doc(school.id).delete();
         AppState.schools = AppState.schools.filter(s => s.id !== school.id);
         AppState.activeSchoolId = AppState.schools[0].id;
-        localStorage.setItem('innovatech_schools_cache_v14', JSON.stringify(AppState.schools));
+        localStorage.setItem('innovatech_schools_cache_v15', JSON.stringify(AppState.schools));
         renderSchoolDropdown();
         changeActiveSchool(AppState.activeSchoolId);
       }
@@ -1368,20 +1368,26 @@
       }
     }
 
-    // Helper: Converts Base64 Data URL to Uint8Array buffer
-    function base64ToUint8Array(base64String) {
-      const parts = base64String.split(',');
-      const raw = window.atob(parts[1] || parts[0]);
-      const rawLength = raw.length;
-      const uInt8Array = new Uint8Array(rawLength);
-      for (let i = 0; i < rawLength; ++i) {
-        uInt8Array[i] = raw.charCodeAt(i);
+    // Helper: Convert Base64 data URL to ArrayBuffer for ExcelJS
+    function base64ToArrayBuffer(base64) {
+      const base64Clean = base64.includes(',') ? base64.split(',')[1] : base64;
+      const binaryString = window.atob(base64Clean);
+      const len = binaryString.length;
+      const bytes = new Uint8Array(len);
+      for (let i = 0; i < len; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
       }
-      return uInt8Array;
+      return bytes.buffer;
     }
 
-    // 1. GENUINE NATIVE .XLSX GENERATION (Physical embedded image drawing)
-    async function downloadGenuineExcelWithPhotos(e) {
+    // Helper: Fetch any remote image link and convert to ArrayBuffer
+    async function urlToArrayBuffer(url) {
+      const response = await fetch(url);
+      return await response.arrayBuffer();
+    }
+
+    // 1. GENUINE NATIVE .XLSX GENERATION (Safe, robust image embedding)
+    async function downloadGenuineExcelWithPhotos() {
       const school = getActiveSchool();
       const snapshot = await db.collection("submissions").where("schoolId", "==", school.id).get();
       if (snapshot.empty) {
@@ -1389,8 +1395,10 @@
       }
 
       const btn = document.getElementById('btnExcelExport');
-      const originalText = btn.innerHTML;
+      const originalHtml = btn.innerHTML;
+      btn.disabled = true;
       btn.innerHTML = `<i data-lucide="loader" class="w-3.5 h-3.5 animate-spin"></i><span>Generating Excel...</span>`;
+      if (window.lucide) lucide.createIcons();
 
       try {
         const workbook = new ExcelJS.Workbook();
@@ -1425,48 +1433,61 @@
           };
 
           school.lines.forEach(l => {
-            rowData[l.id] = rec.data[l.id] || '';
+            rowData[l.id] = (rec.data && rec.data[l.id]) ? rec.data[l.id] : '';
           });
 
           const row = worksheet.addRow(rowData);
           row.height = 65; // Height for picture
           row.alignment = { vertical: 'middle', horizontal: 'left' };
 
-          // Embed real binary JPEG into workbook
-          if (rec.photo && rec.photo.startsWith('data:image')) {
+          // Embed real binary photo into workbook
+          if (rec.photo) {
             try {
-              const imageBuffer = base64ToUint8Array(rec.photo);
-              const imageId = workbook.addImage({
-                buffer: imageBuffer,
-                extension: 'jpeg'
-              });
+              let imgBuffer;
+              let ext = 'jpeg';
 
-              // Pin image directly into column B
-              worksheet.addImage(imageId, {
-                tl: { col: 1.15, row: currentRow - 0.88 },
-                ext: { width: 60, height: 60 },
-                editAs: 'oneCell'
-              });
+              if (rec.photo.startsWith('data:image')) {
+                if (rec.photo.startsWith('data:image/png')) ext = 'png';
+                imgBuffer = base64ToArrayBuffer(rec.photo);
+              } else if (rec.photo.startsWith('http')) {
+                imgBuffer = await urlToArrayBuffer(rec.photo);
+              }
+
+              if (imgBuffer) {
+                const imageId = workbook.addImage({
+                  buffer: imgBuffer,
+                  extension: ext
+                });
+
+                worksheet.addImage(imageId, {
+                  tl: { col: 1.15, row: currentRow - 0.88 },
+                  ext: { width: 60, height: 60 },
+                  editAs: 'oneCell'
+                });
+              }
             } catch (err) {
-              console.warn("Could not embed image for row:", currentRow, err);
+              console.warn("Could not embed image for row " + currentRow, err);
             }
           }
           currentRow++;
         }
 
-        // Export native XLSX
+        // Generate native XLSX
         const buffer = await workbook.xlsx.writeBuffer();
         const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
         saveAs(blob, `${school.id}_Students_With_Photos.xlsx`);
+
       } catch (err) {
-        alert("Excel Generation Error: " + err.message);
+        console.error(err);
+        alert("Excel Export Error: " + err.message);
       } finally {
-        btn.innerHTML = originalText;
+        btn.disabled = false;
+        btn.innerHTML = originalHtml;
         if (window.lucide) lucide.createIcons();
       }
     }
 
-    // 2. CLEAN CSV EXPORT (Standard format as seen in your screenshot)
+    // 2. CLEAN CSV EXPORT
     async function exportCleanCSV() {
       const school = getActiveSchool();
       const snapshot = await db.collection("submissions").where("schoolId", "==", school.id).get();
