@@ -159,7 +159,7 @@
             </select>
           </div>
 
-          <!-- Mandatory / Optional Toggle for Active Layer -->
+          <!-- Mandatory Toggle -->
           <div id="mandatoryControls" class="p-3.5 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between">
             <div>
               <span class="font-bold text-slate-800 text-xs block">Required / Mandatory Field</span>
@@ -664,7 +664,7 @@
     let activeCropper = null;
 
     async function initApp() {
-      const cached = localStorage.getItem('innovatech_schools_cache_v16');
+      const cached = localStorage.getItem('innovatech_schools_cache_v17');
       if (cached) {
         try { AppState.schools = JSON.parse(cached); } catch(e){}
       }
@@ -705,7 +705,7 @@
             cloudSchools.push(data);
           });
           AppState.schools = cloudSchools;
-          localStorage.setItem('innovatech_schools_cache_v16', JSON.stringify(AppState.schools));
+          localStorage.setItem('innovatech_schools_cache_v17', JSON.stringify(AppState.schools));
           renderSchoolDropdown();
           syncActiveSchoolUI();
           renderInteractiveCard();
@@ -735,7 +735,7 @@
     }
 
     function saveSchoolToCloud(school) {
-      localStorage.setItem('innovatech_schools_cache_v16', JSON.stringify(AppState.schools));
+      localStorage.setItem('innovatech_schools_cache_v17', JSON.stringify(AppState.schools));
       db.collection("school_configs").doc(school.id).set(school, { merge: true })
         .catch(err => console.error("Error saving school to cloud:", err));
     }
@@ -878,7 +878,7 @@
         db.collection("school_configs").doc(school.id).delete();
         AppState.schools = AppState.schools.filter(s => s.id !== school.id);
         AppState.activeSchoolId = AppState.schools[0].id;
-        localStorage.setItem('innovatech_schools_cache_v16', JSON.stringify(AppState.schools));
+        localStorage.setItem('innovatech_schools_cache_v17', JSON.stringify(AppState.schools));
         renderSchoolDropdown();
         changeActiveSchool(AppState.activeSchoolId);
       }
@@ -1291,7 +1291,7 @@
         // Text Search Filtering
         if (AppState.searchQuery) {
           const q = AppState.searchQuery.toLowerCase();
-          const matchField = Object.values(rec.data || {}).some(val => String(val).toLowerCase().includes(q));
+          const matchField = Object.values(r.data || {}).some(val => String(val).toLowerCase().includes(q));
           const matchDoc = r.docId && r.docId.toLowerCase().includes(q);
           if (!matchField && !matchDoc) return false;
         }
@@ -1549,7 +1549,7 @@
       }
     }
 
-    // 2. A4 BATCH PRINT WINDOW (10 CARDS PER PAGE WITH CUSTOM PAGE SELECTION)
+    // 2. A4 BATCH PRINT WINDOW (PHYSICAL 54mm x 85.6mm VERTICAL RATIO & DIRECT PRINT PREVIEW)
     function openA4BatchPrintWindow() {
       const school = getActiveSchool();
       const records = getFilteredSchoolSubmissions();
@@ -1559,7 +1559,6 @@
 
       const win = window.open('', '_blank');
       
-      // Calculate chunks of 10
       const pages = [];
       for (let i = 0; i < records.length; i += 10) {
         pages.push(records.slice(i, i + 10));
@@ -1570,27 +1569,32 @@
         let cardsHtml = '';
         pageRecords.forEach(rec => {
           cardsHtml += `
-            <div class="card-item">
-              <div class="card-wrapper">
+            <div class="card-cell">
+              <div class="crop-guides"></div>
+              <div class="id-card-frame">
                 ${buildRenderedCardHTML(school, rec.data, rec.photo)}
               </div>
             </div>
           `;
         });
 
-        // Fill remaining empty slots if less than 10 on the last page
+        // Fill empty spaces on the sheet if fewer than 10
         const remaining = 10 - pageRecords.length;
         for (let j = 0; j < remaining; j++) {
-          cardsHtml += `<div class="card-item empty-slot"></div>`;
+          cardsHtml += `
+            <div class="card-cell empty-cell">
+              <div class="crop-guides"></div>
+            </div>
+          `;
         }
 
         pagesHtml += `
           <div class="a4-sheet">
-            <div class="sheet-header">
-              <span>${school.name} — Batch Print (Page ${pageIdx + 1} of ${pages.length})</span>
-              <span>Total Cards on this Sheet: ${pageRecords.length}</span>
+            <div class="sheet-info-strip">
+              <span><b>${school.name}</b> | Sheet ${pageIdx + 1} of ${pages.length}</span>
+              <span>Cards on this page: ${pageRecords.length} / 10 | Print at 100% Scale</span>
             </div>
-            <div class="cards-grid">
+            <div class="a4-cards-grid">
               ${cardsHtml}
             </div>
           </div>
@@ -1603,126 +1607,154 @@
         <head>
           <meta charset="utf-8">
           <title>${school.name} - A4 Print Sheets</title>
+          <link rel="preconnect" href="https://fonts.googleapis.com">
+          <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+          <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
           <style>
             @page {
               size: A4 portrait;
-              margin: 8mm 6mm;
+              margin: 0;
             }
-            * { box-sizing: border-box; }
+            * {
+              box-sizing: border-box;
+              -webkit-print-color-adjust: exact !important;
+              print-color-adjust: exact !important;
+            }
             body {
               margin: 0;
               padding: 0;
-              background-color: #525659;
-              font-family: 'Segoe UI', Arial, sans-serif;
+              background-color: #334155;
+              font-family: 'Inter', sans-serif;
             }
-            .no-print-toolbar {
+            .no-print-bar {
               position: fixed;
               top: 0;
               left: 0;
               right: 0;
-              background: #1e293b;
+              height: 56px;
+              background: #0f172a;
               color: white;
-              padding: 12px 20px;
+              padding: 0 24px;
               display: flex;
               justify-content: space-between;
               align-items: center;
-              z-index: 9999;
-              box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+              z-index: 99999;
+              box-shadow: 0 4px 12px rgba(0,0,0,0.4);
             }
             .btn-print {
               background: #2563eb;
               color: white;
               border: none;
-              padding: 8px 18px;
+              padding: 9px 20px;
               border-radius: 8px;
-              font-weight: bold;
-              cursor: pointer;
+              font-weight: 700;
               font-size: 13px;
-              display: flex;
-              align-items: center;
-              gap: 6px;
+              cursor: pointer;
+              transition: background 0.2s;
             }
             .btn-print:hover { background: #1d4ed8; }
-            .sheets-container {
-              padding-top: 60px;
+            .sheets-wrapper {
+              padding-top: 76px;
               display: flex;
               flex-direction: column;
               align-items: center;
-              gap: 20px;
-              padding-bottom: 40px;
+              gap: 25px;
+              padding-bottom: 50px;
             }
+            /* Precise A4 Sheet Dimensions */
             .a4-sheet {
               width: 210mm;
               height: 297mm;
               background: white;
-              padding: 8mm 6mm;
-              box-shadow: 0 4px 15px rgba(0,0,0,0.25);
+              box-shadow: 0 10px 25px rgba(0,0,0,0.3);
               position: relative;
               page-break-after: always;
+              break-after: page;
+              padding: 10mm 12mm;
               display: flex;
               flex-direction: column;
+              justify-content: space-between;
+              overflow: hidden;
             }
-            .sheet-header {
-              font-size: 9px;
+            .sheet-info-strip {
+              font-size: 8px;
               color: #94a3b8;
               display: flex;
               justify-content: space-between;
-              border-bottom: 1px dashed #cbd5e1;
-              padding-bottom: 2mm;
-              margin-bottom: 3mm;
+              border-bottom: 0.5px solid #e2e8f0;
+              padding-bottom: 1.5mm;
+              margin-bottom: 2mm;
             }
-            .cards-grid {
+            /* 2 Columns x 5 Rows Grid */
+            .a4-cards-grid {
               display: grid;
-              grid-template-columns: repeat(2, 1fr);
-              grid-template-rows: repeat(5, 1fr);
-              gap: 3.5mm;
+              grid-template-columns: repeat(2, 85.6mm);
+              grid-template-rows: repeat(5, 54mm);
+              justify-content: center;
+              align-content: center;
+              gap: 4mm 10mm;
               flex: 1;
             }
-            .card-item {
-              border: 1px dashed #cbd5e1;
+            /* Individual Cell & Physical Dimensions */
+            .card-cell {
+              width: 85.6mm;
+              height: 54mm;
               position: relative;
               display: flex;
               align-items: center;
               justify-content: center;
-              overflow: hidden;
-              background: #fafafa;
             }
-            .card-item.empty-slot {
-              border: 1px dashed #f1f5f9;
-              background: transparent;
+            /* Crop Marks on Margins */
+            .crop-guides {
+              position: absolute;
+              inset: -1.5mm;
+              border: 0.5px dashed #cbd5e1;
+              pointer-events: none;
+              z-index: 20;
             }
-            .card-wrapper {
-              width: 100%;
-              height: 100%;
+            /* Precise Vertical Card Aspect Ratio */
+            .id-card-frame {
+              width: 54mm;
+              height: 85.6mm;
+              transform: rotate(-90deg);
               position: relative;
+              overflow: hidden;
+              box-shadow: 0 0 0 0.5px #94a3b8;
+              background: white;
+            }
+            .empty-cell .crop-guides {
+              border-style: dotted;
+              opacity: 0.4;
             }
             @media print {
-              body { background: white; }
-              .no-print-toolbar { display: none !important; }
-              .sheets-container { padding: 0 !important; gap: 0 !important; }
+              body { background: white !important; }
+              .no-print-bar { display: none !important; }
+              .sheets-wrapper { padding: 0 !important; gap: 0 !important; }
               .a4-sheet {
                 box-shadow: none !important;
                 margin: 0 !important;
-                width: 100% !important;
-                height: 100% !important;
+                width: 210mm !important;
+                height: 297mm !important;
+                page-break-after: always !important;
+                break-after: page !important;
               }
             }
           </style>
         </head>
         <body>
-          <div class="no-print-toolbar">
+          <div class="no-print-bar">
             <div>
-              <strong style="font-size: 15px;">${school.name}</strong> — ${records.length} Cards Prepared (${pages.length} Pages)
+              <strong style="font-size: 14px;">${school.name}</strong> — ${records.length} Cards Prepared (${pages.length} Pages)
             </div>
-            <div style="display: flex; align-items: center; gap: 15px;">
-              <span style="font-size: 12px; color: #94a3b8;">Tip: To print specific sheets (e.g. Page 4 & 5), choose <b>Pages: Custom</b> in the print box.</span>
+            <div style="display: flex; align-items: center; gap: 14px;">
+              <span style="font-size: 11px; color: #94a3b8;"><b>Print Setting:</b> More Settings → Scale: 100% (Default) → Margins: None</span>
               <button class="btn-print" onclick="window.print()">
                 Print / Save PDF (Ctrl + P)
               </button>
             </div>
           </div>
 
-          <div class="sheets-container">
+          <div class="sheets-wrapper">
             ${pagesHtml}
           </div>
         </body>
