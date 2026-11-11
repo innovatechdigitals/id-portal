@@ -9,8 +9,8 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
   
-  <!-- ExcelJS: Standard Library for Real .xlsx Binary Generation -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
+  <!-- ExcelJS Browser Bundle -->
+  <script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
 
   <!-- Cropper.js for Interactive Photo Cropping -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css" />
@@ -64,7 +64,7 @@
       </div>
     </div>
 
-    <!-- Mode Switcher -->
+    <!-- Center Mode Switcher -->
     <div class="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200">
       <button id="navAdminBtn" onclick="switchView('admin')" class="px-4 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center space-x-1.5 bg-white text-blue-700 shadow-sm">
         <i data-lucide="sliders" class="w-3.5 h-3.5"></i>
@@ -77,7 +77,7 @@
       </button>
     </div>
 
-    <!-- Quick Actions -->
+    <!-- Right Quick Actions -->
     <div class="flex items-center space-x-2.5">
       <div class="hidden md:flex items-center space-x-1.5 bg-slate-50 border border-slate-200 px-2.5 py-1.5 rounded-lg text-xs text-slate-600">
         <i data-lucide="folder" class="w-3.5 h-3.5 text-blue-600"></i>
@@ -114,11 +114,11 @@
               </label>
               <div class="flex items-center space-x-2">
                 <button onclick="openNewSchoolModal()" class="text-blue-600 hover:text-blue-800 font-bold text-[11px] flex items-center space-x-1">
-                  <i data-lucide="plus" class="w-3 h-3"></i>
+                  <i data-lucide="plus" class="w-3.5 h-3.5"></i>
                   <span>New School</span>
                 </button>
                 <button onclick="deleteCurrentSchool()" class="text-rose-600 hover:text-rose-800 font-bold text-[11px] flex items-center space-x-1 ml-2">
-                  <i data-lucide="trash-2" class="w-3 h-3"></i>
+                  <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
                   <span>Delete School</span>
                 </button>
               </div>
@@ -145,11 +145,11 @@
               </label>
               <div class="flex items-center space-x-1.5">
                 <button onclick="openAddLineModal()" class="px-2.5 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-md font-semibold flex items-center space-x-1 transition shadow-2xs">
-                  <i data-lucide="plus-circle" class="w-3 h-3"></i>
+                  <i data-lucide="plus-circle" class="w-3.5 h-3.5"></i>
                   <span>Add Line</span>
                 </button>
                 <button onclick="deleteSelectedLine()" id="btnDeleteLine" class="px-2 py-1 bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 rounded-md font-semibold flex items-center space-x-1 transition">
-                  <i data-lucide="trash" class="w-3 h-3"></i>
+                  <i data-lucide="trash" class="w-3.5 h-3.5"></i>
                   <span>Delete</span>
                 </button>
               </div>
@@ -159,7 +159,7 @@
             </select>
           </div>
 
-          <!-- Mandatory Toggle -->
+          <!-- Mandatory / Optional Toggle for Active Layer -->
           <div id="mandatoryControls" class="p-3.5 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between">
             <div>
               <span class="font-bold text-slate-800 text-xs block">Required / Mandatory Field</span>
@@ -171,7 +171,7 @@
             </label>
           </div>
 
-          <!-- Coordinates & Controls -->
+          <!-- Coordinates & Nudge Controls -->
           <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200 space-y-3">
             <div class="flex items-center justify-between">
               <span class="font-bold text-slate-700 uppercase tracking-wider text-[11px] flex items-center space-x-1.5">
@@ -242,15 +242,15 @@
               <div>
                 <label class="text-slate-500 text-[10px] uppercase font-bold block mb-1">Font Family</label>
                 <select id="selectFontFamily" onchange="updateTypographySettings()" class="w-full bg-white border border-slate-300 rounded-lg p-1.5 font-semibold text-slate-700">
-                  <option value="Montserrat">Montserrat</option>
-                  <option value="Inter">Inter</option>
-                  <option value="Poppins">Poppins</option>
-                  <option value="Oswald">Oswald</option>
-                  <option value="Roboto">Roboto</option>
+                  <option value="Montserrat">Montserrat (Modern Clean)</option>
+                  <option value="Inter">Inter (Sans)</option>
+                  <option value="Poppins">Poppins (Rounded)</option>
+                  <option value="Oswald">Oswald (Condensed)</option>
+                  <option value="Roboto">Roboto (Classic)</option>
                 </select>
               </div>
               <div>
-                <label class="text-slate-500 text-[10px] uppercase font-bold block mb-1">Font Weight</label>
+                <label class="text-slate-500 text-[10px] uppercase font-bold block mb-1">Font Weight (Boldness)</label>
                 <select id="selectFontWeight" onchange="updateTypographySettings()" class="w-full bg-white border border-slate-300 rounded-lg p-1.5 font-semibold text-slate-700">
                   <option value="400">Regular (400)</option>
                   <option value="500">Medium (500)</option>
@@ -263,9 +263,9 @@
             </div>
 
             <div>
-              <label class="text-slate-500 text-[10px] uppercase font-bold block mb-1">Text Alignment</label>
+              <label class="text-slate-500 text-[10px] uppercase font-bold block mb-1">Text Alignment (Anchor)</label>
               <select id="selectTextAlign" onchange="updateTypographySettings()" class="w-full bg-white border border-slate-300 rounded-lg p-1.5 font-semibold text-slate-700">
-                <option value="left">Left Aligned (Flows to right)</option>
+                <option value="left">Left Aligned (Type flows to the right)</option>
                 <option value="center">Centered</option>
               </select>
             </div>
@@ -328,7 +328,7 @@
 
         <div class="absolute bottom-3 text-slate-400 text-[11px] flex items-center space-x-1.5 pointer-events-none">
           <i data-lucide="info" class="w-3.5 h-3.5 text-blue-500"></i>
-          <span>Click & drag elements on canvas to position.</span>
+          <span>Click & drag text to align its start position.</span>
         </div>
       </section>
     </div>
@@ -355,12 +355,13 @@
             <input type="text" id="tableSearchInput" oninput="handleTableSearch(this.value)" placeholder="Search students..." class="bg-white border border-slate-300 rounded-lg pl-8 pr-3 py-1.5 text-xs text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 outline-none w-44 md:w-56">
           </div>
           
-          <!-- TRUE EXCEL (.XLSX) WITH EMBEDDED REAL PHOTOS -->
-          <button onclick="downloadGenuineExcelWithPhotos()" class="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold flex items-center space-x-1.5 transition shadow-2xs">
+          <!-- TRUE EXCEL (.XLSX) WITH EMBEDDED PHOTOS -->
+          <button id="btnExcelExport" onclick="downloadGenuineExcelWithPhotos(event)" class="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold flex items-center space-x-1.5 transition shadow-2xs">
             <i data-lucide="file-spreadsheet" class="w-3.5 h-3.5"></i>
             <span>Download Excel (.xlsx with Photos)</span>
           </button>
           
+          <!-- CLEAN CSV EXPORT (MATCHES SCREENSHOT FORMAT) -->
           <button onclick="exportCleanCSV()" class="px-3 py-1.5 bg-white hover:bg-slate-100 border border-slate-300 text-slate-700 rounded-lg text-xs font-bold flex items-center space-x-1.5 transition">
             <i data-lucide="file-text" class="w-3.5 h-3.5 text-slate-600"></i>
             <span>Export CSV</span>
@@ -395,7 +396,7 @@
     </section>
   </main>
 
-  <!-- CLIENT VIEW -->
+  <!-- CLEAN SCHOOL CLIENT FORM -->
   <section id="schoolView" class="hidden flex-1 py-8 px-3 sm:px-4 flex flex-col items-center justify-start pb-44 overflow-y-auto">
     <div class="w-full max-w-lg mx-auto space-y-4">
       <div class="flex items-center justify-center space-x-2">
@@ -645,7 +646,7 @@
     let activeCropper = null;
 
     async function initApp() {
-      const cached = localStorage.getItem('innovatech_schools_cache_v13');
+      const cached = localStorage.getItem('innovatech_schools_cache_v14');
       if (cached) {
         try { AppState.schools = JSON.parse(cached); } catch(e){}
       }
@@ -686,7 +687,7 @@
             cloudSchools.push(data);
           });
           AppState.schools = cloudSchools;
-          localStorage.setItem('innovatech_schools_cache_v13', JSON.stringify(AppState.schools));
+          localStorage.setItem('innovatech_schools_cache_v14', JSON.stringify(AppState.schools));
           renderSchoolDropdown();
           syncActiveSchoolUI();
           renderInteractiveCard();
@@ -715,7 +716,7 @@
     }
 
     function saveSchoolToCloud(school) {
-      localStorage.setItem('innovatech_schools_cache_v13', JSON.stringify(AppState.schools));
+      localStorage.setItem('innovatech_schools_cache_v14', JSON.stringify(AppState.schools));
       db.collection("school_configs").doc(school.id).set(school, { merge: true })
         .catch(err => console.error("Error saving school to cloud:", err));
     }
@@ -857,7 +858,7 @@
         db.collection("school_configs").doc(school.id).delete();
         AppState.schools = AppState.schools.filter(s => s.id !== school.id);
         AppState.activeSchoolId = AppState.schools[0].id;
-        localStorage.setItem('innovatech_schools_cache_v13', JSON.stringify(AppState.schools));
+        localStorage.setItem('innovatech_schools_cache_v14', JSON.stringify(AppState.schools));
         renderSchoolDropdown();
         changeActiveSchool(AppState.activeSchoolId);
       }
@@ -1380,14 +1381,14 @@
     }
 
     // 1. GENUINE NATIVE .XLSX GENERATION (Physical embedded image drawing)
-    async function downloadGenuineExcelWithPhotos() {
+    async function downloadGenuineExcelWithPhotos(e) {
       const school = getActiveSchool();
       const snapshot = await db.collection("submissions").where("schoolId", "==", school.id).get();
       if (snapshot.empty) {
         return alert('No student records found in cloud for ' + school.name);
       }
 
-      const btn = event.currentTarget;
+      const btn = document.getElementById('btnExcelExport');
       const originalText = btn.innerHTML;
       btn.innerHTML = `<i data-lucide="loader" class="w-3.5 h-3.5 animate-spin"></i><span>Generating Excel...</span>`;
 
@@ -1428,7 +1429,7 @@
           });
 
           const row = worksheet.addRow(rowData);
-          row.height = 65; // Room for embedded picture
+          row.height = 65; // Height for picture
           row.alignment = { vertical: 'middle', horizontal: 'left' };
 
           // Embed real binary JPEG into workbook
@@ -1465,7 +1466,7 @@
       }
     }
 
-    // 2. CLEAN CSV EXPORT
+    // 2. CLEAN CSV EXPORT (Standard format as seen in your screenshot)
     async function exportCleanCSV() {
       const school = getActiveSchool();
       const snapshot = await db.collection("submissions").where("schoolId", "==", school.id).get();
