@@ -114,11 +114,11 @@
               </label>
               <div class="flex items-center space-x-2">
                 <button onclick="openNewSchoolModal()" class="text-blue-600 hover:text-blue-800 font-bold text-[11px] flex items-center space-x-1">
-                  <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                  <i data-lucide="plus" class="w-3 h-3"></i>
                   <span>New School</span>
                 </button>
                 <button onclick="deleteCurrentSchool()" class="text-rose-600 hover:text-rose-800 font-bold text-[11px] flex items-center space-x-1 ml-2">
-                  <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                  <i data-lucide="trash-2" class="w-3 h-3"></i>
                   <span>Delete School</span>
                 </button>
               </div>
@@ -145,11 +145,11 @@
               </label>
               <div class="flex items-center space-x-1.5">
                 <button onclick="openAddLineModal()" class="px-2.5 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-md font-semibold flex items-center space-x-1 transition shadow-2xs">
-                  <i data-lucide="plus-circle" class="w-3.5 h-3.5"></i>
+                  <i data-lucide="plus-circle" class="w-3 h-3"></i>
                   <span>Add Line</span>
                 </button>
                 <button onclick="deleteSelectedLine()" id="btnDeleteLine" class="px-2 py-1 bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 rounded-md font-semibold flex items-center space-x-1 transition">
-                  <i data-lucide="trash" class="w-3.5 h-3.5"></i>
+                  <i data-lucide="trash" class="w-3 h-3"></i>
                   <span>Delete</span>
                 </button>
               </div>
@@ -371,10 +371,10 @@
             <span>Excel (.xlsx)</span>
           </button>
 
-          <!-- A4 BATCH PRINT SHEETS (10 CARDS PER PAGE WITH CUTTING MARGINS) -->
+          <!-- A4 BATCH PRINT SHEETS (9 UPRIGHT VERTICAL CARDS PER PORTRAIT A4 PAGE) -->
           <button onclick="openA4BatchPrintWindow()" class="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-extrabold flex items-center space-x-1.5 transition shadow-2xs">
             <i data-lucide="printer" class="w-3.5 h-3.5"></i>
-            <span>A4 Print Sheets (10/Page)</span>
+            <span>A4 Print Sheets (9/Page)</span>
           </button>
           
           <!-- CLEAN CSV EXPORT -->
@@ -664,7 +664,7 @@
     let activeCropper = null;
 
     async function initApp() {
-      const cached = localStorage.getItem('innovatech_schools_cache_v18');
+      const cached = localStorage.getItem('innovatech_schools_cache_v20');
       if (cached) {
         try { AppState.schools = JSON.parse(cached); } catch(e){}
       }
@@ -705,7 +705,7 @@
             cloudSchools.push(data);
           });
           AppState.schools = cloudSchools;
-          localStorage.setItem('innovatech_schools_cache_v18', JSON.stringify(AppState.schools));
+          localStorage.setItem('innovatech_schools_cache_v20', JSON.stringify(AppState.schools));
           renderSchoolDropdown();
           syncActiveSchoolUI();
           renderInteractiveCard();
@@ -735,7 +735,7 @@
     }
 
     function saveSchoolToCloud(school) {
-      localStorage.setItem('innovatech_schools_cache_v18', JSON.stringify(AppState.schools));
+      localStorage.setItem('innovatech_schools_cache_v20', JSON.stringify(AppState.schools));
       db.collection("school_configs").doc(school.id).set(school, { merge: true })
         .catch(err => console.error("Error saving school to cloud:", err));
     }
@@ -878,7 +878,7 @@
         db.collection("school_configs").doc(school.id).delete();
         AppState.schools = AppState.schools.filter(s => s.id !== school.id);
         AppState.activeSchoolId = AppState.schools[0].id;
-        localStorage.setItem('innovatech_schools_cache_v18', JSON.stringify(AppState.schools));
+        localStorage.setItem('innovatech_schools_cache_v20', JSON.stringify(AppState.schools));
         renderSchoolDropdown();
         changeActiveSchool(AppState.activeSchoolId);
       }
@@ -1549,7 +1549,7 @@
       }
     }
 
-    // 2. A4 BATCH PRINT WINDOW (UPRIGHT 2x5 GRID, CLEAR 5mm SPACING MARGINS)
+    // 2. A4 BATCH PRINT WINDOW (9 UPRIGHT VERTICAL PORTRAIT CARDS ON STANDARD PORTRAIT A4: 3 COLS x 3 ROWS)
     function openA4BatchPrintWindow() {
       const school = getActiveSchool();
       const records = getFilteredSchoolSubmissions();
@@ -1559,9 +1559,10 @@
 
       const win = window.open('', '_blank');
       
+      // Group into chunks of 9 cards per Portrait A4 Sheet
       const pages = [];
-      for (let i = 0; i < records.length; i += 10) {
-        pages.push(records.slice(i, i + 10));
+      for (let i = 0; i < records.length; i += 9) {
+        pages.push(records.slice(i, i + 9));
       }
 
       let pagesHtml = '';
@@ -1572,14 +1573,14 @@
             <div class="card-cell">
               <div class="crop-guides"></div>
               <div class="id-card-frame">
-                ${buildRenderedCardHTML(school, rec.data, rec.photo)}
+                ${buildRenderedCardHTML(school, rec.data, rec.photo, 0.45)}
               </div>
             </div>
           `;
         });
 
-        // Fill empty spaces on the sheet if fewer than 10
-        const remaining = 10 - pageRecords.length;
+        // Fill empty slots on the last page if fewer than 9 cards
+        const remaining = 9 - pageRecords.length;
         for (let j = 0; j < remaining; j++) {
           cardsHtml += `
             <div class="card-cell empty-cell">
@@ -1592,7 +1593,7 @@
           <div class="a4-sheet">
             <div class="sheet-info-strip">
               <span><b>${school.name}</b> | Sheet ${pageIdx + 1} of ${pages.length}</span>
-              <span>Cards on this page: ${pageRecords.length} / 10 | Print at 100% Scale</span>
+              <span>9 Upright Vertical ID Cards (54mm × 85.6mm) | Print at 100% Scale</span>
             </div>
             <div class="a4-cards-grid">
               ${cardsHtml}
@@ -1606,7 +1607,7 @@
         <html>
         <head>
           <meta charset="utf-8">
-          <title>${school.name} - A4 Print Sheets</title>
+          <title>${school.name} - A4 Vertical Print Sheets (9/Page)</title>
           <link rel="preconnect" href="https://fonts.googleapis.com">
           <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
           <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -1661,7 +1662,7 @@
               gap: 25px;
               padding-bottom: 50px;
             }
-            /* A4 Sheet Dimensions */
+            /* Standard Portrait A4 Dimensions (210mm wide x 297mm tall) */
             .a4-sheet {
               width: 210mm;
               height: 297mm;
@@ -1670,10 +1671,10 @@
               position: relative;
               page-break-after: always;
               break-after: page;
-              padding: 8mm 14mm 10mm 14mm;
+              padding: 9mm 14mm 10mm 14mm;
               display: flex;
               flex-direction: column;
-              justify-content: flex-start;
+              justify-content: space-between;
               overflow: hidden;
             }
             .sheet-info-strip {
@@ -1683,47 +1684,47 @@
               justify-content: space-between;
               border-bottom: 0.5px solid #e2e8f0;
               padding-bottom: 1.5mm;
-              margin-bottom: 3.5mm;
+              margin-bottom: 3mm;
             }
-            /* Upright 2 Columns x 5 Rows Grid */
+            /* 3 Columns x 3 Rows of Upright Vertical ID Cards */
             .a4-cards-grid {
               display: grid;
-              grid-template-columns: repeat(2, 85mm);
-              grid-template-rows: repeat(5, 53mm);
+              grid-template-columns: repeat(3, 54mm);
+              grid-template-rows: repeat(3, 85.6mm);
               justify-content: center;
-              align-content: start;
-              gap: 3mm 12mm;
+              align-content: center;
+              gap: 5.5mm 6mm;
               flex: 1;
             }
-            /* Card Cell with Safe Padding */
+            /* Individual Card Cell */
             .card-cell {
-              width: 85mm;
-              height: 53mm;
+              width: 54mm;
+              height: 85.6mm;
               position: relative;
               display: flex;
               align-items: center;
               justify-content: center;
             }
-            /* Crop Line Guides Outside Card Bounds */
+            /* Dotted Cutting Trim Line Outside Card Margin */
             .crop-guides {
               position: absolute;
-              inset: -1.2mm;
-              border: 0.4px dashed #cbd5e1;
+              inset: -2.2mm;
+              border: 0.5px dashed #94a3b8;
               pointer-events: none;
               z-index: 20;
             }
-            /* Upright Portrait Dimensions (Safe Fit in Grid) */
+            /* Upright Portrait Card */
             .id-card-frame {
               width: 100%;
               height: 100%;
               position: relative;
               overflow: hidden;
-              box-shadow: 0 0 0 0.5px #94a3b8;
+              box-shadow: 0 0 0 0.5px #cbd5e1;
               background: white;
             }
             .empty-cell .crop-guides {
               border-style: dotted;
-              opacity: 0.4;
+              opacity: 0.35;
             }
             @media print {
               body { background: white !important; }
@@ -1743,10 +1744,10 @@
         <body>
           <div class="no-print-bar">
             <div>
-              <strong style="font-size: 14px;">${school.name}</strong> — ${records.length} Cards Prepared (${pages.length} Pages)
+              <strong style="font-size: 14px;">${school.name}</strong> — ${records.length} Vertical ID Cards (${pages.length} Sheets)
             </div>
             <div style="display: flex; align-items: center; gap: 14px;">
-              <span style="font-size: 11px; color: #94a3b8;"><b>Print Setting:</b> More Settings → Scale: 100% (Default) → Margins: None</span>
+              <span style="font-size: 11px; color: #94a3b8;"><b>Print Setting:</b> Layout: Portrait • Scale: 100% • Margins: None</span>
               <button class="btn-print" onclick="window.print()">
                 Print / Save PDF (Ctrl + P)
               </button>
@@ -1879,7 +1880,7 @@
       });
     }
 
-    function buildRenderedCardHTML(school, dataMap, photoUrl) {
+    function buildRenderedCardHTML(school, dataMap, photoUrl, fontScale = 0.9) {
       const pf = school.photoFrame;
       let linesHtml = '';
       
@@ -1887,18 +1888,22 @@
         const val = dataMap[line.id] || '';
         if (val) {
           const isCenter = line.align === 'center';
+          const scaledFontSize = (line.fontSize * fontScale).toFixed(1);
           linesHtml += `
-            <div style="position: absolute; left: ${line.x}%; top: ${line.y}%; transform: ${isCenter ? 'translate(-50%, -50%)' : 'translate(0%, -50%)'}; font-family: ${line.fontFamily || 'Montserrat'}; font-size: ${Math.round(line.fontSize * 0.9)}px; font-weight: ${line.fontWeight || '700'}; color: ${line.color || '#0f2b5c'}; white-space: nowrap;">
+            <div style="position: absolute; left: ${line.x}%; top: ${line.y}%; transform: ${isCenter ? 'translate(-50%, -50%)' : 'translate(0%, -50%)'}; font-family: ${line.fontFamily || 'Montserrat'}; font-size: ${scaledFontSize}px; font-weight: ${line.fontWeight || '700'}; color: ${line.color || '#0f2b5c'}; white-space: nowrap;">
               ${val}
             </div>
           `;
         }
       });
 
+      const scaledBorder = Math.max(1, Math.round(pf.borderWidth * fontScale));
+      const scaledRadius = Math.round(pf.radius * fontScale);
+
       return `
         <div style="position: relative; width: 100%; height: 100%; background: #ffffff;">
           <img src="${school.templateImg || DEFAULT_TEMPLATE_SVG}" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: fill;">
-          <div style="position: absolute; left: ${pf.x}%; top: ${pf.y}%; width: ${pf.width}%; height: ${pf.height}%; transform: translate(-50%, -50%); border-radius: ${pf.radius}px; border: ${pf.borderWidth}px solid ${pf.borderColor || '#1e3a8a'}; overflow: hidden;">
+          <div style="position: absolute; left: ${pf.x}%; top: ${pf.y}%; width: ${pf.width}%; height: ${pf.height}%; transform: translate(-50%, -50%); border-radius: ${scaledRadius}px; border: ${scaledBorder}px solid ${pf.borderColor || '#1e3a8a'}; overflow: hidden;">
             <img src="${photoUrl}" style="width: 100%; height: 100%; object-fit: cover;">
           </div>
           ${linesHtml}
