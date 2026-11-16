@@ -644,7 +644,7 @@
 
   <script>
     const ADMIN_MASTER_PIN = "7779";
-    const PASSPORT_ASPECT_RATIO = 35 / 45; // Standard 3.5 cm x 4.5 cm vertical passport photo ratio
+    const PASSPORT_ASPECT_RATIO = 35 / 45;
 
     // FIREBASE INITIALIZATION
     const firebaseConfig = {
@@ -659,14 +659,36 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    const DEFAULT_TEMPLATE_SVG = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1012 1575" width="1012" height="1575"><rect width="1012" height="1575" fill="%23f8fafc"/><rect x="40" y="40" width="932" height="1495" rx="20" fill="%23ffffff" stroke="%23cbd5e1" stroke-width="4"/><rect x="40" y="40" width="932" height="240" rx="20" fill="%231e3a8a"/><text x="506" y="160" font-family="Montserrat" font-weight="900" font-size="52" fill="%23ffffff" text-anchor="middle">SCHOOL ID CARD</text><text x="506" y="220" font-family="Inter" font-weight="600" font-size="24" fill="%2393c5fd" text-anchor="middle">ACADEMIC YEAR 2026-2027</text></svg>`;
+    // Generate a solid PNG DataURL fallback template so iOS Safari / Android never fails to render background
+    function createFallbackTemplatePNG() {
+      const c = document.createElement('canvas');
+      c.width = 506;
+      c.height = 788;
+      const ctx = c.getContext('2d');
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, 506, 788);
+      ctx.strokeStyle = '#1e3a8a';
+      ctx.lineWidth = 10;
+      ctx.strokeRect(5, 5, 496, 778);
+      ctx.fillStyle = '#1e3a8a';
+      ctx.fillRect(10, 10, 486, 125);
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 26px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('STUDENT IDENTITY CARD', 253, 72);
+      ctx.font = '600 14px sans-serif';
+      ctx.fillStyle = '#bfdbfe';
+      ctx.fillText('ACADEMIC YEAR 2026 - 2027', 253, 105);
+      return c.toDataURL('image/png');
+    }
 
+    const DEFAULT_TEMPLATE_PNG = createFallbackTemplatePNG();
     const DEFAULT_STUDENT_PHOTO = `https://images.unsplash.com/photo-1544717305-2782549b5136?w=600&auto=format&fit=crop&q=80`;
 
     const INITIAL_DEFAULT_SCHOOL = {
       id: "padmalaya-mbnr",
       name: "Padmalaya High School MBNR",
-      templateImg: DEFAULT_TEMPLATE_SVG,
+      templateImg: DEFAULT_TEMPLATE_PNG,
       photoFrame: { x: 50, y: 39, width: 34, height: 28, radius: 10, borderWidth: 3, borderColor: "#1e3a8a" },
       lines: [
         { id: "student_name", label: "Enter Your Name", defaultVal: "STUDENT NAME", x: 50, y: 57.5, fontSize: 18, fontWeight: "900", fontFamily: "Montserrat", color: "#0f2b5c", align: "center", required: true },
@@ -700,7 +722,7 @@
     let previewPhotoScale = 1.0;
 
     async function initApp() {
-      const cached = localStorage.getItem('innovatech_schools_cache_v24');
+      const cached = localStorage.getItem('innovatech_schools_cache_v25');
       if (cached) {
         try { AppState.schools = JSON.parse(cached); } catch(e){}
       }
@@ -714,6 +736,24 @@
 
       if (qSchool) AppState.activeSchoolId = qSchool;
 
+      // Immediately fetch the requested school config from Firestore so templateImg & fields load fast on mobile
+      if (qSchool) {
+        try {
+          const directDoc = await db.collection("school_configs").doc(qSchool).get();
+          if (directDoc.exists) {
+            const docData = directDoc.data();
+            if (!docData.templateImg || docData.templateImg.startsWith('data:image/svg+xml')) {
+              docData.templateImg = DEFAULT_TEMPLATE_PNG;
+            }
+            const idx = AppState.schools.findIndex(s => s.id === docData.id);
+            if (idx >= 0) AppState.schools[idx] = docData;
+            else AppState.schools.push(docData);
+          }
+        } catch (err) {
+          console.warn("Direct school fetch note:", err);
+        }
+      }
+
       if (qView === 'admin') {
         switchView('admin');
       } else {
@@ -726,12 +766,15 @@
       renderInteractiveCard();
       renderClientFormFields();
 
-      // Cloud listener for schools
+      // Realtime Cloud listener for schools
       db.collection("school_configs").onSnapshot(snapshot => {
         if (!snapshot.empty) {
           const cloudSchools = [];
           snapshot.forEach(doc => {
             const data = doc.data();
+            if (!data.templateImg || data.templateImg.startsWith('data:image/svg+xml')) {
+              data.templateImg = DEFAULT_TEMPLATE_PNG;
+            }
             if (data.lines) {
               data.lines.forEach(l => {
                 if (!l.align) l.align = (l.id === 'student_name' ? 'center' : 'left');
@@ -744,7 +787,7 @@
           if (!AppState.schools.find(s => s.id === AppState.activeSchoolId)) {
             AppState.activeSchoolId = AppState.schools[0].id;
           }
-          localStorage.setItem('innovatech_schools_cache_v24', JSON.stringify(AppState.schools));
+          localStorage.setItem('innovatech_schools_cache_v25', JSON.stringify(AppState.schools));
           renderSchoolDropdown();
           syncActiveSchoolUI();
           renderInteractiveCard();
@@ -754,7 +797,7 @@
         }
       });
 
-      // Cloud listener for student submissions
+      // Realtime Cloud listener for student submissions
       db.collection("submissions").onSnapshot(snapshot => {
         AppState.submissions = [];
         snapshot.forEach(doc => {
@@ -775,7 +818,7 @@
     }
 
     function saveSchoolToCloud(school) {
-      localStorage.setItem('innovatech_schools_cache_v24', JSON.stringify(AppState.schools));
+      localStorage.setItem('innovatech_schools_cache_v25', JSON.stringify(AppState.schools));
       db.collection("school_configs").doc(school.id).set(school, { merge: true })
         .catch(err => console.error("Error saving school to cloud:", err));
     }
@@ -922,7 +965,7 @@
       const newSchool = {
         id: uniqueId,
         name: name,
-        templateImg: DEFAULT_TEMPLATE_SVG,
+        templateImg: DEFAULT_TEMPLATE_PNG,
         photoFrame: JSON.parse(JSON.stringify(activeSchool.photoFrame)),
         lines: JSON.parse(JSON.stringify(activeSchool.lines))
       };
@@ -950,7 +993,7 @@
 
           AppState.schools = AppState.schools.filter(s => s.id !== school.id);
           AppState.activeSchoolId = AppState.schools[0].id;
-          localStorage.setItem('innovatech_schools_cache_v24', JSON.stringify(AppState.schools));
+          localStorage.setItem('innovatech_schools_cache_v25', JSON.stringify(AppState.schools));
           renderSchoolDropdown();
           changeActiveSchool(AppState.activeSchoolId);
           alert(`Deleted "${school.name}" and cleared all associated records.`);
@@ -1237,7 +1280,7 @@
     function renderInteractiveCard() {
       const school = getActiveSchool();
       const tImg = document.getElementById('cardTemplateImg');
-      if (tImg) tImg.src = school.templateImg || DEFAULT_TEMPLATE_SVG;
+      if (tImg) tImg.src = school.templateImg || DEFAULT_TEMPLATE_PNG;
 
       const container = document.getElementById('interactiveLayersContainer');
       if (!container) return;
@@ -1639,7 +1682,7 @@
       return await response.arrayBuffer();
     }
 
-    // 1. EXCEL (.XLSX) WITH DEDICATED 4-DIGIT UNIQUE ID COLUMN & EMBEDDED PASSPORT PHOTOS
+    // 1. EXCEL (.XLSX)
     async function downloadGenuineExcelWithPhotos() {
       const school = getActiveSchool();
       const records = getFilteredSchoolSubmissions();
@@ -1734,7 +1777,7 @@
       }
     }
 
-    // 2. DOWNLOAD ALL PASSPORT PHOTOS FOLDER AS ZIP (1001.jpg, 1002.jpg...)
+    // 2. DOWNLOAD ALL PASSPORT PHOTOS FOLDER AS ZIP
     async function downloadSeparatePassportPhotosZip() {
       const school = getActiveSchool();
       const records = getFilteredSchoolSubmissions();
@@ -2005,7 +2048,7 @@
       saveAs(blob, `${school.id}_students.csv`);
     }
 
-    // 5. FULL RENDERED ID CARDS ZIP (PRESERVES FULL PASSPORT PROPORTIONS WITHOUT CLIPPING)
+    // 5. FULL RENDERED ID CARDS ZIP
     async function downloadEntireSchoolFolderZip() {
       const school = getActiveSchool();
       const records = getFilteredSchoolSubmissions();
@@ -2053,7 +2096,6 @@
             ctx.roundRect(px - pw / 2, py - ph / 2, pw, ph, pr);
             ctx.clip();
 
-            // Fill background white and draw full passport photo preserving aspect ratio
             ctx.fillStyle = "#ffffff";
             ctx.fillRect(px - pw / 2, py - ph / 2, pw, ph);
 
@@ -2103,11 +2145,10 @@
           };
           stPhoto.src = photoUrl || DEFAULT_STUDENT_PHOTO;
         };
-        bgImg.src = school.templateImg || DEFAULT_TEMPLATE_SVG;
+        bgImg.src = school.templateImg || DEFAULT_TEMPLATE_PNG;
       });
     }
 
-    // FIX: Uses object-fit: contain so the FULL passport photo appears inside the preview box without cropping!
     function buildRenderedCardHTML(school, dataMap, photoUrl, fontScale = 0.85, interactivePhoto = false) {
       const pf = school.photoFrame;
       let linesHtml = '';
@@ -2118,7 +2159,7 @@
           const isCenter = line.align === 'center';
           const scaledFontSize = (line.fontSize * fontScale).toFixed(1);
           linesHtml += `
-            <div style="position: absolute; left: ${line.x}%; top: ${line.y}%; transform: ${isCenter ? 'translate(-50%, -50%)' : 'translate(0%, -50%)'}; font-family: ${line.fontFamily || 'Montserrat'}; font-size: ${scaledFontSize}px; font-weight: ${line.fontWeight || '700'}; color: ${line.color || '#0f2b5c'}; white-space: nowrap; pointer-events: none;">
+            <div style="position: absolute; left: ${line.x}%; top: ${line.y}%; transform: ${isCenter ? 'translate(-50%, -50%)' : 'translate(0%, -50%)'}; font-family: ${line.fontFamily || 'Montserrat'}; font-size: ${scaledFontSize}px; font-weight: ${line.fontWeight || '700'}; color: ${line.color || '#0f2b5c'}; white-space: nowrap; pointer-events: none; z-index: 15;">
               ${val}
             </div>
           `;
@@ -2131,10 +2172,14 @@
         ? `transform: translate(${previewPhotoOffsetX}px, ${previewPhotoOffsetY}px) scale(${previewPhotoScale});` 
         : '';
 
+      const bgTemplateSrc = (school && school.templateImg && !school.templateImg.startsWith('data:image/svg+xml'))
+        ? school.templateImg
+        : DEFAULT_TEMPLATE_PNG;
+
       return `
         <div style="position: relative; width: 100%; height: 100%; background: #ffffff;">
-          <img src="${school.templateImg || DEFAULT_TEMPLATE_SVG}" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: fill; pointer-events: none;">
-          <div id="previewPhotoFrameBox" style="position: absolute; left: ${pf.x}%; top: ${pf.y}%; width: ${pf.width}%; height: ${pf.height}%; transform: translate(-50%, -50%); border-radius: ${scaledRadius}px; border: ${scaledBorder}px solid ${pf.borderColor || '#1e3a8a'}; background: #ffffff; overflow: hidden; ${interactivePhoto ? 'cursor: grab; touch-action: none;' : ''}">
+          <img src="${bgTemplateSrc}" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: fill; pointer-events: none; z-index: 1;">
+          <div id="previewPhotoFrameBox" style="position: absolute; left: ${pf.x}%; top: ${pf.y}%; width: ${pf.width}%; height: ${pf.height}%; transform: translate(-50%, -50%); border-radius: ${scaledRadius}px; border: ${scaledBorder}px solid ${pf.borderColor || '#1e3a8a'}; background: #ffffff; overflow: hidden; z-index: 10; ${interactivePhoto ? 'cursor: grab; touch-action: none;' : ''}">
             <img id="previewDraggablePhotoImg" src="${photoUrl}" style="width: 100%; height: 100%; object-fit: contain; pointer-events: none; transform-origin: center center; ${photoTransform}">
           </div>
           ${linesHtml}
@@ -2221,7 +2266,6 @@
       if (thumb) thumb.innerHTML = `<img src="${clientUploadedPhotoBase64}" class="w-full h-full object-contain bg-white">`;
     }
 
-    // CLIENT PREVIEW PHOTO ADJUSTMENT FUNCTIONS
     function applyTransformToPreviewPhoto() {
       const img = document.getElementById('previewDraggablePhotoImg');
       if (img) {
@@ -2292,7 +2336,6 @@
       window.addEventListener('touchend', onPointerUp);
     }
 
-    // Accurately bakes the client's preview photo pan & zoom (matching object-fit: contain) into a final 350x450 Passport JPEG
     function bakeAdjustedPassportPhoto(photoDataUrl) {
       return new Promise((resolve) => {
         if (previewPhotoOffsetX === 0 && previewPhotoOffsetY === 0 && previewPhotoScale === 1.0) {
@@ -2313,7 +2356,6 @@
         const img = new Image();
         img.crossOrigin = 'anonymous';
         img.onload = () => {
-          // Calculate the displayed size of the 350x450 image inside boxW x boxH with object-fit: contain
           const boxAspect = boxW / boxH;
           let renderedW = boxW;
           let renderedH = boxH;
