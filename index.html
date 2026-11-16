@@ -659,7 +659,6 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    // Generate a solid PNG DataURL fallback template so iOS Safari / Android never fails to render background
     function createFallbackTemplatePNG() {
       const c = document.createElement('canvas');
       c.width = 506;
@@ -722,7 +721,7 @@
     let previewPhotoScale = 1.0;
 
     async function initApp() {
-      const cached = localStorage.getItem('innovatech_schools_cache_v25');
+      const cached = localStorage.getItem('innovatech_schools_cache_v26');
       if (cached) {
         try { AppState.schools = JSON.parse(cached); } catch(e){}
       }
@@ -736,7 +735,7 @@
 
       if (qSchool) AppState.activeSchoolId = qSchool;
 
-      // Immediately fetch the requested school config from Firestore so templateImg & fields load fast on mobile
+      // Immediately fetch the requested school config from Firestore so templateImg & fields load fast
       if (qSchool) {
         try {
           const directDoc = await db.collection("school_configs").doc(qSchool).get();
@@ -787,7 +786,7 @@
           if (!AppState.schools.find(s => s.id === AppState.activeSchoolId)) {
             AppState.activeSchoolId = AppState.schools[0].id;
           }
-          localStorage.setItem('innovatech_schools_cache_v25', JSON.stringify(AppState.schools));
+          localStorage.setItem('innovatech_schools_cache_v26', JSON.stringify(AppState.schools));
           renderSchoolDropdown();
           syncActiveSchoolUI();
           renderInteractiveCard();
@@ -818,8 +817,12 @@
     }
 
     function saveSchoolToCloud(school) {
-      localStorage.setItem('innovatech_schools_cache_v25', JSON.stringify(AppState.schools));
-      db.collection("school_configs").doc(school.id).set(school, { merge: true })
+      try {
+        localStorage.setItem('innovatech_schools_cache_v26', JSON.stringify(AppState.schools));
+      } catch (e) {
+        console.warn("LocalStorage quota warning:", e);
+      }
+      return db.collection("school_configs").doc(school.id).set(school, { merge: true })
         .catch(err => console.error("Error saving school to cloud:", err));
     }
 
@@ -993,7 +996,7 @@
 
           AppState.schools = AppState.schools.filter(s => s.id !== school.id);
           AppState.activeSchoolId = AppState.schools[0].id;
-          localStorage.setItem('innovatech_schools_cache_v25', JSON.stringify(AppState.schools));
+          localStorage.setItem('innovatech_schools_cache_v26', JSON.stringify(AppState.schools));
           renderSchoolDropdown();
           changeActiveSchool(AppState.activeSchoolId);
           alert(`Deleted "${school.name}" and cleared all associated records.`);
@@ -1003,6 +1006,7 @@
       }
     }
 
+    // Auto-compresses uploaded template to 800x1245 JPEG (~180 KB) so it always fits well inside Firestore's 1 MB document limit
     function handleTemplateUpload(event) {
       const file = event.target.files[0];
       if (!file) return;
@@ -1012,17 +1016,25 @@
         const img = new Image();
         img.onload = () => {
           const canvas = document.createElement('canvas');
-          canvas.width = 1012;
-          canvas.height = 1575;
+          canvas.width = 800;
+          canvas.height = 1245;
           const ctx = canvas.getContext('2d');
-          ctx.drawImage(img, 0, 0, 1012, 1575);
-          const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.88);
+          ctx.drawImage(img, 0, 0, 800, 1245);
+          const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.78);
 
           const school = getActiveSchool();
           school.templateImg = compressedDataUrl;
-          saveSchoolToCloud(school);
-          renderInteractiveCard();
-          alert("Card template permanently saved for " + school.name);
+          db.collection("school_configs").doc(school.id).set(school, { merge: true })
+            .then(() => {
+              try {
+                localStorage.setItem('innovatech_schools_cache_v26', JSON.stringify(AppState.schools));
+              } catch (storageErr) {
+                console.warn("LocalStorage quota warning:", storageErr);
+              }
+              renderInteractiveCard();
+              alert("Card template permanently saved for " + school.name);
+            })
+            .catch(err => alert("Template too large to save: " + err.message));
         };
         img.src = e.target.result;
       };
