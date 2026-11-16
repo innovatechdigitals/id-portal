@@ -271,12 +271,17 @@
             </div>
           </div>
 
-          <!-- Photo Frame Geometry -->
+          <!-- Photo Frame Geometry (Passport Size Presets & Manual Adjust) -->
           <div id="photoFrameControls" class="p-3.5 bg-slate-50 rounded-xl border border-slate-200 space-y-3">
-            <span class="font-bold text-slate-700 uppercase tracking-wider text-[11px] flex items-center space-x-1.5">
-              <i data-lucide="frame" class="w-3.5 h-3.5 text-blue-600"></i>
-              <span>Photo Frame Geometry</span>
-            </span>
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-slate-700 uppercase tracking-wider text-[11px] flex items-center space-x-1.5">
+                <i data-lucide="frame" class="w-3.5 h-3.5 text-blue-600"></i>
+                <span>Photo Frame (Passport 3.5 &times; 4.5 cm)</span>
+              </span>
+              <button type="button" onclick="applyPassportPreset()" class="px-2.5 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-md font-bold text-[10px] transition shadow-2xs">
+                Set Passport Size
+              </button>
+            </div>
 
             <div class="grid grid-cols-2 gap-3">
               <div>
@@ -365,7 +370,7 @@
             <input type="text" id="tableSearchInput" oninput="handleTableSearch(this.value)" placeholder="Search students..." class="bg-white border border-slate-300 rounded-lg pl-8 pr-3 py-1.5 text-xs text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 outline-none w-36 sm:w-48">
           </div>
           
-          <!-- TRUE EXCEL (.XLSX) WITH EMBEDDED PHOTOS -->
+          <!-- TRUE EXCEL (.XLSX) WITH EMBEDDED PASSPORT PHOTOS -->
           <button id="btnExcelExport" onclick="downloadGenuineExcelWithPhotos()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold flex items-center space-x-1.5 transition shadow-2xs">
             <i data-lucide="file-spreadsheet" class="w-3.5 h-3.5"></i>
             <span>Excel (.xlsx)</span>
@@ -413,7 +418,7 @@
     </section>
   </main>
 
-  <!-- CLEAN SCHOOL CLIENT FORM -->
+  <!-- CLEAN SCHOOL CLIENT FORM (CHOOSE PHOTO ONLY - PASSPORT SIZE CROPPING) -->
   <section id="schoolView" class="hidden flex-1 py-8 px-3 sm:px-4 flex flex-col items-center justify-start pb-44 overflow-y-auto">
     <div class="w-full max-w-lg mx-auto space-y-4">
       <div class="flex items-center justify-center space-x-2">
@@ -433,26 +438,22 @@
 
         <div class="space-y-2">
           <label class="block text-xs font-bold text-slate-800">
-            Student Photo <span class="text-rose-500">*</span>
+            Student Passport Photo (3.5 cm &times; 4.5 cm) <span class="text-rose-500">*</span>
           </label>
           <div class="flex items-center space-x-3">
-            <div id="clientPhotoThumb" class="w-16 h-16 rounded-xl border border-dashed border-slate-300 bg-slate-50 flex items-center justify-center overflow-hidden shrink-0">
+            <div id="clientPhotoThumb" class="w-14 h-[72px] rounded-xl border border-dashed border-slate-300 bg-slate-50 flex items-center justify-center overflow-hidden shrink-0">
               <i data-lucide="image" class="w-6 h-6 text-slate-400"></i>
             </div>
             
             <div class="flex-1 space-y-1.5">
               <div class="flex flex-wrap gap-2">
-                <button type="button" onclick="openCameraModal()" class="px-3.5 py-2 bg-white hover:bg-slate-50 text-slate-800 rounded-xl text-xs font-semibold flex items-center space-x-1.5 transition border border-slate-300 shadow-2xs">
-                  <i data-lucide="camera" class="w-4 h-4 text-slate-600"></i>
-                  <span>Take photo</span>
-                </button>
-                <label class="cursor-pointer px-3.5 py-2 bg-white hover:bg-slate-50 text-slate-800 rounded-xl text-xs font-semibold flex items-center space-x-1.5 transition border border-slate-300 shadow-2xs">
-                  <i data-lucide="upload" class="w-4 h-4 text-slate-600"></i>
+                <label class="cursor-pointer px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold flex items-center space-x-2 transition shadow-sm">
+                  <i data-lucide="upload" class="w-4 h-4"></i>
                   <span>Choose photo</span>
                   <input type="file" id="clientFileInput" accept="image/*" class="hidden" onchange="handleRawPhotoSelected(event)">
                 </label>
               </div>
-              <p class="text-[11px] text-slate-400">Upload portrait photo. Crop window will open automatically.</p>
+              <p class="text-[11px] text-slate-400">Select student photo. Passport-size crop frame will open automatically.</p>
             </div>
           </div>
         </div>
@@ -472,13 +473,13 @@
     </div>
   </section>
 
-  <!-- INTERACTIVE PHOTO CROPPER MODAL -->
+  <!-- INTERACTIVE PASSPORT PHOTO CROPPER MODAL (3.5 cm x 4.5 cm RATIO) -->
   <div id="cropperModal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-white rounded-3xl max-w-lg w-full p-5 shadow-2xl border border-slate-200 flex flex-col space-y-4">
       <div class="flex items-center justify-between border-b border-slate-200 pb-2">
         <div>
-          <h3 class="font-black text-slate-900 text-sm">Crop Student Portrait</h3>
-          <p class="text-[11px] text-slate-500">Drag and resize to fit face neatly into the ID frame.</p>
+          <h3 class="font-black text-slate-900 text-sm">Crop Passport Size Photo (3.5 cm &times; 4.5 cm)</h3>
+          <p class="text-[11px] text-slate-500">Adjust the passport-size box to center the student's face.</p>
         </div>
         <button onclick="closeCropperModal()" class="text-slate-400 hover:text-slate-700">
           <i data-lucide="x" class="w-5 h-5"></i>
@@ -495,7 +496,7 @@
         </button>
         <button onclick="applyCroppedImage()" class="py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-extrabold rounded-xl text-xs transition shadow-md flex items-center justify-center space-x-1.5">
           <i data-lucide="check" class="w-4 h-4"></i>
-          <span>Save & Apply Photo</span>
+          <span>Save Passport Photo</span>
         </button>
       </div>
     </div>
@@ -590,29 +591,11 @@
     </div>
   </div>
 
-  <!-- WEBCAM MODAL -->
-  <div id="cameraCaptureModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-xs z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-white rounded-3xl max-w-md w-full p-5 shadow-2xl border border-slate-200 space-y-4 flex flex-col items-center">
-      <div class="flex items-center justify-between w-full border-b border-slate-200 pb-2">
-        <h3 class="font-bold text-slate-900 text-sm">Snap Student Portrait</h3>
-        <button onclick="closeCameraModal()" class="text-slate-400 hover:text-slate-700">
-          <i data-lucide="x" class="w-5 h-5"></i>
-        </button>
-      </div>
-      <div class="relative w-full aspect-[1/1] bg-black rounded-2xl overflow-hidden flex items-center justify-center">
-        <video id="webcamVideo" autoplay playsinline class="w-full h-full object-cover"></video>
-      </div>
-      <button onclick="captureSnapshotFromWebcam()" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-extrabold rounded-xl text-xs uppercase tracking-wider transition shadow-md flex items-center justify-center space-x-2">
-        <i data-lucide="camera" class="w-4 h-4"></i>
-        <span>Capture & Open Cropper</span>
-      </button>
-    </div>
-  </div>
-
   <canvas id="exportCanvas" class="hidden"></canvas>
 
   <script>
     const ADMIN_MASTER_PIN = "7779";
+    const PASSPORT_ASPECT_RATIO = 35 / 45; // Standard 3.5 cm x 4.5 cm vertical passport photo ratio
 
     // FIREBASE INITIALIZATION
     const firebaseConfig = {
@@ -631,11 +614,12 @@
 
     const DEFAULT_STUDENT_PHOTO = `https://images.unsplash.com/photo-1544717305-2782549b5136?w=600&auto=format&fit=crop&q=80`;
 
+    // Default photoFrame calibrated to Passport 3.5cm x 4.5cm aspect ratio on 460x715 canvas (34% W x 28% H)
     const INITIAL_DEFAULT_SCHOOL = {
       id: "padmalaya-mbnr",
       name: "Padmalaya High School MBNR",
       templateImg: DEFAULT_TEMPLATE_SVG,
-      photoFrame: { x: 50, y: 39, width: 39, height: 30, radius: 14, borderWidth: 3, borderColor: "#1e3a8a" },
+      photoFrame: { x: 50, y: 39, width: 34, height: 28, radius: 10, borderWidth: 3, borderColor: "#1e3a8a" },
       lines: [
         { id: "student_name", label: "Enter Your Name", defaultVal: "STUDENT NAME", x: 50, y: 57.5, fontSize: 18, fontWeight: "900", fontFamily: "Montserrat", color: "#0f2b5c", align: "center", required: true },
         { id: "father", label: "Enter Your Father Name", defaultVal: "FATHER NAME", x: 42, y: 64.0, fontSize: 15, fontWeight: "700", fontFamily: "Montserrat", color: "#0f2b5c", align: "left", required: false },
@@ -660,11 +644,10 @@
     let clientUploadedPhotoBase64 = DEFAULT_STUDENT_PHOTO;
     let pendingSubmissionPayload = null;
     let editingDocId = null;
-    let webcamMediaStream = null;
     let activeCropper = null;
 
     async function initApp() {
-      const cached = localStorage.getItem('innovatech_schools_cache_v20');
+      const cached = localStorage.getItem('innovatech_schools_cache_v21');
       if (cached) {
         try { AppState.schools = JSON.parse(cached); } catch(e){}
       }
@@ -705,7 +688,10 @@
             cloudSchools.push(data);
           });
           AppState.schools = cloudSchools;
-          localStorage.setItem('innovatech_schools_cache_v20', JSON.stringify(AppState.schools));
+          if (!AppState.schools.find(s => s.id === AppState.activeSchoolId)) {
+            AppState.activeSchoolId = AppState.schools[0].id;
+          }
+          localStorage.setItem('innovatech_schools_cache_v21', JSON.stringify(AppState.schools));
           renderSchoolDropdown();
           syncActiveSchoolUI();
           renderInteractiveCard();
@@ -735,7 +721,7 @@
     }
 
     function saveSchoolToCloud(school) {
-      localStorage.setItem('innovatech_schools_cache_v20', JSON.stringify(AppState.schools));
+      localStorage.setItem('innovatech_schools_cache_v21', JSON.stringify(AppState.schools));
       db.collection("school_configs").doc(school.id).set(school, { merge: true })
         .catch(err => console.error("Error saving school to cloud:", err));
     }
@@ -847,15 +833,16 @@
       document.getElementById('newSchoolModal').classList.add('hidden');
     }
 
+    // FIX: Generate unique timestamped folder ID so reused school names never bring back old data
     function confirmAddNewSchool() {
       const name = document.getElementById('newSchoolNameInput').value.trim();
       if (!name) return alert('Please enter a valid school name.');
-      const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-      if (AppState.schools.find(s => s.id === slug)) return alert('A school with this name already exists.');
+      const baseSlug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+      const uniqueId = `${baseSlug}-${Date.now().toString().slice(-6)}`;
 
       const activeSchool = getActiveSchool();
       const newSchool = {
-        id: slug,
+        id: uniqueId,
         name: name,
         templateImg: DEFAULT_TEMPLATE_SVG,
         photoFrame: JSON.parse(JSON.stringify(activeSchool.photoFrame)),
@@ -871,16 +858,30 @@
       changeActiveSchool(newSchool.id);
     }
 
-    function deleteCurrentSchool() {
+    // FIX: Cascade delete both the school config AND all old student submissions belonging to it
+    async function deleteCurrentSchool() {
       if (AppState.schools.length <= 1) return alert("You cannot delete the only remaining school folder.");
       const school = getActiveSchool();
-      if (confirm(`Permanently delete school folder "${school.name}"? This cannot be undone.`)) {
-        db.collection("school_configs").doc(school.id).delete();
-        AppState.schools = AppState.schools.filter(s => s.id !== school.id);
-        AppState.activeSchoolId = AppState.schools[0].id;
-        localStorage.setItem('innovatech_schools_cache_v20', JSON.stringify(AppState.schools));
-        renderSchoolDropdown();
-        changeActiveSchool(AppState.activeSchoolId);
+      if (confirm(`Permanently delete school folder "${school.name}" and ALL its student ID records? This cannot be undone.`)) {
+        try {
+          // 1. Delete all student submissions associated with this schoolId
+          const snap = await db.collection("submissions").where("schoolId", "==", school.id).get();
+          const batch = db.batch();
+          snap.forEach(doc => batch.delete(doc.ref));
+          await batch.commit();
+
+          // 2. Delete school configuration
+          await db.collection("school_configs").doc(school.id).delete();
+
+          AppState.schools = AppState.schools.filter(s => s.id !== school.id);
+          AppState.activeSchoolId = AppState.schools[0].id;
+          localStorage.setItem('innovatech_schools_cache_v21', JSON.stringify(AppState.schools));
+          renderSchoolDropdown();
+          changeActiveSchool(AppState.activeSchoolId);
+          alert(`Deleted "${school.name}" and cleared all associated records.`);
+        } catch (err) {
+          alert("Error deleting school: " + err.message);
+        }
       }
     }
 
@@ -918,7 +919,7 @@
 
       const optPhoto = document.createElement('option');
       optPhoto.value = 'photo_frame';
-      optPhoto.textContent = 'Student Photo Frame';
+      optPhoto.textContent = 'Student Photo Frame (Passport 3.5x4.5cm)';
       if (AppState.activeLayerId === 'photo_frame') optPhoto.selected = true;
       select.appendChild(optPhoto);
 
@@ -1057,12 +1058,40 @@
       }
     }
 
+    // One-click Passport Size Frame Preset (3.5 cm x 4.5 cm on 460x715 card = 34% x 28%)
+    function applyPassportPreset() {
+      const school = getActiveSchool();
+      school.photoFrame.width = 34;
+      school.photoFrame.height = 28;
+      syncInspectorFields();
+      saveSchoolToCloud(school);
+      renderInteractiveCard();
+    }
+
+    // Automatically keeps Passport 3.5:4.5 aspect ratio when resizing Width or Height
     function updatePhotoFrameSettings() {
       const school = getActiveSchool();
       const pf = school.photoFrame;
-      pf.width = parseFloat(document.getElementById('inputPhotoWidth').value) || 39;
-      pf.height = parseFloat(document.getElementById('inputPhotoHeight').value) || 30;
-      pf.radius = parseInt(document.getElementById('inputPhotoRadius').value) || 14;
+      const wInput = document.getElementById('inputPhotoWidth');
+      const hInput = document.getElementById('inputPhotoHeight');
+      const activeEl = document.activeElement;
+
+      let w = parseFloat(wInput.value) || 34;
+      let h = parseFloat(hInput.value) || 28;
+
+      if (activeEl === wInput) {
+        // Calculate proportional passport height: (w% * 460px) / (35/45) / 715px * 100
+        h = +(((w * 460) / PASSPORT_ASPECT_RATIO / 715) * 100).toFixed(1);
+        hInput.value = h;
+      } else if (activeEl === hInput) {
+        // Calculate proportional passport width: (h% * 715px) * (35/45) / 460px * 100
+        w = +(((h * 715) * PASSPORT_ASPECT_RATIO / 460) * 100).toFixed(1);
+        wInput.value = w;
+      }
+
+      pf.width = w;
+      pf.height = h;
+      pf.radius = parseInt(document.getElementById('inputPhotoRadius').value) || 10;
       pf.borderWidth = parseInt(document.getElementById('inputPhotoBorderWidth').value) || 3;
       saveSchoolToCloud(school);
       renderInteractiveCard();
@@ -1282,13 +1311,11 @@
       return AppState.submissions.filter(r => {
         if (r.schoolId !== school.id) return false;
         
-        // Date Filtering (Day 1 vs Day 2)
         if (AppState.dateFilter !== 'ALL') {
           const rDate = (r.timestamp || '').split(' ')[0];
           if (rDate !== AppState.dateFilter) return false;
         }
 
-        // Text Search Filtering
         if (AppState.searchQuery) {
           const q = AppState.searchQuery.toLowerCase();
           const matchField = Object.values(r.data || {}).some(val => String(val).toLowerCase().includes(q));
@@ -1321,7 +1348,7 @@
         tr.innerHTML = `
           <td class="py-2 px-3 font-mono font-bold text-slate-500 text-center">#${index + 1}</td>
           <td class="py-2 px-3 text-center">
-            <img src="${rec.photo}" class="w-8 h-8 rounded-lg object-cover mx-auto border border-slate-300">
+            <img src="${rec.photo}" class="w-8 h-[41px] rounded-md object-cover mx-auto border border-slate-300">
           </td>
           <td class="py-2 px-3 font-bold text-slate-900">${rec.data.student_name || '—'}</td>
           <td class="py-2 px-3 font-medium text-slate-700">${rec.data.father || '—'}</td>
@@ -1454,7 +1481,7 @@
       return await response.arrayBuffer();
     }
 
-    // 1. GENUINE NATIVE .XLSX GENERATION (Physical embedded image drawing)
+    // 1. GENUINE NATIVE .XLSX GENERATION WITH PASSPORT-SIZED EMBEDDED PHOTOS (3.5 x 4.5 RATIO)
     async function downloadGenuineExcelWithPhotos() {
       const school = getActiveSchool();
       const records = getFilteredSchoolSubmissions();
@@ -1473,7 +1500,7 @@
 
         const columns = [
           { header: '# No', key: 'index', width: 8 },
-          { header: 'Student Photo', key: 'photo', width: 14 },
+          { header: 'Passport Photo', key: 'photo', width: 13 },
           { header: 'Record ID', key: 'docId', width: 15 },
           ...school.lines.map(l => ({ header: l.label.replace('Enter Your ', ''), key: l.id, width: 22 })),
           { header: 'Submission Time', key: 'timestamp', width: 20 }
@@ -1501,7 +1528,8 @@
           });
 
           const row = worksheet.addRow(rowData);
-          row.height = 65;
+          // Row height 74pt comfortably fits 56x72px passport photo
+          row.height = 74;
           row.alignment = { vertical: 'middle', horizontal: 'left' };
 
           if (rec.photo) {
@@ -1522,9 +1550,10 @@
                   extension: ext
                 });
 
+                // Exact 3.5 : 4.5 passport proportion (56px wide x 72px tall)
                 worksheet.addImage(imageId, {
-                  tl: { col: 1.15, row: currentRow - 0.88 },
-                  ext: { width: 60, height: 60 },
+                  tl: { col: 1.15, row: currentRow - 0.92 },
+                  ext: { width: 56, height: 72 },
                   editAs: 'oneCell'
                 });
               }
@@ -1537,7 +1566,7 @@
 
         const buffer = await workbook.xlsx.writeBuffer();
         const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-        saveAs(blob, `${school.id}_Students_With_Photos.xlsx`);
+        saveAs(blob, `${school.id}_Students_Passport_Photos.xlsx`);
 
       } catch (err) {
         console.error(err);
@@ -1559,7 +1588,6 @@
 
       const win = window.open('', '_blank');
       
-      // Group into chunks of 9 cards per Portrait A4 Sheet
       const pages = [];
       for (let i = 0; i < records.length; i += 9) {
         pages.push(records.slice(i, i + 9));
@@ -1579,7 +1607,6 @@
           `;
         });
 
-        // Fill empty slots on the last page if fewer than 9 cards
         const remaining = 9 - pageRecords.length;
         for (let j = 0; j < remaining; j++) {
           cardsHtml += `
@@ -1593,7 +1620,7 @@
           <div class="a4-sheet">
             <div class="sheet-info-strip">
               <span><b>${school.name}</b> | Sheet ${pageIdx + 1} of ${pages.length}</span>
-              <span>9 Upright Vertical ID Cards (54mm × 85.6mm) | Print at 100% Scale</span>
+              <span>9 Upright Vertical ID Cards (54mm &times; 85.6mm) | Print at 100% Scale</span>
             </div>
             <div class="a4-cards-grid">
               ${cardsHtml}
@@ -1662,7 +1689,6 @@
               gap: 25px;
               padding-bottom: 50px;
             }
-            /* Standard Portrait A4 Dimensions (210mm wide x 297mm tall) */
             .a4-sheet {
               width: 210mm;
               height: 297mm;
@@ -1686,7 +1712,6 @@
               padding-bottom: 1.5mm;
               margin-bottom: 3mm;
             }
-            /* 3 Columns x 3 Rows of Upright Vertical ID Cards */
             .a4-cards-grid {
               display: grid;
               grid-template-columns: repeat(3, 54mm);
@@ -1696,7 +1721,6 @@
               gap: 5.5mm 6mm;
               flex: 1;
             }
-            /* Individual Card Cell */
             .card-cell {
               width: 54mm;
               height: 85.6mm;
@@ -1705,7 +1729,6 @@
               align-items: center;
               justify-content: center;
             }
-            /* Dotted Cutting Trim Line Outside Card Margin */
             .crop-guides {
               position: absolute;
               inset: -2.2mm;
@@ -1713,7 +1736,6 @@
               pointer-events: none;
               z-index: 20;
             }
-            /* Upright Portrait Card */
             .id-card-frame {
               width: 100%;
               height: 100%;
@@ -1747,7 +1769,7 @@
               <strong style="font-size: 14px;">${school.name}</strong> — ${records.length} Vertical ID Cards (${pages.length} Sheets)
             </div>
             <div style="display: flex; align-items: center; gap: 14px;">
-              <span style="font-size: 11px; color: #94a3b8;"><b>Print Setting:</b> Layout: Portrait • Scale: 100% • Margins: None</span>
+              <span style="font-size: 11px; color: #94a3b8;"><b>Print Setting:</b> Layout: Portrait &bull; Scale: 100% &bull; Margins: None</span>
               <button class="btn-print" onclick="window.print()">
                 Print / Save PDF (Ctrl + P)
               </button>
@@ -1942,6 +1964,7 @@
       reader.readAsDataURL(file);
     }
 
+    // Strictly locks cropper to standard 3.5 cm x 4.5 cm Passport Size ratio
     function launchCropperModal(imageSrc) {
       const modal = document.getElementById('cropperModal');
       const imageTarget = document.getElementById('cropperImageTarget');
@@ -1952,12 +1975,8 @@
         activeCropper.destroy();
       }
 
-      const school = getActiveSchool();
-      const pf = school.photoFrame;
-      const aspectRatio = (pf.width / pf.height) || 0.85;
-
       activeCropper = new Cropper(imageTarget, {
-        aspectRatio: aspectRatio,
+        aspectRatio: PASSPORT_ASPECT_RATIO,
         viewMode: 1,
         autoCropArea: 0.9,
         background: false,
@@ -1972,16 +1991,19 @@
         activeCropper.destroy();
         activeCropper = null;
       }
+      const fileInput = document.getElementById('clientFileInput');
+      if (fileInput) fileInput.value = '';
     }
 
+    // Exports exact 350 x 450 px high-res Passport Size photo
     function applyCroppedImage() {
       if (!activeCropper) return;
       const croppedCanvas = activeCropper.getCroppedCanvas({
-        width: 500,
-        height: Math.round(500 / ((getActiveSchool().photoFrame.width / getActiveSchool().photoFrame.height) || 0.85))
+        width: 350,
+        height: 450
       });
 
-      clientUploadedPhotoBase64 = croppedCanvas.toDataURL('image/jpeg', 0.9);
+      clientUploadedPhotoBase64 = croppedCanvas.toDataURL('image/jpeg', 0.92);
       updateClientPhotoThumbnail();
       closeCropperModal();
     }
@@ -1989,46 +2011,6 @@
     function updateClientPhotoThumbnail() {
       const thumb = document.getElementById('clientPhotoThumb');
       if (thumb) thumb.innerHTML = `<img src="${clientUploadedPhotoBase64}" class="w-full h-full object-cover">`;
-    }
-
-    function openCameraModal() {
-      const modal = document.getElementById('cameraCaptureModal');
-      const video = document.getElementById('webcamVideo');
-      if (modal) modal.classList.remove('hidden');
-
-      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-        navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } })
-          .then(stream => {
-            webcamMediaStream = stream;
-            if (video) video.srcObject = stream;
-          })
-          .catch(err => {
-            alert('Camera unavailable: ' + err.message);
-            closeCameraModal();
-          });
-      }
-    }
-
-    function closeCameraModal() {
-      if (webcamMediaStream) {
-        webcamMediaStream.getTracks().forEach(track => track.stop());
-        webcamMediaStream = null;
-      }
-      const modal = document.getElementById('cameraCaptureModal');
-      if (modal) modal.classList.add('hidden');
-    }
-
-    function captureSnapshotFromWebcam() {
-      const video = document.getElementById('webcamVideo');
-      const snapCanvas = document.createElement('canvas');
-      snapCanvas.width = video.videoWidth || 640;
-      snapCanvas.height = video.videoHeight || 480;
-      const ctx = snapCanvas.getContext('2d');
-      ctx.drawImage(video, 0, 0, snapCanvas.width, snapCanvas.height);
-
-      const rawPhoto = snapCanvas.toDataURL('image/jpeg', 0.95);
-      closeCameraModal();
-      launchCropperModal(rawPhoto);
     }
 
     function triggerClientPreviewModal() {
@@ -2049,8 +2031,8 @@
       if (missingFields.length > 0) {
         return alert(`Please fill in required fields:\n• ${missingFields.join('\n• ')}`);
       }
-      if (!clientUploadedPhotoBase64) {
-        return alert("Please take or upload a student photo.");
+      if (!clientUploadedPhotoBase64 || clientUploadedPhotoBase64 === DEFAULT_STUDENT_PHOTO) {
+        return alert("Please choose and crop a student passport photo.");
       }
 
       pendingSubmissionPayload = { data: payload, photo: clientUploadedPhotoBase64 };
