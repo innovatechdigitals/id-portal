@@ -276,7 +276,7 @@
             <div class="flex items-center justify-between">
               <span class="font-bold text-slate-700 uppercase tracking-wider text-[11px] flex items-center space-x-1.5">
                 <i data-lucide="frame" class="w-3.5 h-3.5 text-blue-600"></i>
-                <span>Photo Frame (Passport 3.5 &times; 4.5 cm)</span>
+                <span>Photo Frame (Passport 3.5 × 4.5 cm)</span>
               </span>
               <button type="button" onclick="applyPassportPreset()" class="px-2.5 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-md font-bold text-[10px] transition shadow-2xs">
                 Set Passport Size
@@ -367,13 +367,19 @@
           <!-- Search Input -->
           <div class="relative">
             <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2"></i>
-            <input type="text" id="tableSearchInput" oninput="handleTableSearch(this.value)" placeholder="Search students..." class="bg-white border border-slate-300 rounded-lg pl-8 pr-3 py-1.5 text-xs text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 outline-none w-36 sm:w-48">
+            <input type="text" id="tableSearchInput" oninput="handleTableSearch(this.value)" placeholder="Search students..." class="bg-white border border-slate-300 rounded-lg pl-8 pr-3 py-1.5 text-xs text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 outline-none w-36 sm:w-44">
           </div>
           
-          <!-- TRUE EXCEL (.XLSX) WITH EMBEDDED PASSPORT PHOTOS -->
+          <!-- TRUE EXCEL (.XLSX) WITH EMBEDDED PASSPORT PHOTOS & 4-DIGIT PHOTO NUMBER -->
           <button id="btnExcelExport" onclick="downloadGenuineExcelWithPhotos()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold flex items-center space-x-1.5 transition shadow-2xs">
             <i data-lucide="file-spreadsheet" class="w-3.5 h-3.5"></i>
             <span>Excel (.xlsx)</span>
+          </button>
+
+          <!-- SEPARATE PASSPORT PHOTOS ZIP (NAMED 1001.jpg, 1002.jpg...) -->
+          <button onclick="downloadSeparatePassportPhotosZip()" class="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-bold flex items-center space-x-1.5 transition shadow-2xs">
+            <i data-lucide="image" class="w-3.5 h-3.5"></i>
+            <span>Passport Photos ZIP</span>
           </button>
 
           <!-- A4 BATCH PRINT SHEETS (9 UPRIGHT VERTICAL CARDS PER PORTRAIT A4 PAGE) -->
@@ -382,7 +388,7 @@
             <span>A4 Print Sheets (9/Page)</span>
           </button>
           
-          <!-- CLEAN CSV EXPORT -->
+          <!-- CLEAN CSV EXPORT WITH 4-DIGIT PHOTO NUMBER -->
           <button onclick="exportCleanCSV()" class="px-3 py-1.5 bg-white hover:bg-slate-100 border border-slate-300 text-slate-700 rounded-lg text-xs font-bold flex items-center space-x-1.5 transition">
             <i data-lucide="file-text" class="w-3.5 h-3.5 text-slate-600"></i>
             <span>Export CSV</span>
@@ -390,7 +396,7 @@
           
           <button onclick="downloadEntireSchoolFolderZip()" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold flex items-center space-x-1.5 transition shadow-2xs">
             <i data-lucide="archive" class="w-3.5 h-3.5"></i>
-            <span>ZIP (300 DPI)</span>
+            <span>Full Cards ZIP</span>
           </button>
         </div>
       </div>
@@ -399,7 +405,7 @@
         <table class="w-full text-left border-collapse text-xs">
           <thead class="bg-slate-100/75 text-slate-600 font-bold uppercase tracking-wider text-[10px] sticky top-0 z-10 border-b border-slate-200">
             <tr>
-              <th class="py-2.5 px-3 w-12 text-center">#</th>
+              <th class="py-2.5 px-3 w-20 text-center">Photo No</th>
               <th class="py-2.5 px-3 w-14 text-center">Photo</th>
               <th class="py-2.5 px-3">Student Name</th>
               <th class="py-2.5 px-3">Father Name</th>
@@ -438,7 +444,7 @@
 
         <div class="space-y-2">
           <label class="block text-xs font-bold text-slate-800">
-            Student Passport Photo (3.5 cm &times; 4.5 cm) <span class="text-rose-500">*</span>
+            Student Passport Photo (3.5 cm × 4.5 cm) <span class="text-rose-500">*</span>
           </label>
           <div class="flex items-center space-x-3">
             <div id="clientPhotoThumb" class="w-14 h-[72px] rounded-xl border border-dashed border-slate-300 bg-slate-50 flex items-center justify-center overflow-hidden shrink-0">
@@ -453,7 +459,7 @@
                   <input type="file" id="clientFileInput" accept="image/*" class="hidden" onchange="handleRawPhotoSelected(event)">
                 </label>
               </div>
-              <p class="text-[11px] text-slate-400">Select student photo. Passport-size crop frame will open automatically.</p>
+              <p class="text-[11px] text-slate-400">Select student photo. You can crop & fine-tune its position in preview.</p>
             </div>
           </div>
         </div>
@@ -478,7 +484,7 @@
     <div class="bg-white rounded-3xl max-w-lg w-full p-5 shadow-2xl border border-slate-200 flex flex-col space-y-4">
       <div class="flex items-center justify-between border-b border-slate-200 pb-2">
         <div>
-          <h3 class="font-black text-slate-900 text-sm">Crop Passport Size Photo (3.5 cm &times; 4.5 cm)</h3>
+          <h3 class="font-black text-slate-900 text-sm">Crop Passport Size Photo (3.5 cm × 4.5 cm)</h3>
           <p class="text-[11px] text-slate-500">Adjust the passport-size box to center the student's face.</p>
         </div>
         <button onclick="closeCropperModal()" class="text-slate-400 hover:text-slate-700">
@@ -502,16 +508,44 @@
     </div>
   </div>
 
-  <!-- VIEW / PREVIEW MODAL -->
+  <!-- VIEW / PREVIEW MODAL WITH INTERACTIVE PHOTO POSITION ADJUSTMENT -->
   <div id="previewVerificationModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-white rounded-3xl max-w-md w-full overflow-hidden shadow-2xl border border-slate-200 flex flex-col items-center p-6 space-y-4">
+    <div class="bg-white rounded-3xl max-w-md w-full overflow-hidden shadow-2xl border border-slate-200 flex flex-col items-center p-5 space-y-3">
       <div class="text-center">
         <h3 id="modalHeadingText" class="font-black text-slate-900 text-lg">Verify ID Card Preview</h3>
-        <p class="text-xs text-slate-500 mt-0.5">Please ensure all spelling and photo alignment are accurate.</p>
+        <p id="modalSubHeadingText" class="text-[11px] text-slate-500 mt-0.5">Drag the photo inside the frame or use arrows below to set your face neatly.</p>
       </div>
 
       <div class="p-2 bg-slate-100 rounded-2xl border border-slate-200 shadow-inner flex justify-center">
-        <div id="modalCardPreviewContainer" class="relative w-[280px] h-[430px] rounded-xl overflow-hidden bg-white shadow-md">
+        <div id="modalCardPreviewContainer" class="relative w-[270px] h-[415px] rounded-xl overflow-hidden bg-white shadow-md">
+        </div>
+      </div>
+
+      <!-- Client Photo Adjustment Controls (Up / Down / Left / Right / Zoom) -->
+      <div id="clientPreviewPhotoControls" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 flex items-center justify-between gap-2">
+        <span class="text-[10px] font-bold uppercase text-slate-600 tracking-wider">Adjust Photo:</span>
+        <div class="flex items-center space-x-1">
+          <button type="button" onclick="nudgePreviewPhoto(0, -3)" title="Move Up" class="p-1.5 bg-white hover:bg-blue-50 border border-slate-300 rounded-lg text-slate-700 active:scale-95">
+            <i data-lucide="arrow-up" class="w-3.5 h-3.5"></i>
+          </button>
+          <button type="button" onclick="nudgePreviewPhoto(0, 3)" title="Move Down" class="p-1.5 bg-white hover:bg-blue-50 border border-slate-300 rounded-lg text-slate-700 active:scale-95">
+            <i data-lucide="arrow-down" class="w-3.5 h-3.5"></i>
+          </button>
+          <button type="button" onclick="nudgePreviewPhoto(-3, 0)" title="Move Left" class="p-1.5 bg-white hover:bg-blue-50 border border-slate-300 rounded-lg text-slate-700 active:scale-95">
+            <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+          </button>
+          <button type="button" onclick="nudgePreviewPhoto(3, 0)" title="Move Right" class="p-1.5 bg-white hover:bg-blue-50 border border-slate-300 rounded-lg text-slate-700 active:scale-95">
+            <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+          </button>
+          <button type="button" onclick="zoomPreviewPhoto(0.08)" title="Zoom In" class="p-1.5 bg-white hover:bg-blue-50 border border-slate-300 rounded-lg text-slate-700 active:scale-95">
+            <i data-lucide="zoom-in" class="w-3.5 h-3.5"></i>
+          </button>
+          <button type="button" onclick="zoomPreviewPhoto(-0.08)" title="Zoom Out" class="p-1.5 bg-white hover:bg-blue-50 border border-slate-300 rounded-lg text-slate-700 active:scale-95">
+            <i data-lucide="zoom-out" class="w-3.5 h-3.5"></i>
+          </button>
+          <button type="button" onclick="resetPreviewPhotoAdjust()" title="Reset Position" class="px-2 py-1 bg-slate-200 hover:bg-slate-300 rounded-lg text-[10px] font-bold text-slate-700">
+            Reset
+          </button>
         </div>
       </div>
 
@@ -614,7 +648,6 @@
 
     const DEFAULT_STUDENT_PHOTO = `https://images.unsplash.com/photo-1544717305-2782549b5136?w=600&auto=format&fit=crop&q=80`;
 
-    // Default photoFrame calibrated to Passport 3.5cm x 4.5cm aspect ratio on 460x715 canvas (34% W x 28% H)
     const INITIAL_DEFAULT_SCHOOL = {
       id: "padmalaya-mbnr",
       name: "Padmalaya High School MBNR",
@@ -646,8 +679,13 @@
     let editingDocId = null;
     let activeCropper = null;
 
+    // Client preview photo adjustment offsets
+    let previewPhotoOffsetX = 0;
+    let previewPhotoOffsetY = 0;
+    let previewPhotoScale = 1.0;
+
     async function initApp() {
-      const cached = localStorage.getItem('innovatech_schools_cache_v21');
+      const cached = localStorage.getItem('innovatech_schools_cache_v22');
       if (cached) {
         try { AppState.schools = JSON.parse(cached); } catch(e){}
       }
@@ -691,7 +729,7 @@
           if (!AppState.schools.find(s => s.id === AppState.activeSchoolId)) {
             AppState.activeSchoolId = AppState.schools[0].id;
           }
-          localStorage.setItem('innovatech_schools_cache_v21', JSON.stringify(AppState.schools));
+          localStorage.setItem('innovatech_schools_cache_v22', JSON.stringify(AppState.schools));
           renderSchoolDropdown();
           syncActiveSchoolUI();
           renderInteractiveCard();
@@ -721,7 +759,7 @@
     }
 
     function saveSchoolToCloud(school) {
-      localStorage.setItem('innovatech_schools_cache_v21', JSON.stringify(AppState.schools));
+      localStorage.setItem('innovatech_schools_cache_v22', JSON.stringify(AppState.schools));
       db.collection("school_configs").doc(school.id).set(school, { merge: true })
         .catch(err => console.error("Error saving school to cloud:", err));
     }
@@ -833,7 +871,6 @@
       document.getElementById('newSchoolModal').classList.add('hidden');
     }
 
-    // FIX: Generate unique timestamped folder ID so reused school names never bring back old data
     function confirmAddNewSchool() {
       const name = document.getElementById('newSchoolNameInput').value.trim();
       if (!name) return alert('Please enter a valid school name.');
@@ -858,24 +895,21 @@
       changeActiveSchool(newSchool.id);
     }
 
-    // FIX: Cascade delete both the school config AND all old student submissions belonging to it
     async function deleteCurrentSchool() {
       if (AppState.schools.length <= 1) return alert("You cannot delete the only remaining school folder.");
       const school = getActiveSchool();
       if (confirm(`Permanently delete school folder "${school.name}" and ALL its student ID records? This cannot be undone.`)) {
         try {
-          // 1. Delete all student submissions associated with this schoolId
           const snap = await db.collection("submissions").where("schoolId", "==", school.id).get();
           const batch = db.batch();
           snap.forEach(doc => batch.delete(doc.ref));
           await batch.commit();
 
-          // 2. Delete school configuration
           await db.collection("school_configs").doc(school.id).delete();
 
           AppState.schools = AppState.schools.filter(s => s.id !== school.id);
           AppState.activeSchoolId = AppState.schools[0].id;
-          localStorage.setItem('innovatech_schools_cache_v21', JSON.stringify(AppState.schools));
+          localStorage.setItem('innovatech_schools_cache_v22', JSON.stringify(AppState.schools));
           renderSchoolDropdown();
           changeActiveSchool(AppState.activeSchoolId);
           alert(`Deleted "${school.name}" and cleared all associated records.`);
@@ -1058,7 +1092,6 @@
       }
     }
 
-    // One-click Passport Size Frame Preset (3.5 cm x 4.5 cm on 460x715 card = 34% x 28%)
     function applyPassportPreset() {
       const school = getActiveSchool();
       school.photoFrame.width = 34;
@@ -1068,7 +1101,6 @@
       renderInteractiveCard();
     }
 
-    // Automatically keeps Passport 3.5:4.5 aspect ratio when resizing Width or Height
     function updatePhotoFrameSettings() {
       const school = getActiveSchool();
       const pf = school.photoFrame;
@@ -1080,11 +1112,9 @@
       let h = parseFloat(hInput.value) || 28;
 
       if (activeEl === wInput) {
-        // Calculate proportional passport height: (w% * 460px) / (35/45) / 715px * 100
         h = +(((w * 460) / PASSPORT_ASPECT_RATIO / 715) * 100).toFixed(1);
         hInput.value = h;
       } else if (activeEl === hInput) {
-        // Calculate proportional passport width: (h% * 715px) * (35/45) / 460px * 100
         w = +(((h * 715) * PASSPORT_ASPECT_RATIO / 460) * 100).toFixed(1);
         wInput.value = w;
       }
@@ -1270,7 +1300,6 @@
       });
     }
 
-    // Dynamic Date Filter Extractor
     function updateDateFilterOptions() {
       const select = document.getElementById('submissionDateFilter');
       if (!select) return;
@@ -1306,11 +1335,23 @@
       renderStudentsTable();
     }
 
-    function getFilteredSchoolSubmissions() {
+    // Assigns deterministic 4-digit Photo Number (1001, 1002, 1003...) based on chronological order
+    function getSchoolSubmissionsWithPhotoIds() {
       const school = getActiveSchool();
-      return AppState.submissions.filter(r => {
-        if (r.schoolId !== school.id) return false;
-        
+      const allSchoolRecords = AppState.submissions
+        .filter(r => r.schoolId === school.id)
+        .sort((a, b) => (a.timestamp || '').localeCompare(b.timestamp || '') || (a.id || '').localeCompare(b.id || ''));
+
+      return allSchoolRecords.map((rec, idx) => {
+        // Use saved 4-digit photoNumber if available, otherwise assign sequential 1001+
+        const fourDigitId = rec.photoNumber || String(1001 + idx);
+        return { ...rec, photoNumber: fourDigitId };
+      });
+    }
+
+    function getFilteredSchoolSubmissions() {
+      const enriched = getSchoolSubmissionsWithPhotoIds();
+      return enriched.filter(r => {
         if (AppState.dateFilter !== 'ALL') {
           const rDate = (r.timestamp || '').split(' ')[0];
           if (rDate !== AppState.dateFilter) return false;
@@ -1319,8 +1360,8 @@
         if (AppState.searchQuery) {
           const q = AppState.searchQuery.toLowerCase();
           const matchField = Object.values(r.data || {}).some(val => String(val).toLowerCase().includes(q));
-          const matchDoc = r.docId && r.docId.toLowerCase().includes(q);
-          if (!matchField && !matchDoc) return false;
+          const matchPhotoId = r.photoNumber && r.photoNumber.includes(q);
+          if (!matchField && !matchPhotoId) return false;
         }
 
         return true;
@@ -1328,7 +1369,6 @@
     }
 
     function renderStudentsTable() {
-      const school = getActiveSchool();
       const tbody = document.getElementById('studentRecordsTableBody');
       const badgeTotalCount = document.getElementById('badgeTotalCount');
       if (!tbody) return;
@@ -1342,11 +1382,11 @@
         return;
       }
 
-      filtered.forEach((rec, index) => {
+      filtered.forEach((rec) => {
         const tr = document.createElement('tr');
         tr.className = "hover:bg-slate-50/80 transition-colors";
         tr.innerHTML = `
-          <td class="py-2 px-3 font-mono font-bold text-slate-500 text-center">#${index + 1}</td>
+          <td class="py-2 px-3 font-mono font-extrabold text-indigo-700 text-center">${rec.photoNumber}</td>
           <td class="py-2 px-3 text-center">
             <img src="${rec.photo}" class="w-8 h-[41px] rounded-md object-cover mx-auto border border-slate-300">
           </td>
@@ -1380,14 +1420,17 @@
     }
 
     function viewStudentRecord(docId) {
-      const rec = AppState.submissions.find(r => r.docId === docId);
+      const enriched = getSchoolSubmissionsWithPhotoIds();
+      const rec = enriched.find(r => r.docId === docId);
       if (!rec) return;
       const school = getActiveSchool();
 
       const previewBox = document.getElementById('modalCardPreviewContainer');
-      if (previewBox) previewBox.innerHTML = buildRenderedCardHTML(school, rec.data, rec.photo);
+      if (previewBox) previewBox.innerHTML = buildRenderedCardHTML(school, rec.data, rec.photo, 0.85, false);
       
-      document.getElementById('modalHeadingText').textContent = "Student ID Card Preview";
+      document.getElementById('modalHeadingText').textContent = `ID Card Preview (#${rec.photoNumber})`;
+      document.getElementById('modalSubHeadingText').textContent = "Read-only studio preview.";
+      document.getElementById('clientPreviewPhotoControls').classList.add('hidden');
       document.getElementById('modalActionButtonsContainer').innerHTML = `
         <button onclick="closePreviewVerificationModal()" class="w-full py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs col-span-2">
           Close Preview
@@ -1397,12 +1440,13 @@
     }
 
     async function downloadSingleCard(docId) {
-      const rec = AppState.submissions.find(r => r.docId === docId);
+      const enriched = getSchoolSubmissionsWithPhotoIds();
+      const rec = enriched.find(r => r.docId === docId);
       if (!rec) return;
       const school = getActiveSchool();
       const blob = await generate300DpiCardBlob(school, rec.data, rec.photo);
       const studentName = (rec.data.student_name || 'student').replace(/[^a-z0-9]/gi, '_');
-      saveAs(blob, `${school.id}_${studentName}.png`);
+      saveAs(blob, `${rec.photoNumber}_${studentName}.png`);
     }
 
     function openEditRecordModal(docId) {
@@ -1481,7 +1525,7 @@
       return await response.arrayBuffer();
     }
 
-    // 1. GENUINE NATIVE .XLSX GENERATION WITH PASSPORT-SIZED EMBEDDED PHOTOS (3.5 x 4.5 RATIO)
+    // 1. EXCEL (.XLSX) WITH 4-DIGIT PHOTO NUMBER & EMBEDDED PASSPORT PHOTOS
     async function downloadGenuineExcelWithPhotos() {
       const school = getActiveSchool();
       const records = getFilteredSchoolSubmissions();
@@ -1499,9 +1543,8 @@
         const worksheet = workbook.addWorksheet('Students');
 
         const columns = [
-          { header: '# No', key: 'index', width: 8 },
+          { header: 'Photo No', key: 'photoNumber', width: 12 },
           { header: 'Passport Photo', key: 'photo', width: 13 },
-          { header: 'Record ID', key: 'docId', width: 15 },
           ...school.lines.map(l => ({ header: l.label.replace('Enter Your ', ''), key: l.id, width: 22 })),
           { header: 'Submission Time', key: 'timestamp', width: 20 }
         ];
@@ -1517,9 +1560,8 @@
 
         for (const rec of records) {
           const rowData = {
-            index: currentRow - 1,
+            photoNumber: rec.photoNumber,
             photo: '',
-            docId: rec.docId,
             timestamp: rec.timestamp || ''
           };
 
@@ -1528,9 +1570,10 @@
           });
 
           const row = worksheet.addRow(rowData);
-          // Row height 74pt comfortably fits 56x72px passport photo
           row.height = 74;
           row.alignment = { vertical: 'middle', horizontal: 'left' };
+          row.getCell(1).alignment = { vertical: 'middle', horizontal: 'center' };
+          row.getCell(1).font = { bold: true };
 
           if (rec.photo) {
             try {
@@ -1550,7 +1593,6 @@
                   extension: ext
                 });
 
-                // Exact 3.5 : 4.5 passport proportion (56px wide x 72px tall)
                 worksheet.addImage(imageId, {
                   tl: { col: 1.15, row: currentRow - 0.92 },
                   ext: { width: 56, height: 72 },
@@ -1578,7 +1620,39 @@
       }
     }
 
-    // 2. A4 BATCH PRINT WINDOW (9 UPRIGHT VERTICAL PORTRAIT CARDS ON STANDARD PORTRAIT A4: 3 COLS x 3 ROWS)
+    // 2. SEPARATE PASSPORT PHOTOS ZIP (NAMED STRICTLY BY 4-DIGIT NUMBER: 1001.jpg, 1002.jpg...)
+    async function downloadSeparatePassportPhotosZip() {
+      const school = getActiveSchool();
+      const records = getFilteredSchoolSubmissions();
+      if (records.length === 0) return alert('No student photos found to download.');
+
+      const zip = new JSZip();
+      const folder = zip.folder(`${school.id}_Passport_Photos`);
+
+      for (let i = 0; i < records.length; i++) {
+        const rec = records[i];
+        if (!rec.photo) continue;
+        try {
+          let blob;
+          if (rec.photo.startsWith('data:image')) {
+            const res = await fetch(rec.photo);
+            blob = await res.blob();
+          } else {
+            const res = await fetch(rec.photo);
+            blob = await res.blob();
+          }
+          // File named strictly by 4-digit unique photo number (e.g., 1001.jpg)
+          folder.file(`${rec.photoNumber}.jpg`, blob);
+        } catch (err) {
+          console.warn(`Failed to add photo ${rec.photoNumber}:`, err);
+        }
+      }
+
+      const zipBlob = await zip.generateAsync({ type: "blob" });
+      saveAs(zipBlob, `${school.id}_Passport_Photos_Only.zip`);
+    }
+
+    // 3. A4 BATCH PRINT WINDOW (9 UPRIGHT VERTICAL PORTRAIT CARDS ON STANDARD PORTRAIT A4: 3 COLS x 3 ROWS)
     function openA4BatchPrintWindow() {
       const school = getActiveSchool();
       const records = getFilteredSchoolSubmissions();
@@ -1601,7 +1675,7 @@
             <div class="card-cell">
               <div class="crop-guides"></div>
               <div class="id-card-frame">
-                ${buildRenderedCardHTML(school, rec.data, rec.photo, 0.45)}
+                ${buildRenderedCardHTML(school, rec.data, rec.photo, 0.45, false)}
               </div>
             </div>
           `;
@@ -1620,7 +1694,7 @@
           <div class="a4-sheet">
             <div class="sheet-info-strip">
               <span><b>${school.name}</b> | Sheet ${pageIdx + 1} of ${pages.length}</span>
-              <span>9 Upright Vertical ID Cards (54mm &times; 85.6mm) | Print at 100% Scale</span>
+              <span>9 Upright Vertical ID Cards (54mm × 85.6mm) | Print at 100% Scale</span>
             </div>
             <div class="a4-cards-grid">
               ${cardsHtml}
@@ -1769,7 +1843,7 @@
               <strong style="font-size: 14px;">${school.name}</strong> — ${records.length} Vertical ID Cards (${pages.length} Sheets)
             </div>
             <div style="display: flex; align-items: center; gap: 14px;">
-              <span style="font-size: 11px; color: #94a3b8;"><b>Print Setting:</b> Layout: Portrait &bull; Scale: 100% &bull; Margins: None</span>
+              <span style="font-size: 11px; color: #94a3b8;"><b>Print Setting:</b> Layout: Portrait • Scale: 100% • Margins: None</span>
               <button class="btn-print" onclick="window.print()">
                 Print / Save PDF (Ctrl + P)
               </button>
@@ -1788,7 +1862,7 @@
       win.document.close();
     }
 
-    // 3. CLEAN CSV EXPORT
+    // 4. CLEAN CSV EXPORT WITH 4-DIGIT PHOTO NUMBER INSTEAD OF S.NO
     async function exportCleanCSV() {
       const school = getActiveSchool();
       const records = getFilteredSchoolSubmissions();
@@ -1796,14 +1870,12 @@
         return alert('No student records found to export for ' + school.name);
       }
 
-      const headers = ['# No', 'Record ID', ...school.lines.map(l => l.label.replace('Enter Your ', '')), 'Submission Time'];
+      const headers = ['Photo No', ...school.lines.map(l => l.label.replace('Enter Your ', '')), 'Submission Time'];
       const rows = [];
-      let index = 1;
 
       records.forEach(rec => {
         const row = [
-          index++,
-          rec.docId,
+          rec.photoNumber,
           ...school.lines.map(l => `"${(rec.data[l.id] || '').replace(/"/g, '""')}"`),
           `"${rec.timestamp || ''}"`
         ];
@@ -1815,6 +1887,7 @@
       saveAs(blob, `${school.id}_students.csv`);
     }
 
+    // 5. FULL RENDERED ID CARDS ZIP (NAMED BY 4-DIGIT PHOTO NUMBER)
     async function downloadEntireSchoolFolderZip() {
       const school = getActiveSchool();
       const records = getFilteredSchoolSubmissions();
@@ -1827,7 +1900,7 @@
         const rec = records[i];
         const blob = await generate300DpiCardBlob(school, rec.data, rec.photo);
         const nameVal = rec.data.student_name || Object.values(rec.data)[0] || 'student';
-        const fileName = `${String(i + 1).padStart(3, '0')}_${nameVal.replace(/[^a-z0-9]/gi, '_')}.png`;
+        const fileName = `${rec.photoNumber}_${nameVal.replace(/[^a-z0-9]/gi, '_')}.png`;
         folder.file(fileName, blob);
       }
 
@@ -1902,7 +1975,7 @@
       });
     }
 
-    function buildRenderedCardHTML(school, dataMap, photoUrl, fontScale = 0.9) {
+    function buildRenderedCardHTML(school, dataMap, photoUrl, fontScale = 0.85, interactivePhoto = false) {
       const pf = school.photoFrame;
       let linesHtml = '';
       
@@ -1912,7 +1985,7 @@
           const isCenter = line.align === 'center';
           const scaledFontSize = (line.fontSize * fontScale).toFixed(1);
           linesHtml += `
-            <div style="position: absolute; left: ${line.x}%; top: ${line.y}%; transform: ${isCenter ? 'translate(-50%, -50%)' : 'translate(0%, -50%)'}; font-family: ${line.fontFamily || 'Montserrat'}; font-size: ${scaledFontSize}px; font-weight: ${line.fontWeight || '700'}; color: ${line.color || '#0f2b5c'}; white-space: nowrap;">
+            <div style="position: absolute; left: ${line.x}%; top: ${line.y}%; transform: ${isCenter ? 'translate(-50%, -50%)' : 'translate(0%, -50%)'}; font-family: ${line.fontFamily || 'Montserrat'}; font-size: ${scaledFontSize}px; font-weight: ${line.fontWeight || '700'}; color: ${line.color || '#0f2b5c'}; white-space: nowrap; pointer-events: none;">
               ${val}
             </div>
           `;
@@ -1921,12 +1994,15 @@
 
       const scaledBorder = Math.max(1, Math.round(pf.borderWidth * fontScale));
       const scaledRadius = Math.round(pf.radius * fontScale);
+      const photoTransform = interactivePhoto 
+        ? `transform: translate(${previewPhotoOffsetX}px, ${previewPhotoOffsetY}px) scale(${previewPhotoScale});` 
+        : '';
 
       return `
         <div style="position: relative; width: 100%; height: 100%; background: #ffffff;">
-          <img src="${school.templateImg || DEFAULT_TEMPLATE_SVG}" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: fill;">
-          <div style="position: absolute; left: ${pf.x}%; top: ${pf.y}%; width: ${pf.width}%; height: ${pf.height}%; transform: translate(-50%, -50%); border-radius: ${scaledRadius}px; border: ${scaledBorder}px solid ${pf.borderColor || '#1e3a8a'}; overflow: hidden;">
-            <img src="${photoUrl}" style="width: 100%; height: 100%; object-fit: cover;">
+          <img src="${school.templateImg || DEFAULT_TEMPLATE_SVG}" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: fill; pointer-events: none;">
+          <div id="previewPhotoFrameBox" style="position: absolute; left: ${pf.x}%; top: ${pf.y}%; width: ${pf.width}%; height: ${pf.height}%; transform: translate(-50%, -50%); border-radius: ${scaledRadius}px; border: ${scaledBorder}px solid ${pf.borderColor || '#1e3a8a'}; overflow: hidden; ${interactivePhoto ? 'cursor: grab; touch-action: none;' : ''}">
+            <img id="previewDraggablePhotoImg" src="${photoUrl}" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none; transform-origin: center center; ${photoTransform}">
           </div>
           ${linesHtml}
         </div>
@@ -1964,7 +2040,6 @@
       reader.readAsDataURL(file);
     }
 
-    // Strictly locks cropper to standard 3.5 cm x 4.5 cm Passport Size ratio
     function launchCropperModal(imageSrc) {
       const modal = document.getElementById('cropperModal');
       const imageTarget = document.getElementById('cropperImageTarget');
@@ -1995,7 +2070,6 @@
       if (fileInput) fileInput.value = '';
     }
 
-    // Exports exact 350 x 450 px high-res Passport Size photo
     function applyCroppedImage() {
       if (!activeCropper) return;
       const croppedCanvas = activeCropper.getCroppedCanvas({
@@ -2004,6 +2078,7 @@
       });
 
       clientUploadedPhotoBase64 = croppedCanvas.toDataURL('image/jpeg', 0.92);
+      resetPreviewPhotoAdjust();
       updateClientPhotoThumbnail();
       closeCropperModal();
     }
@@ -2011,6 +2086,116 @@
     function updateClientPhotoThumbnail() {
       const thumb = document.getElementById('clientPhotoThumb');
       if (thumb) thumb.innerHTML = `<img src="${clientUploadedPhotoBase64}" class="w-full h-full object-cover">`;
+    }
+
+    // CLIENT PREVIEW PHOTO ADJUSTMENT FUNCTIONS
+    function applyTransformToPreviewPhoto() {
+      const img = document.getElementById('previewDraggablePhotoImg');
+      if (img) {
+        img.style.transform = `translate(${previewPhotoOffsetX}px, ${previewPhotoOffsetY}px) scale(${previewPhotoScale})`;
+      }
+    }
+
+    function nudgePreviewPhoto(dx, dy) {
+      previewPhotoOffsetX += dx;
+      previewPhotoOffsetY += dy;
+      applyTransformToPreviewPhoto();
+    }
+
+    function zoomPreviewPhoto(delta) {
+      previewPhotoScale = Math.min(2.2, Math.max(0.7, +(previewPhotoScale + delta).toFixed(2)));
+      applyTransformToPreviewPhoto();
+    }
+
+    function resetPreviewPhotoAdjust() {
+      previewPhotoOffsetX = 0;
+      previewPhotoOffsetY = 0;
+      previewPhotoScale = 1.0;
+      applyTransformToPreviewPhoto();
+    }
+
+    function attachPreviewPhotoDragHandlers() {
+      const frameBox = document.getElementById('previewPhotoFrameBox');
+      if (!frameBox) return;
+
+      let isDragging = false;
+      let startX = 0;
+      let startY = 0;
+      let initialOffsetX = 0;
+      let initialOffsetY = 0;
+
+      const onPointerDown = (e) => {
+        isDragging = true;
+        frameBox.style.cursor = 'grabbing';
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        startX = clientX;
+        startY = clientY;
+        initialOffsetX = previewPhotoOffsetX;
+        initialOffsetY = previewPhotoOffsetY;
+      };
+
+      const onPointerMove = (e) => {
+        if (!isDragging) return;
+        e.preventDefault();
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        previewPhotoOffsetX = initialOffsetX + (clientX - startX);
+        previewPhotoOffsetY = initialOffsetY + (clientY - startY);
+        applyTransformToPreviewPhoto();
+      };
+
+      const onPointerUp = () => {
+        isDragging = false;
+        frameBox.style.cursor = 'grab';
+      };
+
+      frameBox.addEventListener('mousedown', onPointerDown);
+      window.addEventListener('mousemove', onPointerMove);
+      window.addEventListener('mouseup', onPointerUp);
+
+      frameBox.addEventListener('touchstart', onPointerDown, { passive: false });
+      window.addEventListener('touchmove', onPointerMove, { passive: false });
+      window.addEventListener('touchend', onPointerUp);
+    }
+
+    // Bakes the client's preview photo pan & zoom directly into a final 350x450 Passport JPEG
+    function bakeAdjustedPassportPhoto(photoDataUrl) {
+      return new Promise((resolve) => {
+        if (previewPhotoOffsetX === 0 && previewPhotoOffsetY === 0 && previewPhotoScale === 1.0) {
+          return resolve(photoDataUrl);
+        }
+
+        const frameBox = document.getElementById('previewPhotoFrameBox');
+        const boxW = frameBox ? frameBox.offsetWidth : 92;
+        const boxH = frameBox ? frameBox.offsetHeight : 116;
+
+        const outCanvas = document.createElement('canvas');
+        outCanvas.width = 350;
+        outCanvas.height = 450;
+        const ctx = outCanvas.getContext('2d');
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, 350, 450);
+
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = () => {
+          const scaleRatioX = 350 / boxW;
+          const scaleRatioY = 450 / boxH;
+
+          const scaledOffsetX = previewPhotoOffsetX * scaleRatioX;
+          const scaledOffsetY = previewPhotoOffsetY * scaleRatioY;
+
+          ctx.save();
+          ctx.translate(175 + scaledOffsetX, 225 + scaledOffsetY);
+          ctx.scale(previewPhotoScale, previewPhotoScale);
+          ctx.drawImage(img, -175, -225, 350, 450);
+          ctx.restore();
+
+          resolve(outCanvas.toDataURL('image/jpeg', 0.92));
+        };
+        img.src = photoDataUrl;
+      });
     }
 
     function triggerClientPreviewModal() {
@@ -2038,9 +2223,11 @@
       pendingSubmissionPayload = { data: payload, photo: clientUploadedPhotoBase64 };
 
       const previewBox = document.getElementById('modalCardPreviewContainer');
-      if (previewBox) previewBox.innerHTML = buildRenderedCardHTML(school, payload, clientUploadedPhotoBase64);
+      if (previewBox) previewBox.innerHTML = buildRenderedCardHTML(school, payload, clientUploadedPhotoBase64, 0.85, true);
 
       document.getElementById('modalHeadingText').textContent = "Verify ID Card Preview";
+      document.getElementById('modalSubHeadingText').textContent = "Drag the photo inside the frame or use arrows below to set your face neatly.";
+      document.getElementById('clientPreviewPhotoControls').classList.remove('hidden');
       document.getElementById('modalActionButtonsContainer').innerHTML = `
         <button onclick="closePreviewVerificationModal()" class="w-full py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs transition border border-slate-300 flex items-center justify-center space-x-1.5">
           <i data-lucide="edit-2" class="w-3.5 h-3.5"></i>
@@ -2054,6 +2241,7 @@
 
       const modal = document.getElementById('previewVerificationModal');
       if (modal) modal.classList.remove('hidden');
+      attachPreviewPhotoDragHandlers();
       if (window.lucide) lucide.createIcons();
     }
 
@@ -2062,7 +2250,7 @@
       if (modal) modal.classList.add('hidden');
     }
 
-    function executeFinalClientSubmit() {
+    async function executeFinalClientSubmit() {
       if (!pendingSubmissionPayload) return;
       const school = getActiveSchool();
       const btn = document.getElementById('finalSubmitBtn');
@@ -2071,18 +2259,35 @@
         btn.textContent = "Uploading to Cloud...";
       }
 
-      const newRec = {
-        id: `REC-${Date.now().toString().slice(-4)}`,
-        schoolId: school.id,
-        timestamp: new Date().toISOString().replace('T', ' ').slice(0, 16),
-        photo: pendingSubmissionPayload.photo,
-        data: pendingSubmissionPayload.data
-      };
+      try {
+        // Bake client's preview photo pan & zoom adjustments into the final passport photo
+        const finalBakedPhoto = await bakeAdjustedPassportPhoto(pendingSubmissionPayload.photo);
 
-      db.collection("submissions").add(newRec).then(() => {
+        // Calculate next sequential 4-digit Photo Number (starting from 1001)
+        const existingSchoolRecords = getSchoolSubmissionsWithPhotoIds();
+        let nextPhotoNum = 1001;
+        existingSchoolRecords.forEach(r => {
+          const num = parseInt(r.photoNumber, 10);
+          if (!isNaN(num) && num >= nextPhotoNum) {
+            nextPhotoNum = num + 1;
+          }
+        });
+
+        const newRec = {
+          id: `REC-${Date.now().toString().slice(-4)}`,
+          photoNumber: String(nextPhotoNum),
+          schoolId: school.id,
+          timestamp: new Date().toISOString().replace('T', ' ').slice(0, 16),
+          photo: finalBakedPhoto,
+          data: pendingSubmissionPayload.data
+        };
+
+        await db.collection("submissions").add(newRec);
+
         closePreviewVerificationModal();
         pendingSubmissionPayload = null;
         clientUploadedPhotoBase64 = DEFAULT_STUDENT_PHOTO;
+        resetPreviewPhotoAdjust();
         const thumb = document.getElementById('clientPhotoThumb');
         if (thumb) thumb.innerHTML = `<i data-lucide="image" class="w-6 h-6 text-slate-400"></i>`;
         renderClientFormFields();
@@ -2092,15 +2297,15 @@
           btn.innerHTML = `<i data-lucide="check-circle" class="w-3.5 h-3.5"></i><span>Final Submit</span>`;
         }
 
-        alert(`✅ Submitted successfully! The record is saved in the cloud and instantly available in your studio.`);
+        alert(`✅ Submitted successfully! Your Photo ID is #${newRec.photoNumber}.`);
         if (window.lucide) lucide.createIcons();
-      }).catch(err => {
+      } catch (err) {
         if (btn) {
           btn.disabled = false;
           btn.textContent = "Final Submit";
         }
         alert("Upload error: " + err.message);
-      });
+      }
     }
 
     window.addEventListener('DOMContentLoaded', initApp);
