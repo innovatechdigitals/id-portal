@@ -34,8 +34,12 @@
     .clean-canvas-bg { background-color: #f8fafc; }
     .active-drag-target {
       outline: 2px dashed #2563eb !important;
-      outline-offset: 3px !important;
-      background-color: rgba(37, 99, 235, 0.12) !important;
+      outline-offset: 2px !important;
+      background-color: rgba(37, 99, 235, 0.10) !important;
+    }
+    .photo-guide-outline {
+      outline: 1.5px dashed #3b82f6;
+      outline-offset: -1px;
     }
     body.client-mode header,
     body.client-mode #adminView {
@@ -60,7 +64,7 @@
           <h1 class="font-black text-slate-900 tracking-tight text-lg">Innovatech Prints</h1>
           <span class="text-[10px] bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">Cloud Studio</span>
         </div>
-        <p class="text-xs text-slate-500 font-medium hidden sm:block">Multi-School Cloud ID Management & Realtime Sync</p>
+        <p class="text-xs text-slate-500 font-medium hidden sm:block">Multi-School Cloud ID Management & Realtime Sync (54 × 86 mm)</p>
       </div>
     </div>
 
@@ -101,7 +105,7 @@
             <i data-lucide="edit-3" class="w-4 h-4 text-blue-600"></i>
             <h2 class="font-bold text-slate-800 text-sm tracking-wide uppercase">Designer & Inspector Panel</h2>
           </div>
-          <span class="text-[11px] font-semibold text-slate-500 bg-white px-2 py-0.5 rounded border border-slate-200">Precision 0.2%</span>
+          <span class="text-[11px] font-semibold text-slate-500 bg-white px-2 py-0.5 rounded border border-slate-200">Card: 54 × 86 mm</span>
         </div>
 
         <div class="p-4 space-y-4 overflow-y-auto max-h-[760px] custom-scrollbar text-xs">
@@ -127,7 +131,7 @@
             </select>
 
             <div class="pt-2 flex items-center justify-between border-t border-slate-200">
-              <span class="text-slate-600 font-medium">Card Template Background</span>
+              <span class="text-slate-600 font-medium">Card Template Background (54 × 86 mm)</span>
               <label class="cursor-pointer bg-white border border-slate-300 hover:border-blue-500 text-slate-700 px-3 py-1.5 rounded-lg font-semibold flex items-center space-x-1.5 transition">
                 <i data-lucide="upload-cloud" class="w-3.5 h-3.5 text-blue-600"></i>
                 <span>Upload New Template</span>
@@ -184,11 +188,11 @@
             <div class="grid grid-cols-2 gap-3">
               <div>
                 <label class="text-slate-500 text-[10px] uppercase font-bold block mb-1">X Position (%) - Start Point</label>
-                <input type="number" step="0.1" id="inputPosX" oninput="updateActiveElementPosition()" class="w-full bg-white border border-slate-300 rounded-lg p-1.5 font-mono text-center font-bold text-slate-800">
+                <input type="number" step="0.2" id="inputPosX" onchange="updateActiveElementPosition()" class="w-full bg-white border border-slate-300 rounded-lg p-1.5 font-mono text-center font-bold text-slate-800">
               </div>
               <div>
                 <label class="text-slate-500 text-[10px] uppercase font-bold block mb-1">Y Position (%)</label>
-                <input type="number" step="0.1" id="inputPosY" oninput="updateActiveElementPosition()" class="w-full bg-white border border-slate-300 rounded-lg p-1.5 font-mono text-center font-bold text-slate-800">
+                <input type="number" step="0.2" id="inputPosY" onchange="updateActiveElementPosition()" class="w-full bg-white border border-slate-300 rounded-lg p-1.5 font-mono text-center font-bold text-slate-800">
               </div>
             </div>
 
@@ -227,7 +231,7 @@
             <div class="grid grid-cols-2 gap-3">
               <div>
                 <label class="text-slate-500 text-[10px] uppercase font-bold block mb-1">Font Size (px)</label>
-                <input type="number" id="inputFontSize" min="8" max="64" oninput="updateTypographySettings()" class="w-full bg-white border border-slate-300 rounded-lg p-1.5 font-bold text-slate-800">
+                <input type="number" id="inputFontSize" min="8" max="64" onchange="updateTypographySettings()" class="w-full bg-white border border-slate-300 rounded-lg p-1.5 font-bold text-slate-800">
               </div>
               <div>
                 <label class="text-slate-500 text-[10px] uppercase font-bold block mb-1">Text Color</label>
@@ -271,49 +275,53 @@
             </div>
           </div>
 
-          <!-- Photo Frame Geometry -->
+          <!-- Photo Frame Geometry (Independent Smooth Width & Height, Guide Border Hidden in Final Output) -->
           <div id="photoFrameControls" class="p-3.5 bg-slate-50 rounded-xl border border-slate-200 space-y-3">
             <div class="flex items-center justify-between">
               <span class="font-bold text-slate-700 uppercase tracking-wider text-[11px] flex items-center space-x-1.5">
                 <i data-lucide="frame" class="w-3.5 h-3.5 text-blue-600"></i>
-                <span>Photo Frame (Passport 3.5 × 4.5 cm)</span>
+                <span>Photo Frame Size (No Border on Final Print)</span>
               </span>
               <button type="button" onclick="applyPassportPreset()" class="px-2.5 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-md font-bold text-[10px] transition shadow-2xs">
-                Set Passport Size
+                Reset Default
               </button>
             </div>
 
             <div class="grid grid-cols-2 gap-3">
               <div>
                 <label class="text-slate-500 text-[10px] uppercase font-bold block mb-1">Frame Width (%)</label>
-                <input type="number" step="0.5" id="inputPhotoWidth" oninput="updatePhotoFrameSettings()" class="w-full bg-white border border-slate-300 rounded-lg p-1.5 font-mono text-center font-bold">
+                <div class="flex items-center space-x-1">
+                  <button type="button" onclick="adjustPhotoFrameSize(-0.5, 0)" class="px-2.5 py-1.5 bg-white hover:bg-blue-50 border border-slate-300 rounded-lg font-bold text-slate-700">-</button>
+                  <input type="number" step="0.5" min="10" max="90" id="inputPhotoWidth" onchange="updatePhotoFrameSettings()" class="w-full bg-white border border-slate-300 rounded-lg p-1.5 font-mono text-center font-bold">
+                  <button type="button" onclick="adjustPhotoFrameSize(0.5, 0)" class="px-2.5 py-1.5 bg-white hover:bg-blue-50 border border-slate-300 rounded-lg font-bold text-slate-700">+</button>
+                </div>
               </div>
               <div>
                 <label class="text-slate-500 text-[10px] uppercase font-bold block mb-1">Frame Height (%)</label>
-                <input type="number" step="0.5" id="inputPhotoHeight" oninput="updatePhotoFrameSettings()" class="w-full bg-white border border-slate-300 rounded-lg p-1.5 font-mono text-center font-bold">
+                <div class="flex items-center space-x-1">
+                  <button type="button" onclick="adjustPhotoFrameSize(0, -0.5)" class="px-2.5 py-1.5 bg-white hover:bg-blue-50 border border-slate-300 rounded-lg font-bold text-slate-700">-</button>
+                  <input type="number" step="0.5" min="10" max="90" id="inputPhotoHeight" onchange="updatePhotoFrameSettings()" class="w-full bg-white border border-slate-300 rounded-lg p-1.5 font-mono text-center font-bold">
+                  <button type="button" onclick="adjustPhotoFrameSize(0, 0.5)" class="px-2.5 py-1.5 bg-white hover:bg-blue-50 border border-slate-300 rounded-lg font-bold text-slate-700">+</button>
+                </div>
               </div>
             </div>
 
-            <div class="grid grid-cols-2 gap-3">
-              <div>
-                <label class="text-slate-500 text-[10px] uppercase font-bold block mb-1">Corner Radius (px)</label>
-                <input type="number" id="inputPhotoRadius" min="0" max="40" oninput="updatePhotoFrameSettings()" class="w-full bg-white border border-slate-300 rounded-lg p-1.5 font-bold">
-              </div>
-              <div>
-                <label class="text-slate-500 text-[10px] uppercase font-bold block mb-1">Border Width (px)</label>
-                <input type="number" id="inputPhotoBorderWidth" min="0" max="8" oninput="updatePhotoFrameSettings()" class="w-full bg-white border border-slate-300 rounded-lg p-1.5 font-bold">
-              </div>
+            <div>
+              <label class="text-slate-500 text-[10px] uppercase font-bold block mb-1">Corner Radius (px)</label>
+              <input type="number" id="inputPhotoRadius" min="0" max="40" onchange="updatePhotoFrameSettings()" class="w-full bg-white border border-slate-300 rounded-lg p-1.5 font-bold">
+              <p class="text-[10px] text-slate-400 mt-1">Note: Dashed blue border is shown here only to help you align; final ID cards print with no extra border.</p>
             </div>
           </div>
         </div>
       </section>
 
-      <!-- RIGHT: ID CARD WORKBENCH -->
+      <!-- RIGHT: ID CARD WORKBENCH (EXACT 54mm x 86mm ASPECT RATIO: 450px x 717px) -->
       <section class="flex-1 bg-slate-100/90 rounded-2xl border border-slate-200 shadow-sm clean-canvas-bg flex flex-col items-center justify-center p-6 relative min-h-[760px]">
         <div class="absolute top-4 left-4 right-4 flex items-center justify-between text-xs pointer-events-none">
           <div class="bg-white/95 shadow-sm px-3.5 py-1.5 rounded-full border border-slate-200 text-slate-800 flex items-center space-x-2 pointer-events-auto">
             <span class="w-2.5 h-2.5 rounded-full bg-blue-600"></span>
             <span class="font-bold tracking-wide" id="canvasSchoolTitle">Loading...</span>
+            <span class="text-[10px] text-slate-400 font-mono">(54 × 86 mm)</span>
           </div>
 
           <div class="flex items-center space-x-1 bg-white/95 shadow-sm p-1 rounded-full border border-slate-200 pointer-events-auto">
@@ -324,7 +332,7 @@
         </div>
 
         <div id="cardScaleWrapper" class="transition-transform duration-150 origin-center my-4">
-          <div id="interactiveIdCard" class="relative w-[460px] h-[715px] bg-white rounded-2xl shadow-2xl overflow-hidden select-none border-2 border-slate-200 cursor-default">
+          <div id="interactiveIdCard" class="relative w-[450px] h-[717px] bg-white rounded-xl shadow-2xl overflow-hidden select-none border border-slate-300 cursor-default">
             <img id="cardTemplateImg" src="" alt="ID Template" class="absolute inset-0 w-full h-full object-fill pointer-events-none z-0">
             <div id="interactiveLayersContainer" class="absolute inset-0 w-full h-full z-10 pointer-events-none">
             </div>
@@ -333,7 +341,7 @@
 
         <div class="absolute bottom-3 text-slate-400 text-[11px] flex items-center space-x-1.5 pointer-events-none">
           <i data-lucide="info" class="w-3.5 h-3.5 text-blue-500"></i>
-          <span>Click & drag text to align its start position.</span>
+          <span>Click & drag text or photo frame to align. Dashed guide border is hidden in final print.</span>
         </div>
       </section>
     </div>
@@ -399,12 +407,12 @@
 
           <button onclick="openA4BatchPrintWindow()" class="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-extrabold flex items-center space-x-1.5 transition shadow-2xs">
             <i data-lucide="printer" class="w-3.5 h-3.5"></i>
-            <span>A4 Print Sheets (9/Page)</span>
+            <span>A4 Print Sheets (54×86mm)</span>
           </button>
           
           <button onclick="downloadEntireSchoolFolderZip()" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold flex items-center space-x-1.5 transition shadow-2xs">
             <i data-lucide="archive" class="w-3.5 h-3.5"></i>
-            <span>Full Cards ZIP</span>
+            <span>Full Cards ZIP (54×86mm)</span>
           </button>
         </div>
       </div>
@@ -523,7 +531,7 @@
     </div>
   </div>
 
-  <!-- VIEW / PREVIEW MODAL WITH FULL EDGE-TO-EDGE PHOTO & INTERACTIVE ADJUSTMENT -->
+  <!-- VIEW / PREVIEW MODAL (EXACT 54:86 ASPECT RATIO: 270px x 430px) -->
   <div id="previewVerificationModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-white rounded-3xl max-w-md w-full overflow-hidden shadow-2xl border border-slate-200 flex flex-col items-center p-5 space-y-3">
       <div class="text-center">
@@ -532,7 +540,7 @@
       </div>
 
       <div class="p-2 bg-slate-100 rounded-2xl border border-slate-200 shadow-inner flex justify-center">
-        <div id="modalCardPreviewContainer" class="relative w-[270px] h-[415px] rounded-xl overflow-hidden bg-white shadow-md">
+        <div id="modalCardPreviewContainer" class="relative w-[270px] h-[430px] rounded-xl overflow-hidden bg-white shadow-md">
         </div>
       </div>
 
@@ -646,6 +654,12 @@
     const ADMIN_MASTER_PIN = "7779";
     const PASSPORT_ASPECT_RATIO = 35 / 45;
 
+    // EXACT 54 mm x 86 mm @ 300 DPI (54 / 25.4 * 300 = 638 px, 86 / 25.4 * 300 = 1016 px)
+    const CARD_EXPORT_WIDTH_PX = 638;
+    const CARD_EXPORT_HEIGHT_PX = 1016;
+    const WORKBENCH_WIDTH_PX = 450;
+    const WORKBENCH_HEIGHT_PX = 717; // 450 * (86 / 54) = 716.67 px
+
     // FIREBASE INITIALIZATION
     const firebaseConfig = {
       apiKey: "AIzaSyBCEHOQbzPPnkhlfJ6oIQZgflZC7SMc-8Y",
@@ -661,23 +675,23 @@
 
     function createFallbackTemplatePNG() {
       const c = document.createElement('canvas');
-      c.width = 506;
-      c.height = 788;
+      c.width = CARD_EXPORT_WIDTH_PX;
+      c.height = CARD_EXPORT_HEIGHT_PX;
       const ctx = c.getContext('2d');
       ctx.fillStyle = '#ffffff';
-      ctx.fillRect(0, 0, 506, 788);
+      ctx.fillRect(0, 0, c.width, c.height);
       ctx.strokeStyle = '#1e3a8a';
-      ctx.lineWidth = 10;
-      ctx.strokeRect(5, 5, 496, 778);
+      ctx.lineWidth = 12;
+      ctx.strokeRect(6, 6, c.width - 12, c.height - 12);
       ctx.fillStyle = '#1e3a8a';
-      ctx.fillRect(10, 10, 486, 125);
+      ctx.fillRect(12, 12, c.width - 24, 160);
       ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 26px sans-serif';
+      ctx.font = 'bold 32px sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText('STUDENT IDENTITY CARD', 253, 72);
-      ctx.font = '600 14px sans-serif';
+      ctx.fillText('STUDENT IDENTITY CARD', c.width / 2, 92);
+      ctx.font = '600 18px sans-serif';
       ctx.fillStyle = '#bfdbfe';
-      ctx.fillText('ACADEMIC YEAR 2026 - 2027', 253, 105);
+      ctx.fillText('ACADEMIC YEAR 2026 - 2027', c.width / 2, 134);
       return c.toDataURL('image/png');
     }
 
@@ -688,7 +702,7 @@
       id: "padmalaya-mbnr",
       name: "Padmalaya High School MBNR",
       templateImg: DEFAULT_TEMPLATE_PNG,
-      photoFrame: { x: 50, y: 39, width: 34, height: 28, radius: 10, borderWidth: 3, borderColor: "#1e3a8a" },
+      photoFrame: { x: 50, y: 39, width: 34, height: 28, radius: 8, borderWidth: 0, borderColor: "#1e3a8a" },
       lines: [
         { id: "student_name", label: "Enter Your Name", defaultVal: "STUDENT NAME", x: 50, y: 57.5, fontSize: 18, fontWeight: "900", fontFamily: "Montserrat", color: "#0f2b5c", align: "center", required: true },
         { id: "father", label: "Enter Your Father Name", defaultVal: "FATHER NAME", x: 42, y: 64.0, fontSize: 15, fontWeight: "700", fontFamily: "Montserrat", color: "#0f2b5c", align: "left", required: false },
@@ -736,7 +750,6 @@
         AppState.activeSchoolId = qSchool;
       }
 
-      // Immediately fetch the requested school config from Firestore so templateImg & fields load fast
       if (AppState.activeSchoolId) {
         try {
           const directDoc = await db.collection("school_configs").doc(AppState.activeSchoolId).get();
@@ -764,7 +777,6 @@
       renderInteractiveCard();
       renderClientFormFields();
 
-      // Realtime Cloud listener for all schools
       db.collection("school_configs").onSnapshot(snapshot => {
         if (!snapshot.empty) {
           const cloudSchools = [];
@@ -794,7 +806,6 @@
         }
       });
 
-      // Realtime Cloud listener for student submissions
       db.collection("submissions").onSnapshot(snapshot => {
         AppState.submissions = [];
         snapshot.forEach(doc => {
@@ -1011,12 +1022,13 @@
       reader.onload = (e) => {
         const img = new Image();
         img.onload = () => {
+          // Exact 54 x 86 aspect ratio (756 x 1204 px) compressed cleanly under Firestore's 1 MB limit
           const canvas = document.createElement('canvas');
-          canvas.width = 800;
-          canvas.height = 1245;
+          canvas.width = 756;
+          canvas.height = 1204;
           const ctx = canvas.getContext('2d');
-          ctx.drawImage(img, 0, 0, 800, 1245);
-          const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.78);
+          ctx.drawImage(img, 0, 0, 756, 1204);
+          const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.80);
 
           const school = getActiveSchool();
           school.templateImg = compressedDataUrl;
@@ -1040,7 +1052,7 @@
 
       const optPhoto = document.createElement('option');
       optPhoto.value = 'photo_frame';
-      optPhoto.textContent = 'Student Photo Frame (Passport 3.5x4.5cm)';
+      optPhoto.textContent = 'Student Photo Frame';
       if (AppState.activeLayerId === 'photo_frame') optPhoto.selected = true;
       select.appendChild(optPhoto);
 
@@ -1085,7 +1097,6 @@
         document.getElementById('inputPhotoWidth').value = pf.width;
         document.getElementById('inputPhotoHeight').value = pf.height;
         document.getElementById('inputPhotoRadius').value = pf.radius;
-        document.getElementById('inputPhotoBorderWidth').value = pf.borderWidth;
       } else {
         if (typoControls) typoControls.classList.remove('hidden');
         if (photoControls) photoControls.classList.add('hidden');
@@ -1183,6 +1194,19 @@
       const school = getActiveSchool();
       school.photoFrame.width = 34;
       school.photoFrame.height = 28;
+      school.photoFrame.radius = 8;
+      school.photoFrame.borderWidth = 0;
+      syncInspectorFields();
+      saveSchoolToCloud(school);
+      renderInteractiveCard();
+    }
+
+    // Smooth, independent width & height adjustments with +/- buttons or direct entry
+    function adjustPhotoFrameSize(dw, dh) {
+      const school = getActiveSchool();
+      const pf = school.photoFrame;
+      pf.width = +Math.min(90, Math.max(10, (parseFloat(pf.width) || 34) + dw)).toFixed(1);
+      pf.height = +Math.min(90, Math.max(10, (parseFloat(pf.height) || 28) + dh)).toFixed(1);
       syncInspectorFields();
       saveSchoolToCloud(school);
       renderInteractiveCard();
@@ -1193,23 +1217,16 @@
       const pf = school.photoFrame;
       const wInput = document.getElementById('inputPhotoWidth');
       const hInput = document.getElementById('inputPhotoHeight');
-      const activeEl = document.activeElement;
 
-      let w = parseFloat(wInput.value) || 34;
-      let h = parseFloat(hInput.value) || 28;
+      let w = parseFloat(wInput.value);
+      let h = parseFloat(hInput.value);
 
-      if (activeEl === wInput) {
-        h = +(((w * 460) / PASSPORT_ASPECT_RATIO / 715) * 100).toFixed(1);
-        hInput.value = h;
-      } else if (activeEl === hInput) {
-        w = +(((h * 715) * PASSPORT_ASPECT_RATIO / 460) * 100).toFixed(1);
-        wInput.value = w;
-      }
+      if (!isNaN(w)) pf.width = +Math.min(90, Math.max(10, w)).toFixed(1);
+      if (!isNaN(h)) pf.height = +Math.min(90, Math.max(10, h)).toFixed(1);
 
-      pf.width = w;
-      pf.height = h;
-      pf.radius = parseInt(document.getElementById('inputPhotoRadius').value) || 10;
-      pf.borderWidth = parseInt(document.getElementById('inputPhotoBorderWidth').value) || 3;
+      pf.radius = Math.max(0, parseInt(document.getElementById('inputPhotoRadius').value) || 0);
+      pf.borderWidth = 0; // Always hidden in final output
+      syncInspectorFields();
       saveSchoolToCloud(school);
       renderInteractiveCard();
     }
@@ -1280,7 +1297,7 @@
       document.getElementById('cardScaleWrapper').style.transform = `scale(${scale})`;
     }
 
-    // Edge-to-Edge cover fit on Admin Workbench
+    // Admin Studio Workbench: Shows dashed blue alignment guide around photo frame (hidden in final output)
     function renderInteractiveCard() {
       const school = getActiveSchool();
       const tImg = document.getElementById('cardTemplateImg');
@@ -1290,17 +1307,16 @@
       if (!container) return;
       container.innerHTML = '';
 
-      // Photo Frame
+      // Photo Frame with Designer-Only Guide Border
       const pf = school.photoFrame;
       const photoDiv = document.createElement('div');
-      photoDiv.className = `absolute pointer-events-auto cursor-move select-none transition-shadow bg-white ${AppState.activeLayerId === 'photo_frame' ? 'active-drag-target' : ''}`;
+      photoDiv.className = `absolute pointer-events-auto cursor-move select-none transition-shadow photo-guide-outline ${AppState.activeLayerId === 'photo_frame' ? 'active-drag-target' : ''}`;
       photoDiv.style.left = `${pf.x}%`;
       photoDiv.style.top = `${pf.y}%`;
       photoDiv.style.width = `${pf.width}%`;
       photoDiv.style.height = `${pf.height}%`;
       photoDiv.style.transform = 'translate(-50%, -50%)';
       photoDiv.style.borderRadius = `${pf.radius}px`;
-      photoDiv.style.border = `${pf.borderWidth}px solid ${pf.borderColor || '#1e3a8a'}`;
       photoDiv.style.overflow = 'hidden';
       photoDiv.style.zIndex = '5';
 
@@ -1495,7 +1511,7 @@
               <button onclick="downloadSinglePassportPhoto('${rec.docId}')" title="Download Passport Photo (${rec.photoNumber}.jpg)" class="p-1.5 bg-amber-50 text-amber-700 hover:bg-amber-100 rounded-md transition">
                 <i data-lucide="user-square" class="w-3.5 h-3.5"></i>
               </button>
-              <button onclick="downloadSingleCard('${rec.docId}')" title="Download Full ID Card PNG" class="p-1.5 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 rounded-md transition">
+              <button onclick="downloadSingleCard('${rec.docId}')" title="Download Full ID Card PNG (54x86mm)" class="p-1.5 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 rounded-md transition">
                 <i data-lucide="download" class="w-3.5 h-3.5"></i>
               </button>
               <button onclick="openEditRecordModal('${rec.docId}')" title="Edit Data" class="p-1.5 bg-slate-100 text-slate-700 hover:bg-slate-200 rounded-md transition">
@@ -1591,7 +1607,7 @@
       if (previewBox) previewBox.innerHTML = buildRenderedCardHTML(school, rec.data, rec.photo, 0.85, false);
       
       document.getElementById('modalHeadingText').textContent = `ID Card Preview (Unique ID: ${rec.photoNumber})`;
-      document.getElementById('modalSubHeadingText').textContent = "Read-only studio preview.";
+      document.getElementById('modalSubHeadingText').textContent = "Final print preview (54 × 86 mm, borderless photo).";
       document.getElementById('clientPreviewPhotoControls').classList.add('hidden');
       document.getElementById('modalActionButtonsContainer').innerHTML = `
         <button onclick="closePreviewVerificationModal()" class="w-full py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs col-span-2">
@@ -1608,7 +1624,7 @@
       const school = getActiveSchool();
       const blob = await generate300DpiCardBlob(school, rec.data, rec.photo);
       const studentName = (rec.data.student_name || 'student').replace(/[^a-z0-9]/gi, '_');
-      saveAs(blob, `${rec.photoNumber}_${studentName}.png`);
+      saveAs(blob, `${rec.photoNumber}_${studentName}_54x86mm.png`);
     }
 
     function openEditRecordModal(docId) {
@@ -1816,7 +1832,7 @@
       }
     }
 
-    // 3. A4 BATCH PRINT WINDOW
+    // 3. A4 BATCH PRINT WINDOW (EXACT 54mm x 86mm PORTRAIT CARDS, 9 PER PAGE, NO EXTRA PHOTO BORDER)
     function openA4BatchPrintWindow() {
       const school = getActiveSchool();
       const records = getFilteredSchoolSubmissions();
@@ -1858,7 +1874,7 @@
           <div class="a4-sheet">
             <div class="sheet-info-strip">
               <span><b>${school.name}</b> | Sheet ${pageIdx + 1} of ${pages.length}</span>
-              <span>9 Upright Vertical ID Cards (54mm × 85.6mm) | Print at 100% Scale</span>
+              <span>9 Upright Vertical ID Cards (54mm × 86mm) | Print at 100% Scale</span>
             </div>
             <div class="a4-cards-grid">
               ${cardsHtml}
@@ -1872,7 +1888,7 @@
         <html>
         <head>
           <meta charset="utf-8">
-          <title>${school.name} - A4 Vertical Print Sheets (9/Page)</title>
+          <title>${school.name} - A4 Vertical Print Sheets (54x86mm)</title>
           <link rel="preconnect" href="https://fonts.googleapis.com">
           <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
           <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -1935,7 +1951,7 @@
               position: relative;
               page-break-after: always;
               break-after: page;
-              padding: 9mm 14mm 10mm 14mm;
+              padding: 8mm 14mm 9mm 14mm;
               display: flex;
               flex-direction: column;
               justify-content: space-between;
@@ -1950,18 +1966,19 @@
               padding-bottom: 1.5mm;
               margin-bottom: 3mm;
             }
+            /* Exact 54mm x 86mm grid */
             .a4-cards-grid {
               display: grid;
               grid-template-columns: repeat(3, 54mm);
-              grid-template-rows: repeat(3, 85.6mm);
+              grid-template-rows: repeat(3, 86mm);
               justify-content: center;
               align-content: center;
-              gap: 5.5mm 6mm;
+              gap: 5mm 6mm;
               flex: 1;
             }
             .card-cell {
               width: 54mm;
-              height: 85.6mm;
+              height: 86mm;
               position: relative;
               display: flex;
               align-items: center;
@@ -1969,14 +1986,14 @@
             }
             .crop-guides {
               position: absolute;
-              inset: -2.2mm;
+              inset: -2mm;
               border: 0.5px dashed #94a3b8;
               pointer-events: none;
               z-index: 20;
             }
             .id-card-frame {
-              width: 100%;
-              height: 100%;
+              width: 54mm;
+              height: 86mm;
               position: relative;
               overflow: hidden;
               box-shadow: 0 0 0 0.5px #cbd5e1;
@@ -2004,7 +2021,7 @@
         <body>
           <div class="no-print-bar">
             <div>
-              <strong style="font-size: 14px;">${school.name}</strong> — ${records.length} Vertical ID Cards (${pages.length} Sheets)
+              <strong style="font-size: 14px;">${school.name}</strong> — ${records.length} Vertical ID Cards (54 × 86 mm)
             </div>
             <div style="display: flex; align-items: center; gap: 14px;">
               <span style="font-size: 11px; color: #94a3b8;"><b>Print Setting:</b> Layout: Portrait • Scale: 100% • Margins: None</span>
@@ -2052,14 +2069,14 @@
       saveAs(blob, `${school.id}_students.csv`);
     }
 
-    // 5. FULL RENDERED ID CARDS ZIP (EDGE-TO-EDGE COVER FIT)
+    // 5. FULL RENDERED ID CARDS ZIP (EXACT 54mm x 86mm @ 300 DPI = 638 x 1016 px, BORDERLESS PHOTO)
     async function downloadEntireSchoolFolderZip() {
       const school = getActiveSchool();
       const records = getFilteredSchoolSubmissions();
       if (records.length === 0) return alert('No submissions found to download.');
 
       const zip = new JSZip();
-      const folder = zip.folder(`${school.id}_ID_Cards`);
+      const folder = zip.folder(`${school.id}_ID_Cards_54x86mm`);
 
       for (let i = 0; i < records.length; i++) {
         const rec = records[i];
@@ -2070,30 +2087,31 @@
       }
 
       const zipBlob = await zip.generateAsync({ type: "blob" });
-      saveAs(zipBlob, `${school.id}_All_Cards.zip`);
+      saveAs(zipBlob, `${school.id}_All_Cards_54x86mm.zip`);
     }
 
+    // Renders exact 54mm x 86mm (638 x 1016 px @ 300 DPI) ID card with NO extra border on the photo
     function generate300DpiCardBlob(school, dataMap, photoUrl) {
       return new Promise((resolve) => {
         const canvas = document.getElementById('exportCanvas');
-        canvas.width = 1012;
-        canvas.height = 1575;
+        canvas.width = CARD_EXPORT_WIDTH_PX;
+        canvas.height = CARD_EXPORT_HEIGHT_PX;
         const ctx = canvas.getContext('2d');
 
         const bgImg = new Image();
         bgImg.crossOrigin = 'anonymous';
         bgImg.onload = () => {
-          ctx.drawImage(bgImg, 0, 0, 1012, 1575);
+          ctx.drawImage(bgImg, 0, 0, CARD_EXPORT_WIDTH_PX, CARD_EXPORT_HEIGHT_PX);
 
           const stPhoto = new Image();
           stPhoto.crossOrigin = 'anonymous';
           stPhoto.onload = () => {
             const pf = school.photoFrame;
-            const px = (pf.x / 100) * 1012;
-            const py = (pf.y / 100) * 1575;
-            const pw = (pf.width / 100) * 1012;
-            const ph = (pf.height / 100) * 1575;
-            const pr = (pf.radius / 460) * 1012;
+            const px = (pf.x / 100) * CARD_EXPORT_WIDTH_PX;
+            const py = (pf.y / 100) * CARD_EXPORT_HEIGHT_PX;
+            const pw = (pf.width / 100) * CARD_EXPORT_WIDTH_PX;
+            const ph = (pf.height / 100) * CARD_EXPORT_HEIGHT_PX;
+            const pr = (pf.radius / WORKBENCH_WIDTH_PX) * CARD_EXPORT_WIDTH_PX;
 
             ctx.save();
             ctx.beginPath();
@@ -2113,20 +2131,12 @@
             ctx.drawImage(stPhoto, px - drawW / 2, py - drawH / 2, drawW, drawH);
             ctx.restore();
 
-            if (pf.borderWidth > 0) {
-              ctx.save();
-              ctx.beginPath();
-              ctx.roundRect(px - pw / 2, py - ph / 2, pw, ph, pr);
-              ctx.lineWidth = (pf.borderWidth / 460) * 1012;
-              ctx.strokeStyle = pf.borderColor || "#1e3a8a";
-              ctx.stroke();
-              ctx.restore();
-            }
+            // No stroke border drawn in final output
 
             school.lines.forEach(line => {
-              const lx = (line.x / 100) * 1012;
-              const ly = (line.y / 100) * 1575;
-              const lSize = (line.fontSize / 460) * 1012;
+              const lx = (line.x / 100) * CARD_EXPORT_WIDTH_PX;
+              const ly = (line.y / 100) * CARD_EXPORT_HEIGHT_PX;
+              const lSize = (line.fontSize / WORKBENCH_WIDTH_PX) * CARD_EXPORT_WIDTH_PX;
               const val = dataMap[line.id] || '';
 
               if (val) {
@@ -2151,7 +2161,7 @@
       });
     }
 
-    // Edge-to-Edge cover fit so photo fills the entire ID frame with zero white sidebars
+    // Final Output Card HTML: Edge-to-Edge cover fit, NO border around photo
     function buildRenderedCardHTML(school, dataMap, photoUrl, fontScale = 0.85, interactivePhoto = false) {
       const pf = school.photoFrame;
       let linesHtml = '';
@@ -2169,7 +2179,6 @@
         }
       });
 
-      const scaledBorder = Math.max(1, Math.round(pf.borderWidth * fontScale));
       const scaledRadius = Math.round(pf.radius * fontScale);
       const photoTransform = interactivePhoto 
         ? `transform: translate(${previewPhotoOffsetX}px, ${previewPhotoOffsetY}px) scale(${previewPhotoScale});` 
@@ -2182,7 +2191,7 @@
       return `
         <div style="position: relative; width: 100%; height: 100%; background: #ffffff;">
           <img src="${bgTemplateSrc}" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: fill; pointer-events: none; z-index: 1;">
-          <div id="previewPhotoFrameBox" style="position: absolute; left: ${pf.x}%; top: ${pf.y}%; width: ${pf.width}%; height: ${pf.height}%; transform: translate(-50%, -50%); border-radius: ${scaledRadius}px; border: ${scaledBorder}px solid ${pf.borderColor || '#1e3a8a'}; background: #ffffff; overflow: hidden; z-index: 10; ${interactivePhoto ? 'cursor: grab; touch-action: none;' : ''}">
+          <div id="previewPhotoFrameBox" style="position: absolute; left: ${pf.x}%; top: ${pf.y}%; width: ${pf.width}%; height: ${pf.height}%; transform: translate(-50%, -50%); border-radius: ${scaledRadius}px; border: none; background: transparent; overflow: hidden; z-index: 10; ${interactivePhoto ? 'cursor: grab; touch-action: none;' : ''}">
             <img id="previewDraggablePhotoImg" src="${photoUrl}" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none; transform-origin: center center; ${photoTransform}">
           </div>
           ${linesHtml}
@@ -2339,7 +2348,6 @@
       window.addEventListener('touchend', onPointerUp);
     }
 
-    // Bakes the client's exact edge-to-edge preview framing into the saved 350x450 photo
     function bakeAdjustedPassportPhoto(photoDataUrl, boxW, boxH, offX, offY, scale) {
       return new Promise((resolve) => {
         if (offX === 0 && offY === 0 && scale === 1.0) {
@@ -2359,7 +2367,6 @@
           const safeBoxW = boxW > 10 ? boxW : 92;
           const safeBoxH = boxH > 10 ? boxH : 116;
 
-          // Match exact visual scale inside the preview box (object-fit: cover)
           const boxAspect = safeBoxW / safeBoxH;
           let renderedW = safeBoxW;
           let renderedH = safeBoxH;
@@ -2449,7 +2456,6 @@
       }
 
       try {
-        // Measure live frame box BEFORE closing modal
         const frameBox = document.getElementById('previewPhotoFrameBox');
         const boxW = frameBox ? frameBox.offsetWidth : 92;
         const boxH = frameBox ? frameBox.offsetHeight : 116;
