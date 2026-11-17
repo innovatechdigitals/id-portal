@@ -41,6 +41,15 @@
       outline: 1.5px dashed #3b82f6;
       outline-offset: -1px;
     }
+    /* Hide Cropper resize handles so the Passport Size box stays permanently fixed */
+    #cropperModal .cropper-point,
+    #cropperModal .cropper-line {
+      display: none !important;
+    }
+    #cropperModal .cropper-view-box {
+      outline: 2px solid #3b82f6 !important;
+      outline-offset: 0px;
+    }
     body.client-mode header,
     body.client-mode #adminView {
       display: none !important;
@@ -275,7 +284,7 @@
             </div>
           </div>
 
-          <!-- Photo Frame Geometry (Independent Smooth Width & Height, Guide Border Hidden in Final Output) -->
+          <!-- Photo Frame Geometry -->
           <div id="photoFrameControls" class="p-3.5 bg-slate-50 rounded-xl border border-slate-200 space-y-3">
             <div class="flex items-center justify-between">
               <span class="font-bold text-slate-700 uppercase tracking-wider text-[11px] flex items-center space-x-1.5">
@@ -315,7 +324,7 @@
         </div>
       </section>
 
-      <!-- RIGHT: ID CARD WORKBENCH (EXACT 54mm x 86mm ASPECT RATIO: 450px x 717px) -->
+      <!-- RIGHT: ID CARD WORKBENCH -->
       <section class="flex-1 bg-slate-100/90 rounded-2xl border border-slate-200 shadow-sm clean-canvas-bg flex flex-col items-center justify-center p-6 relative min-h-[760px]">
         <div class="absolute top-4 left-4 right-4 flex items-center justify-between text-xs pointer-events-none">
           <div class="bg-white/95 shadow-sm px-3.5 py-1.5 rounded-full border border-slate-200 text-slate-800 flex items-center space-x-2 pointer-events-auto">
@@ -482,7 +491,7 @@
                   <input type="file" id="clientFileInput" accept="image/*" class="hidden" onchange="handleRawPhotoSelected(event)">
                 </label>
               </div>
-              <p class="text-[11px] text-slate-400">Select student photo. In preview, drag or zoom to fill the frame cleanly.</p>
+              <p class="text-[11px] text-slate-400">Select photo, drag to center your face, and zoom in/out inside the fixed passport frame.</p>
             </div>
           </div>
         </div>
@@ -502,13 +511,13 @@
     </div>
   </section>
 
-  <!-- INTERACTIVE PASSPORT PHOTO CROPPER MODAL -->
+  <!-- PERMANENT FIXED PASSPORT PHOTO CROPPER MODAL (3.5 cm x 4.5 cm) -->
   <div id="cropperModal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-white rounded-3xl max-w-lg w-full p-5 shadow-2xl border border-slate-200 flex flex-col space-y-4">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-5 shadow-2xl border border-slate-200 flex flex-col space-y-3.5">
       <div class="flex items-center justify-between border-b border-slate-200 pb-2">
         <div>
-          <h3 class="font-black text-slate-900 text-sm">Crop Passport Size Photo (3.5 cm × 4.5 cm)</h3>
-          <p class="text-[11px] text-slate-500">Adjust the passport-size box to center the student's face.</p>
+          <h3 class="font-black text-slate-900 text-sm">Passport Size Photo (3.5 cm × 4.5 cm Fixed)</h3>
+          <p class="text-[11px] text-slate-500">Drag the photo and use Zoom In / Zoom Out to fit your face inside the fixed passport box.</p>
         </div>
         <button onclick="closeCropperModal()" class="text-slate-400 hover:text-slate-700">
           <i data-lucide="x" class="w-5 h-5"></i>
@@ -517,6 +526,21 @@
 
       <div class="w-full h-80 bg-slate-900 rounded-xl overflow-hidden flex items-center justify-center">
         <img id="cropperImageTarget" src="" alt="Crop Target" class="max-h-full max-w-full">
+      </div>
+
+      <!-- Zoom In / Zoom Out Controls for Fixed Passport Cropper -->
+      <div class="flex items-center justify-center space-x-2 bg-slate-50 border border-slate-200 rounded-xl py-2 px-3">
+        <button type="button" onclick="cropperZoom(-0.1)" class="px-3 py-1.5 bg-white hover:bg-blue-50 border border-slate-300 rounded-lg text-xs font-bold text-slate-700 flex items-center space-x-1 active:scale-95">
+          <i data-lucide="zoom-out" class="w-3.5 h-3.5"></i>
+          <span>Zoom Out</span>
+        </button>
+        <button type="button" onclick="cropperZoom(0.1)" class="px-3 py-1.5 bg-white hover:bg-blue-50 border border-slate-300 rounded-lg text-xs font-bold text-slate-700 flex items-center space-x-1 active:scale-95">
+          <i data-lucide="zoom-in" class="w-3.5 h-3.5"></i>
+          <span>Zoom In</span>
+        </button>
+        <button type="button" onclick="cropperReset()" class="px-3 py-1.5 bg-slate-200 hover:bg-slate-300 rounded-lg text-xs font-bold text-slate-700 active:scale-95">
+          Reset
+        </button>
       </div>
 
       <div class="grid grid-cols-2 gap-3 pt-1">
@@ -654,11 +678,11 @@
     const ADMIN_MASTER_PIN = "7779";
     const PASSPORT_ASPECT_RATIO = 35 / 45;
 
-    // EXACT 54 mm x 86 mm @ 300 DPI (54 / 25.4 * 300 = 638 px, 86 / 25.4 * 300 = 1016 px)
+    // EXACT 54 mm x 86 mm @ 300 DPI (638 x 1016 px)
     const CARD_EXPORT_WIDTH_PX = 638;
     const CARD_EXPORT_HEIGHT_PX = 1016;
     const WORKBENCH_WIDTH_PX = 450;
-    const WORKBENCH_HEIGHT_PX = 717; // 450 * (86 / 54) = 716.67 px
+    const WORKBENCH_HEIGHT_PX = 717;
 
     // FIREBASE INITIALIZATION
     const firebaseConfig = {
@@ -1022,7 +1046,6 @@
       reader.onload = (e) => {
         const img = new Image();
         img.onload = () => {
-          // Exact 54 x 86 aspect ratio (756 x 1204 px) compressed cleanly under Firestore's 1 MB limit
           const canvas = document.createElement('canvas');
           canvas.width = 756;
           canvas.height = 1204;
@@ -1201,7 +1224,6 @@
       renderInteractiveCard();
     }
 
-    // Smooth, independent width & height adjustments with +/- buttons or direct entry
     function adjustPhotoFrameSize(dw, dh) {
       const school = getActiveSchool();
       const pf = school.photoFrame;
@@ -1225,7 +1247,7 @@
       if (!isNaN(h)) pf.height = +Math.min(90, Math.max(10, h)).toFixed(1);
 
       pf.radius = Math.max(0, parseInt(document.getElementById('inputPhotoRadius').value) || 0);
-      pf.borderWidth = 0; // Always hidden in final output
+      pf.borderWidth = 0;
       syncInspectorFields();
       saveSchoolToCloud(school);
       renderInteractiveCard();
@@ -1297,7 +1319,6 @@
       document.getElementById('cardScaleWrapper').style.transform = `scale(${scale})`;
     }
 
-    // Admin Studio Workbench: Shows dashed blue alignment guide around photo frame (hidden in final output)
     function renderInteractiveCard() {
       const school = getActiveSchool();
       const tImg = document.getElementById('cardTemplateImg');
@@ -1307,7 +1328,6 @@
       if (!container) return;
       container.innerHTML = '';
 
-      // Photo Frame with Designer-Only Guide Border
       const pf = school.photoFrame;
       const photoDiv = document.createElement('div');
       photoDiv.className = `absolute pointer-events-auto cursor-move select-none transition-shadow photo-guide-outline ${AppState.activeLayerId === 'photo_frame' ? 'active-drag-target' : ''}`;
@@ -1328,7 +1348,6 @@
       setupDraggable(photoDiv, 'photo_frame');
       container.appendChild(photoDiv);
 
-      // Text Lines
       school.lines.forEach(line => {
         const textDiv = document.createElement('div');
         textDiv.className = `absolute pointer-events-auto cursor-move select-none whitespace-nowrap px-1 rounded transition-colors ${AppState.activeLayerId === line.id ? 'active-drag-target' : 'hover:bg-blue-500/10'}`;
@@ -1832,7 +1851,7 @@
       }
     }
 
-    // 3. A4 BATCH PRINT WINDOW (EXACT 54mm x 86mm PORTRAIT CARDS, 9 PER PAGE, NO EXTRA PHOTO BORDER)
+    // 3. A4 BATCH PRINT WINDOW
     function openA4BatchPrintWindow() {
       const school = getActiveSchool();
       const records = getFilteredSchoolSubmissions();
@@ -1966,7 +1985,6 @@
               padding-bottom: 1.5mm;
               margin-bottom: 3mm;
             }
-            /* Exact 54mm x 86mm grid */
             .a4-cards-grid {
               display: grid;
               grid-template-columns: repeat(3, 54mm);
@@ -2069,7 +2087,7 @@
       saveAs(blob, `${school.id}_students.csv`);
     }
 
-    // 5. FULL RENDERED ID CARDS ZIP (EXACT 54mm x 86mm @ 300 DPI = 638 x 1016 px, BORDERLESS PHOTO)
+    // 5. FULL RENDERED ID CARDS ZIP
     async function downloadEntireSchoolFolderZip() {
       const school = getActiveSchool();
       const records = getFilteredSchoolSubmissions();
@@ -2090,7 +2108,6 @@
       saveAs(zipBlob, `${school.id}_All_Cards_54x86mm.zip`);
     }
 
-    // Renders exact 54mm x 86mm (638 x 1016 px @ 300 DPI) ID card with NO extra border on the photo
     function generate300DpiCardBlob(school, dataMap, photoUrl) {
       return new Promise((resolve) => {
         const canvas = document.getElementById('exportCanvas');
@@ -2118,7 +2135,6 @@
             ctx.roundRect(px - pw / 2, py - ph / 2, pw, ph, pr);
             ctx.clip();
 
-            // Edge-to-edge cover fit matching object-fit: cover
             const imgAspect = (stPhoto.width && stPhoto.height) ? (stPhoto.width / stPhoto.height) : PASSPORT_ASPECT_RATIO;
             const boxAspect = pw / ph;
             let drawW = pw;
@@ -2130,8 +2146,6 @@
             }
             ctx.drawImage(stPhoto, px - drawW / 2, py - drawH / 2, drawW, drawH);
             ctx.restore();
-
-            // No stroke border drawn in final output
 
             school.lines.forEach(line => {
               const lx = (line.x / 100) * CARD_EXPORT_WIDTH_PX;
@@ -2161,7 +2175,6 @@
       });
     }
 
-    // Final Output Card HTML: Edge-to-Edge cover fit, NO border around photo
     function buildRenderedCardHTML(school, dataMap, photoUrl, fontScale = 0.85, interactivePhoto = false) {
       const pf = school.photoFrame;
       let linesHtml = '';
@@ -2230,6 +2243,7 @@
       reader.readAsDataURL(file);
     }
 
+    // Permanent fixed 3.5 cm x 4.5 cm Passport Crop Box: user pans & zooms photo inside fixed frame
     function launchCropperModal(imageSrc) {
       const modal = document.getElementById('cropperModal');
       const imageTarget = document.getElementById('cropperImageTarget');
@@ -2243,10 +2257,31 @@
       activeCropper = new Cropper(imageTarget, {
         aspectRatio: PASSPORT_ASPECT_RATIO,
         viewMode: 1,
-        autoCropArea: 0.9,
+        dragMode: 'move',
+        autoCropArea: 0.85,
+        restore: false,
+        guides: true,
+        center: true,
+        highlight: false,
+        cropBoxMovable: false,
+        cropBoxResizable: false,
+        toggleDragModeOnDblclick: false,
         background: false,
         responsive: true
       });
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function cropperZoom(ratio) {
+      if (activeCropper) {
+        activeCropper.zoom(ratio);
+      }
+    }
+
+    function cropperReset() {
+      if (activeCropper) {
+        activeCropper.reset();
+      }
     }
 
     function closeCropperModal() {
@@ -2264,7 +2299,8 @@
       if (!activeCropper) return;
       const croppedCanvas = activeCropper.getCroppedCanvas({
         width: 350,
-        height: 450
+        height: 450,
+        fillColor: '#ffffff'
       });
 
       clientUploadedPhotoBase64 = croppedCanvas.toDataURL('image/jpeg', 0.92);
