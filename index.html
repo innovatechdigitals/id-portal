@@ -474,7 +474,7 @@
                   <input type="file" id="clientFileInput" accept="image/*" class="hidden" onchange="handleRawPhotoSelected(event)">
                 </label>
               </div>
-              <p class="text-[11px] text-slate-400">Select student photo. Full passport photo appears in preview so you can adjust it.</p>
+              <p class="text-[11px] text-slate-400">Select student photo. In preview, drag or zoom to fill the frame cleanly.</p>
             </div>
           </div>
         </div>
@@ -523,12 +523,12 @@
     </div>
   </div>
 
-  <!-- VIEW / PREVIEW MODAL WITH FULL PASSPORT PHOTO & INTERACTIVE ADJUSTMENT -->
+  <!-- VIEW / PREVIEW MODAL WITH FULL EDGE-TO-EDGE PHOTO & INTERACTIVE ADJUSTMENT -->
   <div id="previewVerificationModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-white rounded-3xl max-w-md w-full overflow-hidden shadow-2xl border border-slate-200 flex flex-col items-center p-5 space-y-3">
       <div class="text-center">
         <h3 id="modalHeadingText" class="font-black text-slate-900 text-lg">Verify ID Card Preview</h3>
-        <p id="modalSubHeadingText" class="text-[11px] text-slate-500 mt-0.5">Full passport photo shown below. Drag or use arrows/zoom to adjust.</p>
+        <p id="modalSubHeadingText" class="text-[11px] text-slate-500 mt-0.5">Drag the photo or use arrows/zoom below so it fills the frame neatly.</p>
       </div>
 
       <div class="p-2 bg-slate-100 rounded-2xl border border-slate-200 shadow-inner flex justify-center">
@@ -721,32 +721,31 @@
     let previewPhotoScale = 1.0;
 
     async function initApp() {
-      const cached = localStorage.getItem('innovatech_schools_cache_v26');
-      if (cached) {
-        try { AppState.schools = JSON.parse(cached); } catch(e){}
+      const savedActiveId = localStorage.getItem('innovatech_active_school_id');
+      if (savedActiveId) {
+        AppState.activeSchoolId = savedActiveId;
       }
-      if (!AppState.schools || AppState.schools.length === 0) {
-        AppState.schools = [JSON.parse(JSON.stringify(INITIAL_DEFAULT_SCHOOL))];
-      }
+
+      AppState.schools = [JSON.parse(JSON.stringify(INITIAL_DEFAULT_SCHOOL))];
 
       const urlParams = new URLSearchParams(window.location.search);
       const qSchool = urlParams.get('school');
       const qView = urlParams.get('view');
 
-      if (qSchool) AppState.activeSchoolId = qSchool;
+      if (qSchool) {
+        AppState.activeSchoolId = qSchool;
+      }
 
       // Immediately fetch the requested school config from Firestore so templateImg & fields load fast
-      if (qSchool) {
+      if (AppState.activeSchoolId) {
         try {
-          const directDoc = await db.collection("school_configs").doc(qSchool).get();
+          const directDoc = await db.collection("school_configs").doc(AppState.activeSchoolId).get();
           if (directDoc.exists) {
             const docData = directDoc.data();
             if (!docData.templateImg || docData.templateImg.startsWith('data:image/svg+xml')) {
               docData.templateImg = DEFAULT_TEMPLATE_PNG;
             }
-            const idx = AppState.schools.findIndex(s => s.id === docData.id);
-            if (idx >= 0) AppState.schools[idx] = docData;
-            else AppState.schools.push(docData);
+            AppState.schools = [docData];
           }
         } catch (err) {
           console.warn("Direct school fetch note:", err);
@@ -765,7 +764,7 @@
       renderInteractiveCard();
       renderClientFormFields();
 
-      // Realtime Cloud listener for schools
+      // Realtime Cloud listener for all schools
       db.collection("school_configs").onSnapshot(snapshot => {
         if (!snapshot.empty) {
           const cloudSchools = [];
@@ -786,7 +785,6 @@
           if (!AppState.schools.find(s => s.id === AppState.activeSchoolId)) {
             AppState.activeSchoolId = AppState.schools[0].id;
           }
-          localStorage.setItem('innovatech_schools_cache_v26', JSON.stringify(AppState.schools));
           renderSchoolDropdown();
           syncActiveSchoolUI();
           renderInteractiveCard();
@@ -817,11 +815,7 @@
     }
 
     function saveSchoolToCloud(school) {
-      try {
-        localStorage.setItem('innovatech_schools_cache_v26', JSON.stringify(AppState.schools));
-      } catch (e) {
-        console.warn("LocalStorage quota warning:", e);
-      }
+      localStorage.setItem('innovatech_active_school_id', school.id);
       return db.collection("school_configs").doc(school.id).set(school, { merge: true })
         .catch(err => console.error("Error saving school to cloud:", err));
     }
@@ -922,6 +916,10 @@
 
     function changeActiveSchool(schoolId) {
       AppState.activeSchoolId = schoolId;
+      localStorage.setItem('innovatech_active_school_id', schoolId);
+      const updatedUrl = `${window.location.origin}${window.location.pathname}?school=${encodeURIComponent(schoolId)}&view=${AppState.currentView}`;
+      window.history.replaceState({}, '', updatedUrl);
+
       const school = getActiveSchool();
       if (!school.lines.find(l => l.id === AppState.activeLayerId) && AppState.activeLayerId !== 'photo_frame') {
         AppState.activeLayerId = school.lines[0]?.id || 'photo_frame';
@@ -996,7 +994,6 @@
 
           AppState.schools = AppState.schools.filter(s => s.id !== school.id);
           AppState.activeSchoolId = AppState.schools[0].id;
-          localStorage.setItem('innovatech_schools_cache_v26', JSON.stringify(AppState.schools));
           renderSchoolDropdown();
           changeActiveSchool(AppState.activeSchoolId);
           alert(`Deleted "${school.name}" and cleared all associated records.`);
@@ -1006,7 +1003,6 @@
       }
     }
 
-    // Auto-compresses uploaded template to 800x1245 JPEG (~180 KB) so it always fits well inside Firestore's 1 MB document limit
     function handleTemplateUpload(event) {
       const file = event.target.files[0];
       if (!file) return;
@@ -1026,11 +1022,6 @@
           school.templateImg = compressedDataUrl;
           db.collection("school_configs").doc(school.id).set(school, { merge: true })
             .then(() => {
-              try {
-                localStorage.setItem('innovatech_schools_cache_v26', JSON.stringify(AppState.schools));
-              } catch (storageErr) {
-                console.warn("LocalStorage quota warning:", storageErr);
-              }
               renderInteractiveCard();
               alert("Card template permanently saved for " + school.name);
             })
@@ -1289,6 +1280,7 @@
       document.getElementById('cardScaleWrapper').style.transform = `scale(${scale})`;
     }
 
+    // Edge-to-Edge cover fit on Admin Workbench
     function renderInteractiveCard() {
       const school = getActiveSchool();
       const tImg = document.getElementById('cardTemplateImg');
@@ -1314,7 +1306,7 @@
 
       const photoImg = document.createElement('img');
       photoImg.src = clientUploadedPhotoBase64 || DEFAULT_STUDENT_PHOTO;
-      photoImg.className = 'w-full h-full object-contain pointer-events-none';
+      photoImg.className = 'w-full h-full object-cover pointer-events-none';
       photoDiv.appendChild(photoImg);
 
       setupDraggable(photoDiv, 'photo_frame');
@@ -1486,7 +1478,7 @@
         tr.innerHTML = `
           <td class="py-2 px-3 font-mono font-extrabold text-indigo-700 text-center">${rec.photoNumber}</td>
           <td class="py-2 px-3 text-center">
-            <img src="${rec.photo}" class="w-8 h-[41px] rounded-md object-contain bg-white mx-auto border border-slate-300">
+            <img src="${rec.photo}" class="w-8 h-[41px] rounded-md object-cover bg-white mx-auto border border-slate-300">
           </td>
           <td class="py-2 px-3 font-bold text-slate-900">${rec.data.student_name || '—'}</td>
           <td class="py-2 px-3 font-medium text-slate-700">${rec.data.father || '—'}</td>
@@ -1540,7 +1532,7 @@
             <span class="text-[10px] text-slate-400 font-mono">.jpg</span>
           </div>
           <div class="w-24 h-[123px] rounded-lg overflow-hidden border border-slate-300 bg-white">
-            <img src="${rec.photo}" alt="${rec.photoNumber}" class="w-full h-full object-contain">
+            <img src="${rec.photo}" alt="${rec.photoNumber}" class="w-full h-full object-cover">
           </div>
           <div class="w-full text-center">
             <p class="text-[11px] font-bold text-slate-800 truncate" title="${rec.data.student_name || ''}">${rec.data.student_name || 'Student'}</p>
@@ -2060,7 +2052,7 @@
       saveAs(blob, `${school.id}_students.csv`);
     }
 
-    // 5. FULL RENDERED ID CARDS ZIP
+    // 5. FULL RENDERED ID CARDS ZIP (EDGE-TO-EDGE COVER FIT)
     async function downloadEntireSchoolFolderZip() {
       const school = getActiveSchool();
       const records = getFilteredSchoolSubmissions();
@@ -2108,17 +2100,15 @@
             ctx.roundRect(px - pw / 2, py - ph / 2, pw, ph, pr);
             ctx.clip();
 
-            ctx.fillStyle = "#ffffff";
-            ctx.fillRect(px - pw / 2, py - ph / 2, pw, ph);
-
+            // Edge-to-edge cover fit matching object-fit: cover
             const imgAspect = (stPhoto.width && stPhoto.height) ? (stPhoto.width / stPhoto.height) : PASSPORT_ASPECT_RATIO;
             const boxAspect = pw / ph;
             let drawW = pw;
             let drawH = ph;
             if (imgAspect > boxAspect) {
-              drawH = pw / imgAspect;
-            } else {
               drawW = ph * imgAspect;
+            } else {
+              drawH = pw / imgAspect;
             }
             ctx.drawImage(stPhoto, px - drawW / 2, py - drawH / 2, drawW, drawH);
             ctx.restore();
@@ -2161,6 +2151,7 @@
       });
     }
 
+    // Edge-to-Edge cover fit so photo fills the entire ID frame with zero white sidebars
     function buildRenderedCardHTML(school, dataMap, photoUrl, fontScale = 0.85, interactivePhoto = false) {
       const pf = school.photoFrame;
       let linesHtml = '';
@@ -2192,7 +2183,7 @@
         <div style="position: relative; width: 100%; height: 100%; background: #ffffff;">
           <img src="${bgTemplateSrc}" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: fill; pointer-events: none; z-index: 1;">
           <div id="previewPhotoFrameBox" style="position: absolute; left: ${pf.x}%; top: ${pf.y}%; width: ${pf.width}%; height: ${pf.height}%; transform: translate(-50%, -50%); border-radius: ${scaledRadius}px; border: ${scaledBorder}px solid ${pf.borderColor || '#1e3a8a'}; background: #ffffff; overflow: hidden; z-index: 10; ${interactivePhoto ? 'cursor: grab; touch-action: none;' : ''}">
-            <img id="previewDraggablePhotoImg" src="${photoUrl}" style="width: 100%; height: 100%; object-fit: contain; pointer-events: none; transform-origin: center center; ${photoTransform}">
+            <img id="previewDraggablePhotoImg" src="${photoUrl}" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none; transform-origin: center center; ${photoTransform}">
           </div>
           ${linesHtml}
         </div>
@@ -2275,7 +2266,7 @@
 
     function updateClientPhotoThumbnail() {
       const thumb = document.getElementById('clientPhotoThumb');
-      if (thumb) thumb.innerHTML = `<img src="${clientUploadedPhotoBase64}" class="w-full h-full object-contain bg-white">`;
+      if (thumb) thumb.innerHTML = `<img src="${clientUploadedPhotoBase64}" class="w-full h-full object-cover bg-white">`;
     }
 
     function applyTransformToPreviewPhoto() {
@@ -2348,15 +2339,12 @@
       window.addEventListener('touchend', onPointerUp);
     }
 
-    function bakeAdjustedPassportPhoto(photoDataUrl) {
+    // Bakes the client's exact edge-to-edge preview framing into the saved 350x450 photo
+    function bakeAdjustedPassportPhoto(photoDataUrl, boxW, boxH, offX, offY, scale) {
       return new Promise((resolve) => {
-        if (previewPhotoOffsetX === 0 && previewPhotoOffsetY === 0 && previewPhotoScale === 1.0) {
+        if (offX === 0 && offY === 0 && scale === 1.0) {
           return resolve(photoDataUrl);
         }
-
-        const frameBox = document.getElementById('previewPhotoFrameBox');
-        const boxW = frameBox ? frameBox.offsetWidth : 92;
-        const boxH = frameBox ? frameBox.offsetHeight : 116;
 
         const outCanvas = document.createElement('canvas');
         outCanvas.width = 350;
@@ -2368,24 +2356,28 @@
         const img = new Image();
         img.crossOrigin = 'anonymous';
         img.onload = () => {
-          const boxAspect = boxW / boxH;
-          let renderedW = boxW;
-          let renderedH = boxH;
+          const safeBoxW = boxW > 10 ? boxW : 92;
+          const safeBoxH = boxH > 10 ? boxH : 116;
+
+          // Match exact visual scale inside the preview box (object-fit: cover)
+          const boxAspect = safeBoxW / safeBoxH;
+          let renderedW = safeBoxW;
+          let renderedH = safeBoxH;
           if (PASSPORT_ASPECT_RATIO > boxAspect) {
-            renderedH = boxW / PASSPORT_ASPECT_RATIO;
+            renderedW = safeBoxH * PASSPORT_ASPECT_RATIO;
           } else {
-            renderedW = boxH * PASSPORT_ASPECT_RATIO;
+            renderedH = safeBoxW / PASSPORT_ASPECT_RATIO;
           }
 
           const scaleRatioX = 350 / renderedW;
           const scaleRatioY = 450 / renderedH;
 
-          const scaledOffsetX = previewPhotoOffsetX * scaleRatioX;
-          const scaledOffsetY = previewPhotoOffsetY * scaleRatioY;
+          const scaledOffsetX = offX * scaleRatioX;
+          const scaledOffsetY = offY * scaleRatioY;
 
           ctx.save();
           ctx.translate(175 + scaledOffsetX, 225 + scaledOffsetY);
-          ctx.scale(previewPhotoScale, previewPhotoScale);
+          ctx.scale(scale, scale);
           ctx.drawImage(img, -175, -225, 350, 450);
           ctx.restore();
 
@@ -2423,7 +2415,7 @@
       if (previewBox) previewBox.innerHTML = buildRenderedCardHTML(school, payload, clientUploadedPhotoBase64, 0.85, true);
 
       document.getElementById('modalHeadingText').textContent = "Verify ID Card Preview";
-      document.getElementById('modalSubHeadingText').textContent = "Full passport photo shown below. Drag or use arrows/zoom to adjust.";
+      document.getElementById('modalSubHeadingText').textContent = "Drag the photo or use arrows/zoom below so it fills the frame neatly.";
       document.getElementById('clientPreviewPhotoControls').classList.remove('hidden');
       document.getElementById('modalActionButtonsContainer').innerHTML = `
         <button onclick="closePreviewVerificationModal()" class="w-full py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs transition border border-slate-300 flex items-center justify-center space-x-1.5">
@@ -2457,7 +2449,23 @@
       }
 
       try {
-        const finalBakedPhoto = await bakeAdjustedPassportPhoto(pendingSubmissionPayload.photo);
+        // Measure live frame box BEFORE closing modal
+        const frameBox = document.getElementById('previewPhotoFrameBox');
+        const boxW = frameBox ? frameBox.offsetWidth : 92;
+        const boxH = frameBox ? frameBox.offsetHeight : 116;
+
+        const snapOffX = previewPhotoOffsetX;
+        const snapOffY = previewPhotoOffsetY;
+        const snapScale = previewPhotoScale;
+
+        const finalBakedPhoto = await bakeAdjustedPassportPhoto(
+          pendingSubmissionPayload.photo,
+          boxW,
+          boxH,
+          snapOffX,
+          snapOffY,
+          snapScale
+        );
 
         const existingSchoolRecords = getSchoolSubmissionsWithPhotoIds();
         let nextPhotoNum = 1001;
